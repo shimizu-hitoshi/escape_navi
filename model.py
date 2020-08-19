@@ -51,10 +51,12 @@ class ActorCritic(nn.Module):
                 idxs = legal_actions[1][legal_actions[0]==i]
                 if flg_greedy:
                     action_probs = F.softmax(actor_output[i,idxs], dim=0).detach()
-                    tmp_action = action_probs.data.max(1)[1].view(-1, 1)
+                    # print(action_probs.shape)
+                    # print(action_probs.data.max(0))
+                    tmp_action = action_probs.data.max(0)[1].view(-1, 1)
                 else:
                     action_probs = F.softmax(actor_output[i,idxs], dim=0)
-                    tmp_action       = action_probs.multinomial(num_samples=1)
+                    tmp_action = action_probs.multinomial(num_samples=1)
                 action = idxs[tmp_action]
                 ret[i,0] = action
             # print(ret.shape)

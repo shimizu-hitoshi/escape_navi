@@ -3,10 +3,10 @@
   "step": 0,
   "save_interval": 5,
   "env_name": "simenv-v0",
-  "inputfn": "model",
+  "inputfn": "logs/Curriculum/model",
   "configfn": "config.ini",
-  "checkpoint": false,
-  "save": true,
-  "test": false,
+  "checkpoint": true,
+  "save": false,
+  "test": true,
   "cuda": false
 }

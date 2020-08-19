@@ -11,7 +11,7 @@ import numpy as np
 import configparser
 from torch.autograd import Variable
 import shutil
-import os, sys
+import os, sys, glob
 from edges import Edge
 
 DEBUG = False # True # False # True # False
@@ -32,30 +32,39 @@ class Curriculum:
         if not os.path.exists(resdir):
             os.makedirs(resdir)
         print(resdir)
+
+        # 設定を保存
         shutil.copy2(args.configfn, resdir)
+        with open(resdir + "/args.txt", "w") as f:
+            json.dump(args.__dict__, f, indent=2)
 
         dict_best_model = {}
-        # dict_target = {}
-        # dict_target["rule"] = []
-        # dict_target["training"] = []
-        # for shelter in shelters:
-        #     if shelter in training_targets:
-        #         dict_target["training"].append(shelter)
-        #     else:
-        #         dict_target["rule"].append(shelter) # target以外は全てrule
 
         dict_model = {}
         if args.checkpoint:
-            pass # ここにモデルを読み込む処理を書く
+            # モデルを読み込む処理
+            ifns = glob.glob(args.inputfn + "_*")
+            for ifn in ifns:
+                print("loading: ",ifn)
+                node_id = int( ifn.split("_")[-1] )
+                actor_critic = load_model(test_env.n_in, test_env.n_out, ifn).to(test_env.device)
+                actor_critic.set_edges(edges)
+                dict_model[node_id] = actor_critic
 
         # 最初は，ルールベースのエージェントを配置しておく
         for sid, shelter in enumerate(shelters):
             controler = FixControler(sid, edges)
+            if shelter in dict_model: # モデルを読み込んだnodeはスキップ
+                continue
             dict_model[shelter] = controler
+
         # sys.exit()
         best_score, R_base = test_env.test(dict_model) # ルールベースの評価値を取得
         print("初回のスコア", best_score, R_base)
-        # sys.exit()
+
+        if args.test: # testモードなら，以下の学習はしない
+            sys.exit()
+
         train_env = Environment(args, "train", R_base)
         # train_env.set_R_base(R_base)
         dict_best_model = copy.deepcopy(dict_model)
@@ -84,8 +93,6 @@ class Curriculum:
             if not flg_update: # 1個もtargetが更新されなかったら終了
                 break
         # モデルを保存して終了
-        with open(resdir + "/args.txt", "w") as f:
-            json.dump(args.__dict__, f, indent=2)
 
         if args.save:
             # save_model(actor_critic, resdir + '/' + outputfn)
@@ -148,11 +155,6 @@ class Environment:
     def train(self, dict_model, config, training_target):
         self.NUM_AGENTS = len(dict_model)
         # print("train", dict_model)
-
-        # if args.checkpoint:
-        #     actor_critic = load_model(n_in, n_out, args.inputfn).to(device)
-        # else:
-        #     actor_critic = ActorCritic(n_in, n_out).to(device)
         # actor_critics = []
         # local_brains = []
         # rollouts = []
@@ -291,11 +293,6 @@ class Environment:
             # for rollout in rollouts:
             #     rollout.after_update()
             
-            # モデル保存はcurriculum側に移行
-            # if args.save and (int(episode.mean())+1) % args.save_interval == 0:
-            #     # save_model(actor_critic, resdir + '/' + outputfn + "_episode{:}.pt".format(int(episode.mean())+1))
-            #     for i,actor_critic in enumerate( actor_critics ):
-            #         save_model(actor_critic, resdir + '/' + outputfn + "_{:}_episode{:}.pt".format(i, int(episode.mean())+1))
             if int(episode.mean())+1 > self.NUM_EPISODES:
                 # print("ループ抜ける")
                 break
