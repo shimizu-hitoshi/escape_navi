@@ -67,12 +67,13 @@ class Curriculum:
                 # dict_target["fixed"] = tmp_fixed
                 # dict_target["fixed"].remove(training_target)
                 dict_model = copy.deepcopy(dict_best_model)
+                # targetがまだデフォルト制御なら，新規にエージェントを生成する
                 if dict_best_model[training_target].__class__.__name__ == "FixControler":
                     dict_model[training_target] = ActorCritic(train_env.n_in, train_env.n_out)
 
                 dict_model = train_env.train(dict_model, config, training_target)
                 tmp_score, _ = test_env.test(dict_model)
-                if tmp_score > best_score:
+                if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
                     best_score = copy.deepcopy(tmp_score)
                     for node_id, model in dict_model.items():
                         dict_best_model[node_id] = copy.deepcopy(model)
@@ -129,9 +130,9 @@ class Environment:
         if not os.path.exists(self.resdir):
             os.makedirs(self.resdir)
         # print(resdir)
-        shutil.copy2(args.configfn, self.resdir)
-        with open(self.resdir + "/args.txt", "w") as f:
-            json.dump(args.__dict__, f, indent=2)
+        # shutil.copy2(args.configfn, self.resdir)
+        # with open(self.resdir + "/args.txt", "w") as f:
+        #     json.dump(args.__dict__, f, indent=2)
 
         self.device = torch.device("cuda:0" if args.cuda else "cpu")
 
@@ -145,7 +146,7 @@ class Environment:
 
     def train(self, dict_model, config, training_target):
         self.NUM_AGENTS = len(dict_model)
-        print("train", dict_model)
+        # print("train", dict_model)
 
         # if args.checkpoint:
         #     actor_critic = load_model(n_in, n_out, args.inputfn).to(device)
@@ -226,8 +227,8 @@ class Environment:
                 with open(self.resdir + "/episode_reward.txt", "a") as f:
                     for i, info in enumerate(infos):
                         if 'episode' in info:
-                            f.write("{:}\t{:}\t{:}\n".format(episode[i], info['env_id'], info['episode']['r']))
-                            print(episode[i], info['env_id'], info['episode']['r'])
+                            f.write("{:}\t{:}\t{:}\t{:}\n".format(training_target,episode[i], info['env_id'], info['episode']['r']))
+                            print(training_target, episode[i], info['env_id'], info['episode']['r'])
                             episode[i] += 1
 
                 # イベント保存のためには，->要仕様検討
@@ -254,8 +255,8 @@ class Environment:
                 #     # rollout.insert(current_obs[NUM_PARALLEL*i:NUM_PARALLEL*(1+i)], action[NUM_PARALLEL*i:NUM_PARALLEL*(1+i)].data, reward[NUM_PARALLEL*i:NUM_PARALLEL*(1+i)], masks[NUM_PARALLEL*i:NUM_PARALLEL*(1+i)], NUM_ADVANCED_STEP)
                 #     rollout.insert(current_obs, action[:,i].data, reward, masks, self.NUM_ADVANCED_STEP)
                 with open(self.resdir + "/reward_log.txt", "a") as f:
-                    f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
-                    print(episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
+                    f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
+                    print(training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
 
             with torch.no_grad():
                 next_value = actor_critic.get_value(rollout.observations[-1]).detach()
@@ -282,7 +283,7 @@ class Environment:
             #     entropy += tmp_entropy
 
             with open(self.resdir + "/loss_log.txt", "a") as f:
-                f.write("{:}\t{:}\t{:}\t{:}\t{:}\n".format(episode.mean(), value_loss, action_loss, entropy, total_loss))
+                f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), value_loss, action_loss, entropy, total_loss))
                 print("value_loss {:}\taction_loss {:}\tentropy {:}\ttotal_loss {:}".format(value_loss, action_loss, entropy, total_loss))
 
             rollout.after_update()
@@ -298,7 +299,7 @@ class Environment:
                 # print("ループ抜ける")
                 break
         # ここでベストなモデルを保存していた（備忘）
-        print("ここでtrain終了")
+        print("%s番目のエージェントのtrain終了"%training_target)
         dict_model[training_target] = actor_critic # {}
         # for training_target, actor_critic in zip( training_targets, actor_critics):
         #     dict_model[training_target] = actor_critic

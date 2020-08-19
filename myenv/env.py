@@ -360,7 +360,7 @@ class SimEnv(gym.Env):
                 else:
                     return -1
             reward = (self.T_open[self.num_step] - tmp_state) / (self.T_open[self.num_step])
-            print("tmp_reward", reward)
+            # print("tmp_reward", reward)
             if reward < 0:
                 return max(reward, -1)
             return min(reward, 1)
