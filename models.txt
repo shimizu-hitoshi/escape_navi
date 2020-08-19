@@ -1,0 +1,9 @@
+edge
+edge_wo_T0
+speed
+goal
+goal_cum
+speed_w_V0
+time
+total_time_once
+total_time_once_wo_norm

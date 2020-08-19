@@ -1,0 +1,8 @@
+python main.py --save --configfn config.ini
+
+# python main.py --save --outputfn N80000 --gamma 0.99
+
+
+# install baselines
+# https://github.com/openai/baselines/blob/master/README.md
+

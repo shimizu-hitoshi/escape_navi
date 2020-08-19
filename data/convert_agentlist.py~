@@ -1,0 +1,5 @@
+
+fn = "/home/shimizu/project/2019/RD2017revisit/data/user_enter5400_split6.txt"
+f = open(fn)
+for line in f:
+    print(line)
