@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 def init(module, gain):
@@ -29,19 +30,57 @@ class ActorCritic(nn.Module):
         actor_output  = self.actor(h3)
         return critic_output, actor_output
 
-    def act(self, x):
-        value, actor_output = self(x)
-        action_probs = F.softmax(actor_output, dim=1)
-        action       = action_probs.multinomial(num_samples=1)
-        return action
+    def set_edges(self, edges):
+        self.num_edges = edges.num_obsv_edge
+        self.num_goals = edges.num_obsv_goal
 
-    def act_greedy(self, x):
+    def legal_actions(self, obs):
+        x = obs[:,self.num_edges:(self.num_edges+self.num_goals)] # 状態の冒頭に道路上人数，次に残容量がある想定
+        ret = torch.where( x > 0 )
+        if ret[0].shape[0] == 0:
+            ret = torch.where( x == 0 )
+        # print("ret",ret)
+        return ret
+
+    def act(self, x, flg_greedy=False, flg_legal=True):
         value, actor_output = self(x)
-        action_probs = F.softmax(actor_output, dim=1).detach()
-        # print(action_probs)
-        # action       = action_probs.data.max(1)[1].view(1, 1)
-        action       = action_probs.data.max(1)[1].view(-1, 1)
-        return action
+        if flg_legal:
+            ret = torch.zeros(x.shape[0],1)
+            legal_actions = self.legal_actions(x)
+            for i in range(x.shape[0]):
+                idxs = legal_actions[1][legal_actions[0]==i]
+                if flg_greedy:
+                    action_probs = F.softmax(actor_output[i,idxs], dim=0).detach()
+                    tmp_action = action_probs.data.max(1)[1].view(-1, 1)
+                else:
+                    action_probs = F.softmax(actor_output[i,idxs], dim=0)
+                    tmp_action       = action_probs.multinomial(num_samples=1)
+                action = idxs[tmp_action]
+                ret[i,0] = action
+            # print(ret.shape)
+            return ret
+        else:
+            if flg_greedy:
+                action_probs = F.softmax(actor_output, dim=1).detach()
+                action       = action_probs.data.max(1)[1].view(-1, 1)
+            else:
+                action_probs = F.softmax(actor_output, dim=1)
+                action       = action_probs.multinomial(num_samples=1)
+            # print(action.shape)
+            return action
+ 
+    def act_greedy(self, x):
+        return self.act(x, flg_greedy=True)
+
+        # value, actor_output = self(x)
+        # legal_actions = self.legal_actions(x)
+        # action_probs = F.softmax(actor_output[legal_actions], dim=1).detach()
+        # # print(action_probs)
+        # # action       = action_probs.data.max(1)[1].view(1, 1)
+        # tmp_action       = action_probs.data.max(1)[1].view(-1, 1)
+        # action = legal_actions[tmp_action]
+        # # action       = action_probs.data.max(1)[1].view(-1, 1)
+        # return action
 
     def get_value(self, x):
         # return state-value

@@ -70,6 +70,7 @@ class Curriculum:
                 # targetがまだデフォルト制御なら，新規にエージェントを生成する
                 if dict_best_model[training_target].__class__.__name__ == "FixControler":
                     dict_model[training_target] = ActorCritic(train_env.n_in, train_env.n_out)
+                    dict_model[training_target].set_edges(edges)
 
                 dict_model = train_env.train(dict_model, config, training_target)
                 tmp_score, _ = test_env.test(dict_model)
