@@ -73,12 +73,15 @@ class Curriculum:
         dict_best_model = copy.deepcopy(dict_model)
         # tmp_fixed = copy.deepcopy(dict_target["training"])
         loop_i = 0 # カリキュラムのループカウンタ
+        NG_target = [] # scoreが改善しなかったtargetリスト
         while True:
             loop_i += 1
             # 突然エラー出たので，毎回インスタンス生成するように修正
             train_env = Environment(args, "train", R_base, loop_i)
             flg_update = False
             for training_target in training_targets:
+                if training_target in NG_target: # 改善しなかった対象は省略
+                    continue
                 # dict_target["training"] = [training_target]
                 # dict_target["fixed"] = tmp_fixed
                 # dict_target["fixed"].remove(training_target)
@@ -96,11 +99,13 @@ class Curriculum:
 
                 if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
                     best_score = copy.deepcopy(tmp_score)
-                    for node_id, model in dict_model.items():
+                    for node_id, model in dict_model.items(): # まとめてコピーしたらダメなのか？
                         dict_best_model[node_id] = copy.deepcopy(model)
                     flg_update = True
+                    NG_target = []
                 else: # 性能を更新できなかったら，戻す
                     dict_best_model[training_target] = dict_best_model[training_target]
+                    NG_target.append(training_target)
             if not flg_update: # 1個もtargetが更新されなかったら終了
                 break
         # モデルを保存して終了

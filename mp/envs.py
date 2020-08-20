@@ -30,7 +30,7 @@ def make_env(env_name, seed, env_id, datadir, config, R_base):
 def make_vec_envs(env_name, seed, num_parallel, device, datadirs, config, R_base=None):
     # print(len(datadirs), len(training_targets), len(fixed_agents))
     # print(dict_target)
-    print("R_base @ make_vec_envs",R_base)
+    # print("R_base @ make_vec_envs",R_base)
     envs = [
             # make_env(env_name, seed, i, datadirs[i], training_targets[i], config)
             make_env(env_name, seed, i, datadirs, config, R_base)
