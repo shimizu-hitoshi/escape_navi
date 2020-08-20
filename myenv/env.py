@@ -135,7 +135,6 @@ class SimEnv(gym.Env):
         pass
 
     def seed(self, seed=None, env_id=None, datadirs=None, config=None, R_base=None):
-        # self.set_R_base(R_base)
         print(R_base)
         self.T_open = R_base
         print("T_open @ seed",self.T_open)
@@ -551,10 +550,6 @@ class SimEnv(gym.Env):
                     out.append( "%d signage %d %d %d %d 1.0 0"%(time, nid, nid, detour, detour) )
         return out
 
-    def set_R_base(self, R_base):
-        # call_open_event()関数を置き換える->正規化の基準を設定
-        self.T_open = R_base
-
     def call_open_event(self):
         # print(self.seed)
         # config = configparser.ConfigParser()
@@ -600,51 +595,6 @@ class SimEnv(gym.Env):
         # self.T_open = None
         # call_open_event全体をコメントアウトすると動作しないので，ここまでだけ実行（暫定）
         return 
-        # if "edge" == self.flg_reward:
-        #     print("self.call_edge_cnt")
-        #     # self.call_iterate( (self.max_step + 1) * self.interval)
-        #     # self.T_open = [np.sum(self.call_edge_cnt((i + 1) * self.interval)) * self.interval / self.num_agents for i in range(self.max_step)]
-        #     self.T_open = []
-        #     # self.T_open.append(0.0)
-        #     history_events = [] # ファイル出力用
-        #     for i in range(self.max_step):
-        #         self.state = self._get_state()
-        #         # print(np.sum(self.edge_state)) # 重複
-        #         dict_actions = {} # key:ノードID, value:ノードID
-        #         for shelter_id, node_id in enumerate( self.actions ):
-        #             # for other in self.others:
-        #             _action = self.others[shelter_id].get_action(self.goal_state)
-        #             dict_actions[node_id] = self._get_action(_action)
-        #             # dict_actions[node_id] = _action
-        #             # print(shelter_id, node_id, _action, dict_actions[node_id])
-        #         # print("dict_actions",dict_actions)
-        #         events = self.call_traffic_regulation(dict_actions, self.num_step)
-        #         # history_events.append((t,events))
-        #         history_events.append(events)
-
-        #         t = (i + 1) * self.interval
-        #         self.call_iterate(t)
-        #         self.state = self._get_state()
-        #         # tmp_edge = np.sum( self._edge_cnt() )
-        #         tmp_edge = np.sum( self.edge_state )
-        #         if DEBUG: print("time",t, "capa",self.goal_state, "moving",tmp_edge)
-        #         # print(tmp_edge)
-        #         self.T_open.append( tmp_edge * self.interval / self.num_agents ) # t=1で報酬
-        #         self.num_step += 1
-        #         self.cur_time += self.interval
-        #         # if i > 2000: # debug
-        #         #     break
-        #     print(t, self.T_open, np.sum(self.T_open))
-        #     # 最後にイベントファイルを書き出す->学習には不要なのでコメントアウト
-        #     # 動作させると，毎回同じイベントファイルを出力することになる，ので要注意
-        #     # with open(self.resdir + "/history_events.txt", "w") as f:
-        #     #     # for t,events in history_events:
-        #     #     for events in history_events:
-        #     #         for event in events:
-        #     #             f.write("{:}\n".format(event))
-        #     #             # print(event)
-        #     # sys.exit()
-
         # elif "speed_w_V0" == self.flg_reward:
         #     print("self.call_speed")
         #     self.V_open = [self.call_speed((i + 1) * self.interval) for i in range(self.max_step)]

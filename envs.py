@@ -65,11 +65,12 @@ class Curriculum:
         if args.test: # testモードなら，以下の学習はしない
             sys.exit()
 
-        train_env = Environment(args, "train", R_base)
-        # train_env.set_R_base(R_base)
         dict_best_model = copy.deepcopy(dict_model)
         # tmp_fixed = copy.deepcopy(dict_target["training"])
+        i_Curriculum = 0 # カリキュラムのループカウンタ
         while True:
+            # 突然エラー出たので，毎回インスタンス生成するように修正
+            train_env = Environment(args, "train", R_base, i_Curriculum)
             flg_update = False
             for training_target in training_targets:
                 # dict_target["training"] = [training_target]
@@ -188,12 +189,6 @@ class Environment:
 
         # envs.set_t_open(T_open)
         rollout.observations[0].copy_(current_obs)
-        # for i, rollout in enumerate( rollouts ):
-        #     if DEBUG: print(current_obs.shape)
-        #     # if DEBUG: print(NUM_PARALLEL*i, NUM_PARALLEL*(1+i))
-        #     rollout.observations[0].copy_(current_obs)
-        #     # rollout.observations[0].copy_(current_obs[NUM_PARALLEL*i:NUM_PARALLEL*(1+i)])
-        # sys.exit()
 
         while True:
             for step in range(self.NUM_ADVANCED_STEP):
@@ -234,15 +229,6 @@ class Environment:
                             print(training_target, episode[i], info['env_id'], info['episode']['r'])
                             episode[i] += 1
 
-                # イベント保存のためには，->要仕様検討
-                # with open(resdir + "/event.txt", "a") as f: 
-                #     for i, info in enumerate(infos):
-                #         if 'events' in info:
-                #             for event in info['events']:
-                #                 f.write("{:}\t{:}\n".format(episode[i], i, event))
-                #                 print(episode[i], event)
-                #             # episode[i] += 1
-
                 final_rewards *= masks
                 final_rewards += (1-masks) * episode_rewards
 
@@ -252,46 +238,21 @@ class Environment:
                 current_obs = obs # ここで観測を更新している
 
                 rollout.insert(current_obs, target_action.data, reward, masks, self.NUM_ADVANCED_STEP)
-                # rollouts.insert(current_obs, action.data, reward, masks, NUM_ADVANCED_STEP)
-                # for i, rollout in enumerate(rollouts):
-                #     # rollout.insert(current_obs[i], action[i].data, reward[i], masks[i], NUM_ADVANCED_STEP)
-                #     # rollout.insert(current_obs[NUM_PARALLEL*i:NUM_PARALLEL*(1+i)], action[NUM_PARALLEL*i:NUM_PARALLEL*(1+i)].data, reward[NUM_PARALLEL*i:NUM_PARALLEL*(1+i)], masks[NUM_PARALLEL*i:NUM_PARALLEL*(1+i)], NUM_ADVANCED_STEP)
-                #     rollout.insert(current_obs, action[:,i].data, reward, masks, self.NUM_ADVANCED_STEP)
                 with open(self.resdir + "/reward_log.txt", "a") as f:
                     f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
                     print(training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
 
             with torch.no_grad():
                 next_value = actor_critic.get_value(rollout.observations[-1]).detach()
-                # next_value = torch.zeros(self.NUM_PARALLEL, self.NUM_AGENTS).long().to(self.device)
-                # for i, actor_critic in enumerate( actor_critics ):
-                #     # next_value[i] = actor_critic.get_value(rollouts[i].observations[-1]).detach()
-                #     tmp_value = actor_critic.get_value(rollouts[i].observations[-1]).detach()
-                #     next_value[:,i] = tmp_value.squeeze()
 
             rollout.compute_returns(next_value, self.gamma)
-            # for i, rollout in enumerate( rollouts ):
-            #     rollout.compute_returns(next_value[:,i], self.gamma)
             value_loss, action_loss, total_loss, entropy = global_brain.update(rollout)
-            # value_loss = 0
-            # action_loss = 0
-            # total_loss = 0
-            # entropy = 0
-            # # 記録用，とはいえ足すだけでいいのか？
-            # for i, local_brain in enumerate( local_brains ):
-            #     tmp_value_loss, tmp_action_loss, tmp_total_loss, tmp_entropy = local_brain.update(rollouts[i], config)
-            #     value_loss += tmp_value_loss
-            #     action_loss += tmp_action_loss
-            #     total_loss += tmp_total_loss
-            #     entropy += tmp_entropy
 
             with open(self.resdir + "/loss_log.txt", "a") as f:
                 f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), value_loss, action_loss, entropy, total_loss))
                 print("value_loss {:}\taction_loss {:}\tentropy {:}\ttotal_loss {:}".format(value_loss, action_loss, entropy, total_loss))
 
             rollout.after_update()
-            # for rollout in rollouts:
-            #     rollout.after_update()
             
             if int(episode.mean())+1 > self.NUM_EPISODES:
                 # print("ループ抜ける")
@@ -299,8 +260,6 @@ class Environment:
         # ここでベストなモデルを保存していた（備忘）
         print("%s番目のエージェントのtrain終了"%training_target)
         dict_model[training_target] = actor_critic # {}
-        # for training_target, actor_critic in zip( training_targets, actor_critics):
-        #     dict_model[training_target] = actor_critic
         return dict_model
 
     def test(self, dict_model): # 1並列を想定する
