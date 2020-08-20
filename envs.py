@@ -13,6 +13,7 @@ from torch.autograd import Variable
 import shutil
 import os, sys, glob
 from edges import Edge
+import datetime
 
 DEBUG = False # True # False # True # False
 
@@ -25,7 +26,7 @@ class Curriculum:
         shelters = np.loadtxt( config['SIMULATION']['actionfn'] , dtype=int )
         edgedir = config['SIMULATION']['edgedir'] # datadir の代用
         edges = Edge(edgedir) # 暫定
-
+        dt = datetime.datetime.now() # 現在時刻->実験開始時刻をログ出力するため
         print(config['CURRICULUM'])
         outputfn = config['CURRICULUM']['outputfn'] # model file name
         resdir = config['CURRICULUM']['resdir']
@@ -61,16 +62,21 @@ class Curriculum:
         # sys.exit()
         best_score, R_base = test_env.test(dict_model) # ルールベースの評価値を取得
         print("初回のスコア", best_score, R_base)
+        with open(resdir + "/Curriculum_log.txt", "a") as f:
+            f.write("Curriculum start: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
+            f.write("initial score:\t{:}\n".format(best_score))
+            print("initial score:\t{:}\n".format(best_score))
 
         if args.test: # testモードなら，以下の学習はしない
             sys.exit()
 
         dict_best_model = copy.deepcopy(dict_model)
         # tmp_fixed = copy.deepcopy(dict_target["training"])
-        i_Curriculum = 0 # カリキュラムのループカウンタ
+        loop_i = 0 # カリキュラムのループカウンタ
         while True:
+            loop_i += 1
             # 突然エラー出たので，毎回インスタンス生成するように修正
-            train_env = Environment(args, "train", R_base, i_Curriculum)
+            train_env = Environment(args, "train", R_base, loop_i)
             flg_update = False
             for training_target in training_targets:
                 # dict_target["training"] = [training_target]
@@ -84,6 +90,10 @@ class Curriculum:
 
                 dict_model = train_env.train(dict_model, config, training_target)
                 tmp_score, _ = test_env.test(dict_model)
+                with open(resdir + "/Curriculum_log.txt", "a") as f:
+                    f.write("{:}\t{:}\t{:}\n".format(loop_i, training_target, tmp_score))
+                    print(loop_i, training_target, tmp_score)
+
                 if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
                     best_score = copy.deepcopy(tmp_score)
                     for node_id, model in dict_model.items():
@@ -107,19 +117,25 @@ class Curriculum:
 
 
 class Environment:
-    def __init__(self, args, flg_test=False, R_base=None):
+    def __init__(self, args, flg_test=False, R_base=None, loop_i=999):
         config = configparser.ConfigParser()
         config.read(args.configfn)
         # config.read('config.ini')
         self.sim_time  = config.getint('SIMULATION', 'sim_time')
         self.interval  = config.getint('SIMULATION', 'interval')
         self.max_step  = int( np.ceil( self.sim_time / self.interval ))
-
+        self.loop_i = loop_i
         # NUM_PROCESSES     = config.getint('TRAINING', 'num_processes')
         if flg_test=="test":
             self.NUM_PARALLEL = 1
-        else:
+            print(config['TEST'])
+            self.resdir = config['TEST']['resdir']
+        else: # "training"
             self.NUM_PARALLEL     = config.getint('TRAINING', 'num_parallel')
+            print(config['TRAINING'])
+            self.resdir = config['TRAINING']['resdir']
+        if not os.path.exists(self.resdir):
+            os.makedirs(self.resdir)
 
         self.NUM_ADVANCED_STEP = config.getint('TRAINING', 'num_advanced_step')
         self.NUM_EPISODES      = config.getint('TRAINING', 'num_episodes')
@@ -134,10 +150,6 @@ class Environment:
         # これを引数で指定
         # self.NUM_PROCESSES = NUM_PARALLEL * NUM_AGENTS
 
-        print(config['TRAINING'])
-        self.resdir = config['TRAINING']['resdir']
-        if not os.path.exists(self.resdir):
-            os.makedirs(self.resdir)
         # print(resdir)
         # shutil.copy2(args.configfn, self.resdir)
         # with open(self.resdir + "/args.txt", "w") as f:
@@ -163,19 +175,6 @@ class Environment:
         global_brain = Brain(actor_critic, config)
         rollout = RolloutStorage(self.NUM_ADVANCED_STEP, self.NUM_PARALLEL, self.obs_shape, self.device)
 
-        # for i, (k,v) in enumerate( dict_model.items() ):
-        #     actor_critic = dict_model[k]
-        #     if actor_critic.__class__.__name__ == "FixControler":
-        #         continue
-        #     actor_critics.append(v)
-        #     # global_brain = Brain(actor_critic, config)
-        #     local_brain = Brain(actor_critic, config)
-        #     local_brains.append(local_brain)
-
-        #     # rollouts        = RolloutStorage(NUM_ADVANCED_STEP, NUM_PROCESSES, obs_shape, device)
-        #     rollout = RolloutStorage(self.NUM_ADVANCED_STEP, self.NUM_PARALLEL, self.obs_shape, self.device)
-        #     rollouts.append(rollout)
-
         current_obs     = torch.zeros(self.NUM_PARALLEL, self.obs_shape).to(self.device)
         episode_rewards = torch.zeros([self.NUM_PARALLEL, 1])
         final_rewards   = torch.zeros([self.NUM_PARALLEL, 1])
@@ -187,7 +186,6 @@ class Environment:
         obs = torch.from_numpy(obs).float()
         current_obs = obs
 
-        # envs.set_t_open(T_open)
         rollout.observations[0].copy_(current_obs)
 
         while True:
@@ -203,16 +201,6 @@ class Environment:
                         else:
                             tmp_action = v.act_greedy(current_obs)
                         action[:,i] = tmp_action.squeeze()
-                    # for i, (actor_critic, training_target) in enumerate( zip(actor_critics, training_targets) ):
-                    #     if training_target in fixed_targets:
-                    #         tmp_action = actor_critic.act_greedy(rollouts[i].observations[step]) # ここでアクション決めて
-                    #     else:
-                    #         tmp_action = actor_critic.act(rollouts[i].observations[step]) # ここでアクション決めて
-                    #    action[:,i] = tmp_action.squeeze()
-                        # if NUM_AGENTS > 1:
-                        #     action[:,i] = tmp_action.squeeze()
-                        # else:
-                        #     action = tmp_action
                 if DEBUG: print("step前のここ？",action.shape)
                 obs, reward, done, infos = self.envs.step(action) # これで時間を進める
                 episode_rewards += reward
@@ -239,8 +227,8 @@ class Environment:
 
                 rollout.insert(current_obs, target_action.data, reward, masks, self.NUM_ADVANCED_STEP)
                 with open(self.resdir + "/reward_log.txt", "a") as f:
-                    f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
-                    print(training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
+                    f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i,training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
+                    print(self.loop_i,training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
 
             with torch.no_grad():
                 next_value = actor_critic.get_value(rollout.observations[-1]).detach()
@@ -249,7 +237,7 @@ class Environment:
             value_loss, action_loss, total_loss, entropy = global_brain.update(rollout)
 
             with open(self.resdir + "/loss_log.txt", "a") as f:
-                f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), value_loss, action_loss, entropy, total_loss))
+                f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i, training_target, episode.mean(), value_loss, action_loss, entropy, total_loss))
                 print("value_loss {:}\taction_loss {:}\tentropy {:}\ttotal_loss {:}".format(value_loss, action_loss, entropy, total_loss))
 
             rollout.after_update()
@@ -326,14 +314,16 @@ class Environment:
             R_base.append(reward.item())
             # if done then clean the history of observation
             masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in done])
-            if DEBUG: print("done.shape",done.shape)
-            if DEBUG: print("masks.shape",masks.shape)
-            if DEBUG: print("obs.shape",obs.shape)
-            with open(self.resdir + "/episode_reward.txt", "a") as f:
-                for i, info in enumerate(infos):
-                    if 'episode' in info:
-                        f.write("{:}\t{:}\n".format(info['env_id'], info['episode']['r']))
-                        print(info['env_id'], info['episode']['r'])
+
+            # テストのときは，rewardの保存は不要では？
+            # if DEBUG: print("done.shape",done.shape)
+            # if DEBUG: print("masks.shape",masks.shape)
+            # if DEBUG: print("obs.shape",obs.shape)
+            # with open(self.resdir + "/episode_reward.txt", "a") as f:
+            #     for i, info in enumerate(infos):
+            #         if 'episode' in info:
+            #             f.write("{:}\t{:}\n".format(info['env_id'], info['episode']['r']))
+            #             print(info['env_id'], info['episode']['r'])
 
             # イベント保存のためには，->要仕様検討
             with open(self.resdir + "/event.txt", "a") as f: 
@@ -351,9 +341,13 @@ class Environment:
             current_obs     *= masks
 
             current_obs = obs # ここで観測を更新している
-            with open(self.resdir + "/reward_log.txt", "a") as f:
-                f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
-                print(step, reward.mean().numpy(), episode_rewards.mean().numpy())
+
+            # テストのときは，rewardの保存は不要では？
+            # with open(self.resdir + "/reward_log.txt", "a") as f:
+            #     f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
+            #     print(step, reward.mean().numpy(), episode_rewards.mean().numpy())
+            # 逆に，テスト結果をどこかに保存する必要がある
+
         print("ここでtest終了")
         return final_rewards.mean().numpy(), R_base
 

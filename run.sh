@@ -8,7 +8,7 @@
 # python main.py --save --configfn config_total_time_once.ini &
 
 # 手元で学習するために
-# python main.py --save --configfn config.ini
+python main.py --save --configfn config.ini
 # python main.py --save --configfn config_time_once.ini
 # python main.py --save --configfn config_time.ini
 
@@ -16,7 +16,7 @@
 # python main.py --test --configfn config.ini --checkpoint --inputfn good_models/20200729/model
 
 # 手元で学習したモデルを読み込むテスト
-python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum/model
+# python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum/model
 
 
 # 再現実験
