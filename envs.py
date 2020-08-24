@@ -106,20 +106,19 @@ class Curriculum:
                 else: # 性能を更新できなかったら，戻す
                     dict_best_model[training_target] = dict_best_model[training_target]
                     NG_target.append(training_target)
+            if args.save: # 毎回保存
+                # save_model(actor_critic, resdir + '/' + outputfn)
+                for node_id, model in dict_best_model.items():
+                    if model.__class__.__name__ == "FixControler":
+                        print("node", node_id, " is FixControler")
+                    else:
+                        print(resdir + '/' + outputfn + "_%s"%node_id +"をセーブする")
+                        save_model(model, resdir + '/' + outputfn + "_%s"%node_id )
             if not flg_update: # 1個もtargetが更新されなかったら終了
                 break
         # モデルを保存して終了
 
-        if args.save:
-            # save_model(actor_critic, resdir + '/' + outputfn)
-            for node_id, model in dict_best_model.items():
-                if model.__class__.__name__ == "FixControler":
-                    print("node", node_id, " is FixControler")
-                else:
-                    print(resdir + '/' + outputfn + "_%s"%node_id +"をセーブする")
-                    save_model(model, resdir + '/' + outputfn + "_%s"%node_id )
         print("ここでCurriculum終了")
-
 
 class Environment:
     def __init__(self, args, flg_test=False, R_base=None, loop_i=999):
