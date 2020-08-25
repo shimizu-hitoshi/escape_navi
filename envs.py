@@ -15,7 +15,7 @@ import os, sys, glob
 from edges import Edge
 import datetime
 
-DEBUG = False # True # False # True # False
+DEBUG = True # False # True # False
 
 class Curriculum:
     def run(self, args):
@@ -104,9 +104,9 @@ class Curriculum:
                     flg_update = True
                     NG_target = []
                 else: # 性能を更新できなかったら，戻す
-                    dict_best_model[training_target] = dict_best_model[training_target]
+                    dict_model[training_target] = dict_best_model[training_target]
                     NG_target.append(training_target)
-            if args.save: # 毎回保存
+            if args.save: # 毎回モデルを保存
                 # save_model(actor_critic, resdir + '/' + outputfn)
                 for node_id, model in dict_best_model.items():
                     if model.__class__.__name__ == "FixControler":
@@ -116,9 +116,12 @@ class Curriculum:
                         save_model(model, resdir + '/' + outputfn + "_%s"%node_id )
             if not flg_update: # 1個もtargetが更新されなかったら終了
                 break
-        # モデルを保存して終了
-
-        print("ここでCurriculum終了")
+        # 終了
+        with open(resdir + "/Curriculum_log.txt", "a") as f:
+            f.write("Curriculum 正常終了: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
+            f.write("final score:\t{:}\n".format(best_score))
+            print("ここでCurriculum終了")
+            print("initial score:\t{:}\n".format(best_score))
 
 class Environment:
     def __init__(self, args, flg_test=False, R_base=None, loop_i=999):

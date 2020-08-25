@@ -44,7 +44,7 @@ class ActorCritic(nn.Module):
 
     def act(self, x, flg_greedy=False, flg_legal=True):
         value, actor_output = self(x)
-        if flg_legal:
+        if flg_legal: # 空いている避難所のみを誘導先候補にする
             ret = torch.zeros(x.shape[0],1)
             legal_actions = self.legal_actions(x)
             for i in range(x.shape[0]):
@@ -54,7 +54,7 @@ class ActorCritic(nn.Module):
                     # print(action_probs.shape)
                     # print(action_probs.data.max(0))
                     tmp_action = action_probs.data.max(0)[1].view(-1, 1)
-                else:
+                else: # 全避難所を誘導先候補にする
                     action_probs = F.softmax(actor_output[i,idxs], dim=0)
                     tmp_action = action_probs.multinomial(num_samples=1)
                 action = idxs[tmp_action]
