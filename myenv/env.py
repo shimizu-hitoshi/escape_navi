@@ -13,7 +13,7 @@ from edges import Edge
 # from controler import FixControler
 import copy
 
-DEBUG = False # True # False
+DEBUG = False # True # False # True # False
 
 class SimEnv(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -63,7 +63,7 @@ class SimEnv(gym.Env):
         # reward = self._get_reward_time()
         # reward = self._get_reward()
         # reward = self._get_reward(self.edge_state)
-        travel_time = np.sum(self.edge_state) * self.interval / self.num_agents # 累積すると平均移動時間
+        sum_pop = np.sum(self.edge_state) * self.interval / self.num_agents # 累積すると平均移動時間
 
         # if self.flg_reward == "goal":
         #     reward, G = self._get_reward_goal()
@@ -77,6 +77,7 @@ class SimEnv(gym.Env):
         #     reward = self._get_reward_speed(self.state)
         # elif self.flg_reward == "speed_w_V0":
         #     reward = self._get_reward_speed_w_V0(self.state)
+        if DEBUG: print("in step(), flg_reward = ", self.flg_reward)
         if self.flg_reward == "time":
             reward = self._get_reward_time()
         elif self.flg_reward == "time_once":
@@ -86,24 +87,29 @@ class SimEnv(gym.Env):
         else: # self.flg_reward == "edge":
             reward = self._get_reward()
 
-        # self.episode_reward += travel_time
+        # self.episode_reward += sum_pop
         self.episode_reward += reward
-        # print("CURRENT", self.cur_time, action, travel_time, self.T_open[self.num_step], reward, self.episode_reward)
-        print("CURRENT", self.cur_time, action, travel_time, reward, self.episode_reward)
+        # print("CURRENT", self.cur_time, action, sum_pop, self.T_open[self.num_step], reward, self.episode_reward)
+        print("CURRENT", self.cur_time, action, sum_pop, reward, self.episode_reward)
         with open(self.resdir + "/current_log.txt", "a") as f:
-            f.write("CURRENT {:} {:} {:} {:} {:}\n".format(self.cur_time, action, travel_time, reward, self.episode_reward))
+            f.write("CURRENT {:} {:} {:} {:} {:}\n".format(self.cur_time, action, sum_pop, reward, self.episode_reward))
         self.num_step += 1
         self.cur_time += self.interval
         done = self.max_step <= self.num_step
+        # travel_time = self.mk_travel_open()
         info = {}
         if done:
+            agentid, travel_time = self._goal_time_all() # 歩行者の移動速度リストを取得
             info = {
                     "episode": {
                         "r": self.episode_reward
                         },
                     "events": self.event_history,
-                    "env_id":self.env_id
+                    "env_id":self.env_id,
+                    "travel_time":travel_time,
+                    "agentid":agentid
                     }
+            # print("info",info)
         return self.state, reward, done, info # obseration, reward, done, info
 
     def reset(self):
@@ -134,10 +140,11 @@ class SimEnv(gym.Env):
     def close(self):
         pass
 
-    def seed(self, seed=None, env_id=None, datadirs=None, config=None, R_base=None):
+    def seed(self, seed=None, env_id=None, datadirs=None, config=None, R_base=(None, None)):
         print(R_base)
-        self.T_open = R_base
-        print("T_open @ seed",self.T_open)
+        self.T_open, self.travel_open = R_base
+        # print("T_open @ seed",self.T_open)
+        # print("travel_open @ seed",self.travel_open)
         # training_targets = dict_target["training"]
         # fixed_agents = dict_target["fixed"] # その他を固定しよう
         # rule_agents = dict_target["rule"]
@@ -256,6 +263,8 @@ class SimEnv(gym.Env):
         return min(reward, 1)
 
     def _get_reward_total_time_once(self): # mean travel time of people who reached goal
+        if self.travel_open is None:
+            return 0
         if self.max_step > self.num_step + 1:
             return 0 # reward only last step
         agentid, travel_time = self._goal_time_all()
@@ -263,6 +272,7 @@ class SimEnv(gym.Env):
         # if len(agentid) == 0:
         #     return 0
         reward = np.sum( self.travel_open[agentid] - travel_time ) / np.sum( self.travel_open[agentid] )
+        # reward = np.sum( self.T_open[agentid] - travel_time ) / np.sum( self.T_open[agentid] )
         if reward < 0:
             return max(reward, -1)
         return min(reward, 1)

@@ -15,7 +15,7 @@ import os, sys, glob
 from edges import Edge
 import datetime
 
-DEBUG = True # False # True # False
+DEBUG = False # True # False # True # False
 
 class Curriculum:
     def run(self, args):
@@ -61,7 +61,9 @@ class Curriculum:
 
         # sys.exit()
         best_score, R_base = test_env.test(dict_model) # ルールベースの評価値を取得
-        print("初回のスコア", best_score, R_base)
+        T_open, travel_time = R_base
+        print("初回のスコア", best_score, T_open, np.mean(travel_time))
+        R_base = (T_open , travel_time) # train環境に入力するため
         with open(resdir + "/Curriculum_log.txt", "a") as f:
             f.write("Curriculum start: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
             f.write("initial score:\t{:}\n".format(best_score))
@@ -124,7 +126,7 @@ class Curriculum:
             print("initial score:\t{:}\n".format(best_score))
 
 class Environment:
-    def __init__(self, args, flg_test=False, R_base=None, loop_i=999):
+    def __init__(self, args, flg_test=False, R_base=(None,None), loop_i=999):
         config = configparser.ConfigParser()
         config.read(args.configfn)
         # config.read('config.ini')
@@ -273,7 +275,7 @@ class Environment:
         obs = np.array(obs)
         obs = torch.from_numpy(obs).float()
         current_obs = obs
-        R_base = []
+        T_open = []
         for step in range(self.max_step):
             with torch.no_grad():
                 # action = actor_critic.act(rollouts.observations[step]) # ここでアクション決めて
@@ -286,7 +288,7 @@ class Environment:
                 print("action",action)
             obs, reward, done, infos = self.envs.step(action) # これで時間を進める
             episode_rewards += reward
-            R_base.append(reward.item())
+            T_open.append(reward.item())
             # if done then clean the history of observation
             masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in done])
             if DEBUG: print(masks)
@@ -301,20 +303,20 @@ class Environment:
             #             print(info['env_id'], info['episode']['r'])
 
             # イベント保存のためには，->要仕様検討
-            with open(self.resdir + "/event.txt", "a") as f: 
-                for i, info in enumerate(infos):
-                    if 'events' in info:
-                        for event in info['events']:
-                            f.write("{:}\n".format(event))
-                            # print(event)
+            if 'events' in infos[0]: # test()では１並列前提
+                with open(self.resdir + "/event.txt", "a") as f: 
+                    # for i, info in enumerate(infos):
+                    for event in infos[0]['events']:
+                        f.write("{:}\n".format(event))
+                        # print(event)
                         # episode[i] += 1
+            if 'travel_time' in infos[0]: # test()では１並列前提
+                travel_time = infos[0]['travel_time']
 
             # final_rewards *= masks
             final_rewards += (1-masks) * episode_rewards
-
             episode_rewards *= masks
             # current_obs     *= masks
-
             current_obs = obs # ここで観測を更新している
 
             # テストのときは，rewardの保存は不要では？
@@ -324,7 +326,7 @@ class Environment:
             # 逆に，テスト結果をどこかに保存する必要がある
 
         print("ここでtest終了")
-        return final_rewards.mean().numpy(), R_base
+        return final_rewards.mean().numpy(), (T_open, travel_time)
 
 def save_model(model, fn="model"):
     torch.save(model.state_dict(), fn)

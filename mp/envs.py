@@ -27,7 +27,7 @@ def make_env(env_name, seed, env_id, datadir, config, R_base):
     return _thunk
 
 # def make_vec_envs(env_name, seed, num_process, device, datadirs, training_targets, config):
-def make_vec_envs(env_name, seed, num_parallel, device, datadirs, config, R_base=None):
+def make_vec_envs(env_name, seed, num_parallel, device, datadirs, config, R_base=(None,None)):
     # print(len(datadirs), len(training_targets), len(fixed_agents))
     # print(dict_target)
     # print("R_base @ make_vec_envs",R_base)
