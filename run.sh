@@ -13,7 +13,7 @@ python main.py --save --configfn config.ini
 # python main.py --save --configfn config_time.ini
 
 # 共用計算機で学習したモデルを動画にするために
-# python main.py --test --configfn config.ini --checkpoint --inputfn good_models/20200729/model
+# python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum20200824170428/model
 
 # 手元で学習したモデルを読み込むテスト
 # python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum/model

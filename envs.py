@@ -259,38 +259,6 @@ class Environment:
 
     def test(self, dict_model): # 1並列を想定する
         self.NUM_AGENTS = len(dict_model)
-        # config = configparser.ConfigParser()
-        # config.read(args.configfn)
-        # sim_time  = config.getint('SIMULATION', 'sim_time')
-        # interval  = config.getint('SIMULATION', 'interval')
-        # max_step  = int( np.ceil( sim_time / interval ))
-
-        # datadirs = []
-        # with open(config['SIMULATION']['datadirlistfn']) as fp:
-        #     for line in fp:
-        #         datadir = line.strip()
-        #         datadirs.append(datadir)
-        # print(dict_target)
-        # training_targets = dict_target["training"]
-        # # training_targets = list( np.loadtxt( config['TRAINING']['training_target'] , dtype=int ) )
-        # NUM_AGENTS = len(training_targets)
-        # # NUM_PROCESSES = NUM_PARALLEL * NUM_AGENTS
-
-        # print(config['TEST'])
-        # resdir = config['TEST']['resdir']
-        # if not os.path.exists(resdir):
-        #     os.makedirs(resdir)
-        # print(resdir)
-        # shutil.copy2(args.configfn, resdir)
-        # with open(resdir + "/args.txt", "w") as f:
-        #     json.dump(args.__dict__, f, indent=2)
-
-        # device = torch.device("cuda:0" if args.cuda else "cpu")
-    
-        # envs = make_vec_envs(args.env_name, args.seed, 1, device, datadirs, dict_target, config)
-        # n_in  = envs.observation_space.shape[0]
-        # n_out = envs.action_space.n
-        # obs_shape       = n_in
         NUM_PARALLEL = 1
         actor_critics = []
         # for i, training_target in enumerate( training_targets ):
@@ -321,7 +289,7 @@ class Environment:
             R_base.append(reward.item())
             # if done then clean the history of observation
             masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in done])
-
+            if DEBUG: print(masks)
             # テストのときは，rewardの保存は不要では？
             # if DEBUG: print("done.shape",done.shape)
             # if DEBUG: print("masks.shape",masks.shape)
@@ -341,11 +309,11 @@ class Environment:
                             # print(event)
                         # episode[i] += 1
 
-            final_rewards *= masks
+            # final_rewards *= masks
             final_rewards += (1-masks) * episode_rewards
 
             episode_rewards *= masks
-            current_obs     *= masks
+            # current_obs     *= masks
 
             current_obs = obs # ここで観測を更新している
 
