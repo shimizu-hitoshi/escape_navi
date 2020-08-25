@@ -287,7 +287,7 @@ class Environment:
                     action[:,i] = tmp_action.squeeze()
                 print("action",action)
             obs, reward, done, infos = self.envs.step(action) # これで時間を進める
-            episode_rewards += reward
+            # episode_rewards += reward
             T_open.append(reward.item())
             # if done then clean the history of observation
             masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in done])
@@ -314,10 +314,10 @@ class Environment:
                 travel_time = infos[0]['travel_time']
 
             # final_rewards *= masks
-            final_rewards += (1-masks) * episode_rewards
-            episode_rewards *= masks
+            # final_rewards += (1-masks) * episode_rewards
+            # episode_rewards *= masks
             # current_obs     *= masks
-            current_obs = obs # ここで観測を更新している
+            # current_obs = obs # ここで観測を更新している
 
             # テストのときは，rewardの保存は不要では？
             # with open(self.resdir + "/reward_log.txt", "a") as f:
@@ -326,7 +326,8 @@ class Environment:
             # 逆に，テスト結果をどこかに保存する必要がある
 
         print("ここでtest終了")
-        return final_rewards.mean().numpy(), (T_open, travel_time)
+        return np.mean(travel_time), (T_open, travel_time)
+        # return final_rewards.mean().numpy(), (T_open, travel_time)
 
 def save_model(model, fn="model"):
     torch.save(model.state_dict(), fn)
