@@ -110,6 +110,7 @@ class SimEnv(gym.Env):
                     "agentid":agentid
                     }
             # print("info",info)
+        if DEBUG: print(self.state.shape, reward, done, info)
         return self.state, reward, done, info # obseration, reward, done, info
 
     def reset(self):
