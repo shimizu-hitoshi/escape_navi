@@ -42,7 +42,8 @@ def show_stats(fn):
 
 if __name__ == '__main__':
     # show_stats("tmp_result2/userlogs.txt")
-    print(sum_logs("tmp_result2") * 300 / 5000)
+    show_stats("tmp_result/userlogs.txt")
+    # print(sum_logs("tmp_result2") * 300 / 5000)
     # n = read_log("tmp_result2/log000010.txt")
     # print(n)
 

@@ -14,6 +14,8 @@ class FixControler():
         self.sid = shelter_id # 道路網ノードIDではなく，避難所のみに0から採番
         self.num_edges = edges.num_obsv_edge
         self.num_goals = edges.num_obsv_goal
+        # num_naviがないので，self.num_goal*self.num_goalで代用
+        self.num_obsv = self.num_edges + self.num_goals + (self.num_goals*self.num_goals)
         DistanceMatrix = edges.DistanceMatrix
         self.cands = []
         # self.DistanceMatrix = DistanceMatrix
@@ -45,14 +47,19 @@ class FixControler():
 
     def act_greedy(self,obs):
         # print("act_greedy", self.num_edges)
-        # print("act_greedy", obs.shape)
-        # current_obs     = obs[:self.num_obsv] # 時刻ごとの分割は省略
-        x = obs[:,self.num_edges:(self.num_edges+self.num_goals)] # 状態の冒頭に道路上人数，次に残容量がある想定
+        if DEBUG: print("act_greedy", obs.shape)
+        current_obs     = obs[:,-self.num_obsv:] # 右端が現在時刻
+        # x = obs[:,self.num_edges:(self.num_edges+self.num_goals)] # 状態の冒頭に道路上人数，次に残容量がある想定
+        x = current_obs[:,self.num_edges:(self.num_edges+self.num_goals)] # 現在の状態の冒頭に道路上人数，次に残容量がある想定
+        if DEBUG: print("sid", self.sid)
+        if DEBUG: print("act_greedy", x.shape)
+        if DEBUG: print("x=", x)
         # print("act_greedy", x.shape, x)
         ret = torch.zeros([x.shape[0], 1])
         for j in range(x.shape[0]):
             ret[j,0]  = self.get_action(x[j,:])
         # print(ret)
+        if DEBUG: print("action=", ret)
         return ret
 
     def act(self,obs):

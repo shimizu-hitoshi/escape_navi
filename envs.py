@@ -15,7 +15,7 @@ import os, sys, glob
 from edges import Edge
 import datetime
 
-DEBUG = False # True # False # True # False
+DEBUG = True # False # True # False
 
 class Curriculum:
     def run(self, args):
@@ -101,10 +101,13 @@ class Curriculum:
 
                 if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
                     best_score = copy.deepcopy(tmp_score)
-                    for node_id, model in dict_model.items(): # まとめてコピーしたらダメなのか？
-                        dict_best_model[node_id] = copy.deepcopy(model)
+                    # for node_id, model in dict_model.items(): # まとめてコピーしたらダメなのか？
+                    #     dict_best_model[node_id] = copy.deepcopy(model)
+                    dict_best_model = copy.deepcopy(dict_model)
                     flg_update = True
                     NG_target = []
+                    print(resdir + '/' + outputfn + "_%s"%training_target +"をセーブする")
+                    save_model(dict_model[training_target], resdir + '/' + outputfn + "_%s"%training_target )
                 else: # 性能を更新できなかったら，戻す
                     dict_model[training_target] = dict_best_model[training_target]
                     NG_target.append(training_target)
@@ -305,10 +308,11 @@ class Environment:
             # イベント保存のためには，->要仕様検討
             if 'events' in infos[0]: # test()では１並列前提
                 with open(self.resdir + "/event.txt", "a") as f: 
+                    if DEBUG: print("event.txt保存します")
                     # for i, info in enumerate(infos):
                     for event in infos[0]['events']:
                         f.write("{:}\n".format(event))
-                        # print(event)
+                        if DEBUG: print(event)
                         # episode[i] += 1
             if 'travel_time' in infos[0]: # test()では１並列前提
                 travel_time = infos[0]['travel_time']

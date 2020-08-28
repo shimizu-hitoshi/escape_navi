@@ -13,7 +13,7 @@ from edges import Edge
 # from controler import FixControler
 import copy
 
-DEBUG = False # True # False # True # False
+DEBUG = True # False # True # False
 
 class SimEnv(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -21,7 +21,7 @@ class SimEnv(gym.Env):
         super().__init__()
 
     def step(self, action): # これを呼ぶときには，actionは決定されている
-        self.state = self._get_state() # 1stepにつき冒頭と末尾に状態取得？
+        # self.state = self._get_state() # 1stepにつき冒頭と末尾に状態取得？
         # print(action)
         # print(action.shape)
         # sys.exit()
@@ -55,6 +55,7 @@ class SimEnv(gym.Env):
         # print("dict_actions",dict_actions)
         self.call_traffic_regulation(dict_actions, self.num_step)
         self.call_iterate(self.cur_time + self.interval) # iterate
+        self.cur_time += self.interval
         self.update_navi_state() # self.navi_stateを更新するだけ
         self.state = self._get_state()
         # self.state = self._get_observation(self.cur_time + self.interval) # iterate
@@ -94,7 +95,6 @@ class SimEnv(gym.Env):
         with open(self.resdir + "/current_log.txt", "a") as f:
             f.write("CURRENT {:} {:} {:} {:} {:}\n".format(self.cur_time, action, sum_pop, reward, self.episode_reward))
         self.num_step += 1
-        self.cur_time += self.interval
         done = self.max_step <= self.num_step
         # travel_time = self.mk_travel_open()
         info = {}
@@ -128,7 +128,7 @@ class SimEnv(gym.Env):
         self.flag = True
 
         # for reward selection
-        self.prev_goal = 0
+        # self.prev_goal = 0
 
         self.reset_sim() # set up simulation
 
@@ -197,7 +197,6 @@ class SimEnv(gym.Env):
         if DEBUG: print("self.navi_state.shape", self.navi_state.shape)
         self.num_obsv = self.num_edges + self.num_goals + self.num_navi # １ステップ分の観測の数
 
-
         self.action_space      = gym.spaces.Discrete(self.actions.shape[0])
         self.observation_space = gym.spaces.Box(
                 low=0,
@@ -212,7 +211,7 @@ class SimEnv(gym.Env):
         # self.state     = np.zeros(self.num_edges * self.obs_step)
         # self.cur_time  = 0
         # self.interval 
-        self.prev_goal = 0
+        # self.prev_goal = 0
 
         # copy from reset()
         self.sim_time  = self.config.getint('SIMULATION', 'sim_time')
@@ -500,7 +499,7 @@ class SimEnv(gym.Env):
 
     def _get_state(self):
         # １ステップ分ずらす
-        obs     = self.state[self.num_obsv:]
+        obs     = self.state[self.num_obsv:] # 左端を捨てる
         # 避難所の状況を取得
         tmp_goal_state = copy.deepcopy( self._goal_cnt() )
         # print(tmp_goal_state)
@@ -510,7 +509,7 @@ class SimEnv(gym.Env):
         # print(np.sum(tmp_goal_state), np.sum(self.edge_state))
         cur_obs = np.append(self.edge_state , self.goal_state )
         cur_obs = np.append(cur_obs , self.navi_state )
-        return np.append(obs, cur_obs)
+        return np.append(obs, cur_obs) # 右端に追加
 
     # def _get_observation(self, stop_time=0):
     #     self.call_iterate(stop_time)
