@@ -19,6 +19,7 @@ class SimEnv(gym.Env):
     metadata = {'render.modes': ['human']}
     def __init__(self):
         super().__init__()
+        self.init = True
 
     def step(self, action): # これを呼ぶときには，actionは決定されている
         # self.state = self._get_state() # 1stepにつき冒頭と末尾に状態取得？
@@ -126,7 +127,7 @@ class SimEnv(gym.Env):
 
         self.episode_reward = 0
         self.event_history = []
-        self.flag = True
+        # self.flag = True
 
         # for reward selection
         # self.prev_goal = 0
@@ -182,8 +183,7 @@ class SimEnv(gym.Env):
         #     self.dict_action[]
         self.flg_reward = config['TRAINING']['flg_reward']
 
-        self.init = True
-        self.flag = True
+        # self.flag = True
 
         # self.edges = Edge(self.obs_degree) # degreeは不要になったはず．．．
         self.edges = Edge(self.datadir) # degreeは不要になったはず．．．
@@ -289,17 +289,17 @@ class SimEnv(gym.Env):
     #         return max(reward, -1)
     #     return min(reward, 1)
 
-    def mk_travel_open(self): # travel time of people who reached goal
-        stop_time = (self.max_step + 1) * self.interval
-        start_time = 0
-        print(start_time, stop_time)
-        tmp = self.lib.goalAgentCnt(start_time, stop_time-1, -1) # all goal
-        res = self.ffi.new("int[%d][3]" % tmp)
-        l = self.lib.goalAgent(start_time, stop_time-1, tmp+1, res)
-        # print(l)
-        travel_time = np.array( [res[i][1] for i in range(l)] )
-        # print(travel_time)
-        return travel_time
+    # def mk_travel_open(self): # travel time of people who reached goal
+    #     stop_time = (self.max_step + 1) * self.interval
+    #     start_time = 0
+    #     print(start_time, stop_time)
+    #     tmp = self.lib.goalAgentCnt(start_time, stop_time-1, -1) # all goal
+    #     res = self.ffi.new("int[%d][3]" % tmp)
+    #     l = self.lib.goalAgent(start_time, stop_time-1, tmp+1, res)
+    #     # print(l)
+    #     travel_time = np.array( [res[i][1] for i in range(l)] )
+    #     # print(travel_time)
+    #     return travel_time
 
     # def _get_reward_speed(self, observation):
     #     # moving speedをRewardとする
@@ -380,9 +380,9 @@ class SimEnv(gym.Env):
     #     observation = observation[self.num_edges * (self.obs_step-1):]
     #     return np.sum(observation) * self.interval / self.num_agents
 
-    def _get_num_traveler(self, observation):
-        observation = observation[self.num_obsv * (self.obs_step-1):]
-        return np.sum(observation)
+    # def _get_num_traveler(self, observation):
+    #     observation = observation[self.num_obsv * (self.obs_step-1):]
+    #     return np.sum(observation)
 
     def call_traffic_regulation(self, actions, t):
         """
@@ -438,43 +438,43 @@ class SimEnv(gym.Env):
         travel_time = np.array( [res[i][1] for i in range(l)] )
         return agentid, travel_time
 
-    def call_edge_cnt(self, stop_time=0):
-        """
-        Count the number of agents on the edge
-        """
-        self.lib.setStop(stop_time)
-        self.lib.iterate()
-        ret = self._edge_cnt()
-        return ret
+    # def call_edge_cnt(self, stop_time=0):
+    #     """
+    #     Count the number of agents on the edge
+    #     """
+    #     self.lib.setStop(stop_time)
+    #     self.lib.iterate()
+    #     ret = self._edge_cnt()
+    #     return ret
 
-    def call_speed(self, stop_time=0):
-        """
-        Measure the mean of agents speed
-        """
-        # self.lib.setStop(stop_time)
-        # self.lib.iterate()
-        print("stop_time : ", stop_time)
-        # self.state = self._get_observation(stop_time) # iterate
-        self.call_iterate(stop_time)
-        self.state = self._get_state()
-        # observation = state2obsv( self.state, self.id ) 
-        observation = self.state
+    # def call_speed(self, stop_time=0):
+    #     """
+    #     Measure the mean of agents speed
+    #     """
+    #     # self.lib.setStop(stop_time)
+    #     # self.lib.iterate()
+    #     print("stop_time : ", stop_time)
+    #     # self.state = self._get_observation(stop_time) # iterate
+    #     self.call_iterate(stop_time)
+    #     self.state = self._get_state()
+    #     # observation = state2obsv( self.state, self.id ) 
+    #     observation = self.state
 
-        v_mean = self.speed
-        th     = 1.8 / (v_mean + 0.3)
-        num_agent = observation[self.num_edges * (self.obs_step-1):]
-        rho    = num_agent / (self.edges.dist * self.edges.width)
-        # rho    = rho[self.num_edges * (self.obs_step-1):]
-        rho_   = np.where(rho == 0, float('-inf'), rho)
-        v_1    = np.where((0 <= rho) & (rho < th), v_mean, 0)
-        v_2    = np.where((th <= rho_) & (rho_ < 6), 1.8 / rho_ - 0.3, 0)
-        v      = (v_1 + v_2) * num_agent # weighted
-        # reward = (v_mean - v) / v_mean
-        if np.sum(num_agent) == 0:
-            v = v_mean
-        else:
-            v = np.sum(v) / np.sum(num_agent)
-        return v
+    #     v_mean = self.speed
+    #     th     = 1.8 / (v_mean + 0.3)
+    #     num_agent = observation[self.num_edges * (self.obs_step-1):]
+    #     rho    = num_agent / (self.edges.dist * self.edges.width)
+    #     # rho    = rho[self.num_edges * (self.obs_step-1):]
+    #     rho_   = np.where(rho == 0, float('-inf'), rho)
+    #     v_1    = np.where((0 <= rho) & (rho < th), v_mean, 0)
+    #     v_2    = np.where((th <= rho_) & (rho_ < 6), 1.8 / rho_ - 0.3, 0)
+    #     v      = (v_1 + v_2) * num_agent # weighted
+    #     # reward = (v_mean - v) / v_mean
+    #     if np.sum(num_agent) == 0:
+    #         v = v_mean
+    #     else:
+    #         v = np.sum(v) / np.sum(num_agent)
+    #     return v
 
     # def call_goal_cnt(self, stop_time=0):
     #     """
@@ -498,7 +498,7 @@ class SimEnv(gym.Env):
         # print( self.navi_state )
         # print( self.navi_state.shape )
 
-    def _get_state(self):
+    def _get_state(self): # 時刻は進めない->繰り返し使うと同じstateが最大4step分だけ繰り返されるので注意
         # １ステップ分ずらす
         obs     = self.state[self.num_obsv:] # 左端を捨てる
         # 避難所の状況を取得
@@ -637,6 +637,7 @@ class SimEnv(gym.Env):
 
     def reset_sim(self):
         print("reset simulator configure")
+        # if True:
         if self.init:
             libsimfn = os.path.dirname(os.path.abspath(__file__)) + "/../bin/libsim.so"
             self.ffi = FFI()
