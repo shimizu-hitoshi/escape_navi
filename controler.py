@@ -6,7 +6,7 @@
 #     return module
 import torch
 
-DEBUG = True # False
+DEBUG = False # True # False
 
 class FixControler():
     def __init__(self, shelter_id, edges):

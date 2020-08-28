@@ -15,7 +15,7 @@ import os, sys, glob
 from edges import Edge
 import datetime
 
-DEBUG = True # False # True # False
+DEBUG = False # True # False # True # False
 
 class Curriculum:
     def run(self, args):

@@ -13,7 +13,7 @@ from edges import Edge
 # from controler import FixControler
 import copy
 
-DEBUG = True # False # True # False
+DEBUG = False # True # False # True # False
 
 class SimEnv(gym.Env):
     metadata = {'render.modes': ['human']}
