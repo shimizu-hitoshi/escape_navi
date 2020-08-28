@@ -307,8 +307,9 @@ class Environment:
 
             # イベント保存のためには，->要仕様検討
             if 'events' in infos[0]: # test()では１並列前提
-                with open(self.resdir + "/event.txt", "a") as f: 
-                    if DEBUG: print("event.txt保存します")
+                eventsfn = self.resdir + "/event.txt"
+                with open(eventsfn, "a") as f: 
+                    if DEBUG: print("{:}保存します".format(eventsfn))
                     # for i, info in enumerate(infos):
                     for event in infos[0]['events']:
                         f.write("{:}\n".format(event))

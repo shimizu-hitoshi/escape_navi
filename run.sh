@@ -30,3 +30,7 @@ python main.py --test --configfn config.ini
 ../simulator/simulator ../mkUserlist/data/kawaramachi/agentlist.txt ../mkUserlist/data/kawaramachi/graph.twd ../mkUserlist/data/kawaramachi/goallist.txt -B results/event.txt -o tmp_result -e 9000 -l 10 -S
 cp results/event.txt ./tmp_result
 # ../mkUserlist/analyselog.py -d /home/shimizu/project/2020/escape_navi/navi_curriculum/tmp_result -u /home/shimizu/project/2020/escape_navi/mkUserlist/data/kawaramachi
+
+# 動画生成
+cd ../mkUserlist
+./analyselog.py -d /home/shimizu/project/2020/escape_navi/navi_curriculum/tmp_result
