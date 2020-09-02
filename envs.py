@@ -78,12 +78,12 @@ class Curriculum:
         NG_target = [] # scoreが改善しなかったtargetリスト
         while True:
             loop_i += 1
-            # 突然エラー出たので，毎回インスタンス生成するように修正
-            train_env = Environment(args, "train", R_base, loop_i)
             flg_update = False
             for training_target in training_targets:
                 if training_target in NG_target: # 改善しなかった対象は省略
                     continue
+                # 突然エラー出たので，毎回インスタンス生成するように修正
+                train_env = Environment(args, "train", R_base, loop_i)
                 # dict_target["training"] = [training_target]
                 # dict_target["fixed"] = tmp_fixed
                 # dict_target["fixed"].remove(training_target)
@@ -341,5 +341,5 @@ def save_model(model, fn="model"):
 def load_model(n_in, n_out, fn="model"):
     model = ActorCritic(n_in, n_out)
     model.load_state_dict(torch.load(fn))
-    model.eval()
+    # model.eval()
     return model
