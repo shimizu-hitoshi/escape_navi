@@ -95,6 +95,7 @@ class Curriculum:
                     if DEBUG: print(training_target, "番目のエージェント生成")
 
                 dict_model = train_env.train(dict_model, config, training_target)
+                test_env = Environment(args, "test")
                 tmp_score, _ = test_env.test(dict_model)
                 with open(resdir + "/Curriculum_log.txt", "a") as f:
                     f.write("{:}\t{:}\t{:}\n".format(loop_i, training_target, tmp_score))
