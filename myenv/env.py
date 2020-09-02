@@ -92,9 +92,9 @@ class SimEnv(gym.Env):
         # self.episode_reward += sum_pop
         self.episode_reward += reward
         # print("CURRENT", self.cur_time, action, sum_pop, self.T_open[self.num_step], reward, self.episode_reward)
-        print("CURRENT", self.cur_time, action, sum_pop, reward, self.episode_reward)
+        if DEBUG: print("CURRENT", self.env_id, self.cur_time, action, sum_pop, reward, self.episode_reward)
         with open(self.resdir + "/current_log.txt", "a") as f:
-            f.write("CURRENT {:} {:} {:} {:} {:}\n".format(self.cur_time, action, sum_pop, reward, self.episode_reward))
+            f.write("CURRENT {:} {:} {:} {:} {:} {:}\n".format(self.env_id, self.cur_time, action, sum_pop, reward, self.episode_reward))
         self.num_step += 1
         done = self.max_step <= self.num_step
         # travel_time = self.mk_travel_open()
@@ -214,6 +214,7 @@ class SimEnv(gym.Env):
         # self.interval 
         # self.prev_goal = 0
 
+        # self.reset()
         # copy from reset()
         self.sim_time  = self.config.getint('SIMULATION', 'sim_time')
         self.interval  = self.config.getint('SIMULATION', 'interval')
@@ -560,11 +561,87 @@ class SimEnv(gym.Env):
                     out.append( "%d signage %d %d %d %d 1.0 0"%(time, nid, nid, detour, detour) )
         return out
 
-    def call_open_event(self):
-        # print(self.seed)
-        # config = configparser.ConfigParser()
-        # config.read('config.ini')
-        # datadir = "mkUserlist/data/N80000r{:}i0".format(self.file_seed)
+    # def call_open_event(self):
+    #     # print(self.seed)
+    #     # config = configparser.ConfigParser()
+    #     # config.read('config.ini')
+    #     # datadir = "mkUserlist/data/N80000r{:}i0".format(self.file_seed)
+    #     datadir = self.datadir
+    #     agentfn  = os.path.dirname(os.path.abspath(__file__)) + "/../%s/agentlist.txt"%self.datadir
+    #     graphfn  = os.path.dirname(os.path.abspath(__file__)) + "/../%s/graph.twd"%self.datadir
+    #     goalfn   = os.path.dirname(os.path.abspath(__file__)) + "/../%s/goallist.txt"%self.datadir
+    #     sim_time = self.config.get('SIMULATION', 'sim_time')
+    #     resdir = self.resdir
+    #     # resdir = "result/%s"%self.datadir
+    #     print(resdir)
+    #     os.makedirs(resdir, exist_ok=True)
+    #     argv = [sys.argv[0]]
+    #     argv.extend([
+    #         agentfn,
+    #         graphfn,
+    #         goalfn,
+    #         "-o",
+    #         # "bin/result%s"%self.seed,
+    #         resdir,
+    #         "-l",
+    #         "9999999",
+    #         # "300", # ログ周期
+    #         # "10", # ログ周期
+    #         "-e",
+    #         sim_time,
+    #         # "-S"
+    #         ])
+    #     # print(argv)
+    #     tmp = []
+    #     for a in argv:
+    #         # tmp.append(self.ffi.new("char []", a))
+    #         # tmp.append(self.ffi.new("char []", a.encode('UTF-8')))
+    #         tmp.append(self.ffi.new("char []", a.encode('ascii')))
+    #     argv = self.ffi.new("char *[]", tmp)
+    #     # call simulator
+    #     self.lib.init(len(argv), argv)
+    #     # _action = self._get_action(0)
+    #     # print(_action)
+    #     # self.call_traffic_regulation({}, 0)
+    #     # self.T_open = None
+    #     # call_open_event全体をコメントアウトすると動作しないので，ここまでだけ実行（暫定）
+    #     return 
+    #     # elif "speed_w_V0" == self.flg_reward:
+    #     #     print("self.call_speed")
+    #     #     self.V_open = [self.call_speed((i + 1) * self.interval) for i in range(self.max_step)]
+    #     #     print(self.V_open, np.sum(self.V_open))
+    #     # elif "time" == self.flg_reward or "time_once" == self.flg_reward:
+    #     #     print("travel time")
+    #     #     self.call_iterate( (self.max_step + 1) * self.interval)
+    #     #     self.travel_open = self.mk_travel_open() # ここにベースラインを保存する
+    #     #     print(self.travel_open, len(self.travel_open), np.mean(self.travel_open))
+    #     # else:
+    #     #     pass
+
+    def str_cdef(self):
+        ret = """
+        void init(int argc, char** argv);
+        int   setStop(int t);
+        void  iterate();
+        int   cntDest(int node, double radius);
+        int   cntSrc(int node, double radius);
+        void  setBomb( char *fn);
+        int   cntOnEdge(int fr, int to);
+        void  setBombDirect(char *text);
+        void  restart();
+        void  save_ulog(char *fn);
+        void  init_restart(int argc, char** argv);
+        int   goalAgentCnt(int stime, int etime, int cnt);
+        int   goalAgent(int stime, int etime,int n,  int result[][3]);
+        """
+        return ret
+
+    def set_ffi(self):
+        libsimfn = os.path.dirname(os.path.abspath(__file__)) + "/../bin/libsim.so"
+        self.ffi = FFI()
+        self.lib = self.ffi.dlopen(libsimfn)
+        self.ffi.cdef(self.str_cdef())
+        # self.call_open_event()
         datadir = self.datadir
         agentfn  = os.path.dirname(os.path.abspath(__file__)) + "/../%s/agentlist.txt"%self.datadir
         graphfn  = os.path.dirname(os.path.abspath(__file__)) + "/../%s/graph.twd"%self.datadir
@@ -599,60 +676,26 @@ class SimEnv(gym.Env):
         argv = self.ffi.new("char *[]", tmp)
         # call simulator
         self.lib.init(len(argv), argv)
-        # _action = self._get_action(0)
-        # print(_action)
-        # self.call_traffic_regulation({}, 0)
-        # self.T_open = None
-        # call_open_event全体をコメントアウトすると動作しないので，ここまでだけ実行（暫定）
-        return 
-        # elif "speed_w_V0" == self.flg_reward:
-        #     print("self.call_speed")
-        #     self.V_open = [self.call_speed((i + 1) * self.interval) for i in range(self.max_step)]
-        #     print(self.V_open, np.sum(self.V_open))
-        # elif "time" == self.flg_reward or "time_once" == self.flg_reward:
-        #     print("travel time")
-        #     self.call_iterate( (self.max_step + 1) * self.interval)
-        #     self.travel_open = self.mk_travel_open() # ここにベースラインを保存する
-        #     print(self.travel_open, len(self.travel_open), np.mean(self.travel_open))
-        # else:
-        #     pass
-
-    def str_cdef(self):
-        ret = """
-        void init(int argc, char** argv);
-        int   setStop(int t);
-        void  iterate();
-        int   cntDest(int node, double radius);
-        int   cntSrc(int node, double radius);
-        void  setBomb( char *fn);
-        int   cntOnEdge(int fr, int to);
-        void  setBombDirect(char *text);
-        void  restart();
-        void  save_ulog(char *fn);
-        void  init_restart(int argc, char** argv);
-        int   goalAgentCnt(int stime, int etime, int cnt);
-        int   goalAgent(int stime, int etime,int n,  int result[][3]);
-        """
-        return ret
 
     def reset_sim(self):
         print("reset simulator configure")
         # if True:
         if self.init:
-            libsimfn = os.path.dirname(os.path.abspath(__file__)) + "/../bin/libsim.so"
-            self.ffi = FFI()
-            self.lib = self.ffi.dlopen(libsimfn)
-            self.ffi.cdef(self.str_cdef())
-            self.call_open_event()
-            self.num_step  = 0 # call_open_event中にstep進めてしまってるので
-            self.cur_time  = 0 # 同上
+            self.set_ffi()
+            # libsimfn = os.path.dirname(os.path.abspath(__file__)) + "/../bin/libsim.so"
+            # self.ffi = FFI()
+            # self.lib = self.ffi.dlopen(libsimfn)
+            # self.ffi.cdef(self.str_cdef())
+            # self.call_open_event()
+            # self.num_step  = 0 # call_open_event中にstep進めてしまってるので
+            # self.cur_time  = 0 # 同上
             print("INIT")
-            self.lib.restart()
             # save initial state
             self.init = False
-        else:
-            # load inital state
-            self.lib.restart()
+        # else:
+        #     # load inital state
+        #     self.lib.restart()
+        self.lib.restart()
 
     def get_speed(self, agentfn):
         with open(agentfn) as f:

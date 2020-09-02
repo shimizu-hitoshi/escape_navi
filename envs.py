@@ -239,7 +239,7 @@ class Environment:
                 current_obs = obs # ここで観測を更新している
 
                 rollout.insert(current_obs, target_action.data, reward, masks, self.NUM_ADVANCED_STEP)
-                with open(self.resdir + "/reward_log.txt", "a") as f:
+                with open(self.resdir + "/reward_log.txt", "a") as f: # このログはエピソードが終わったときだけでいい->要修正
                     f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i,training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
                     print(self.loop_i,training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
 
@@ -251,7 +251,7 @@ class Environment:
 
             with open(self.resdir + "/loss_log.txt", "a") as f:
                 f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i, training_target, episode.mean(), value_loss, action_loss, entropy, total_loss))
-                print("value_loss {:}\taction_loss {:}\tentropy {:}\ttotal_loss {:}".format(value_loss, action_loss, entropy, total_loss))
+                print("value_loss {:.4f}\taction_loss {:.4f}\tentropy {:.4f}\ttotal_loss {:.4f}".format(value_loss, action_loss, entropy, total_loss))
 
             rollout.after_update()
             
