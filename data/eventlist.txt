@@ -1,0 +1,646 @@
+1 del_signage_table 56 56
+1 signage 82 82 252 252 1.0 0
+1 signage 95 95 246 246 1.0 0
+1 del_signage_table 136 136
+1 signage 204 204 246 246 1.0 0
+1 del_signage_table 246 246
+1 signage 252 252 259 259 1.0 0
+1 del_signage_table 259 259
+1 del_signage_table 265 265
+1 del_signage_table 274 274
+1 del_signage_table 296 296
+1 signage 370 370 488 488 1.0 0
+1 del_signage_table 410 410
+1 del_signage_table 488 488
+1 del_signage_table 605 605
+1 del_signage_table 637 637
+1 del_signage_table 660 660
+1 signage 834 834 246 246 1.0 0
+1 del_signage_table 886 886
+601 del_signage_table 56 56
+601 del_signage_table 82 82
+601 signage 95 95 886 886 1.0 0
+601 del_signage_table 136 136
+601 del_signage_table 204 204
+601 del_signage_table 246 246
+601 signage 252 252 274 274 1.0 0
+601 signage 259 259 246 246 1.0 0
+601 signage 265 265 204 204 1.0 0
+601 signage 274 274 265 265 1.0 0
+601 signage 296 296 56 56 1.0 0
+601 del_signage_table 370 370
+601 signage 410 410 660 660 1.0 0
+601 del_signage_table 488 488
+601 signage 605 605 82 82 1.0 0
+601 del_signage_table 637 637
+601 signage 660 660 56 56 1.0 0
+601 del_signage_table 834 834
+601 signage 886 886 56 56 1.0 0
+1201 del_signage_table 56 56
+1201 del_signage_table 82 82
+1201 signage 95 95 274 274 1.0 0
+1201 del_signage_table 136 136
+1201 del_signage_table 204 204
+1201 del_signage_table 246 246
+1201 signage 252 252 660 660 1.0 0
+1201 signage 259 259 204 204 1.0 0
+1201 del_signage_table 265 265
+1201 signage 274 274 660 660 1.0 0
+1201 signage 296 296 56 56 1.0 0
+1201 del_signage_table 370 370
+1201 signage 410 410 637 637 1.0 0
+1201 del_signage_table 488 488
+1201 signage 605 605 82 82 1.0 0
+1201 signage 637 637 136 136 1.0 0
+1201 del_signage_table 660 660
+1201 signage 834 834 204 204 1.0 0
+1201 del_signage_table 886 886
+1801 del_signage_table 56 56
+1801 signage 82 82 605 605 1.0 0
+1801 del_signage_table 95 95
+1801 del_signage_table 136 136
+1801 signage 204 204 834 834 1.0 0
+1801 signage 246 246 410 410 1.0 0
+1801 signage 252 252 637 637 1.0 0
+1801 del_signage_table 259 259
+1801 del_signage_table 265 265
+1801 del_signage_table 274 274
+1801 del_signage_table 296 296
+1801 signage 370 370 488 488 1.0 0
+1801 del_signage_table 410 410
+1801 signage 488 488 660 660 1.0 0
+1801 del_signage_table 605 605
+1801 del_signage_table 637 637
+1801 signage 660 660 204 204 1.0 0
+1801 signage 834 834 265 265 1.0 0
+1801 signage 886 886 296 296 1.0 0
+2401 del_signage_table 56 56
+2401 del_signage_table 82 82
+2401 signage 95 95 82 82 1.0 0
+2401 del_signage_table 136 136
+2401 del_signage_table 204 204
+2401 del_signage_table 246 246
+2401 del_signage_table 252 252
+2401 del_signage_table 259 259
+2401 del_signage_table 265 265
+2401 del_signage_table 274 274
+2401 del_signage_table 296 296
+2401 del_signage_table 370 370
+2401 del_signage_table 410 410
+2401 del_signage_table 488 488
+2401 signage 605 605 95 95 1.0 0
+2401 del_signage_table 637 637
+2401 del_signage_table 660 660
+2401 del_signage_table 834 834
+2401 del_signage_table 886 886
+3001 signage 56 56 265 265 1.0 0
+3001 del_signage_table 82 82
+3001 del_signage_table 95 95
+3001 del_signage_table 136 136
+3001 del_signage_table 204 204
+3001 signage 246 246 605 605 1.0 0
+3001 signage 252 252 834 834 1.0 0
+3001 del_signage_table 259 259
+3001 signage 265 265 82 82 1.0 0
+3001 del_signage_table 274 274
+3001 del_signage_table 296 296
+3001 del_signage_table 370 370
+3001 del_signage_table 410 410
+3001 del_signage_table 488 488
+3001 del_signage_table 605 605
+3001 del_signage_table 637 637
+3001 signage 660 660 95 95 1.0 0
+3001 signage 834 834 370 370 1.0 0
+3001 signage 886 886 660 660 1.0 0
+3601 del_signage_table 56 56
+3601 del_signage_table 82 82
+3601 del_signage_table 95 95
+3601 del_signage_table 136 136
+3601 del_signage_table 204 204
+3601 signage 246 246 56 56 1.0 0
+3601 signage 252 252 265 265 1.0 0
+3601 del_signage_table 259 259
+3601 signage 265 265 136 136 1.0 0
+3601 del_signage_table 274 274
+3601 del_signage_table 296 296
+3601 signage 370 370 259 259 1.0 0
+3601 del_signage_table 410 410
+3601 signage 488 488 259 259 1.0 0
+3601 del_signage_table 605 605
+3601 signage 637 637 410 410 1.0 0
+3601 signage 660 660 274 274 1.0 0
+3601 del_signage_table 834 834
+3601 del_signage_table 886 886
+4201 del_signage_table 56 56
+4201 del_signage_table 82 82
+4201 del_signage_table 95 95
+4201 del_signage_table 136 136
+4201 signage 204 204 274 274 1.0 0
+4201 del_signage_table 246 246
+4201 del_signage_table 252 252
+4201 del_signage_table 259 259
+4201 del_signage_table 265 265
+4201 del_signage_table 274 274
+4201 del_signage_table 296 296
+4201 del_signage_table 370 370
+4201 signage 410 410 246 246 1.0 0
+4201 del_signage_table 488 488
+4201 del_signage_table 605 605
+4201 signage 637 637 136 136 1.0 0
+4201 del_signage_table 660 660
+4201 del_signage_table 834 834
+4201 del_signage_table 886 886
+4801 signage 56 56 886 886 1.0 0
+4801 del_signage_table 82 82
+4801 signage 95 95 274 274 1.0 0
+4801 del_signage_table 136 136
+4801 del_signage_table 204 204
+4801 del_signage_table 246 246
+4801 del_signage_table 252 252
+4801 signage 259 259 296 296 1.0 0
+4801 signage 265 265 204 204 1.0 0
+4801 del_signage_table 274 274
+4801 del_signage_table 296 296
+4801 del_signage_table 370 370
+4801 del_signage_table 410 410
+4801 del_signage_table 488 488
+4801 signage 605 605 637 637 1.0 0
+4801 signage 637 637 259 259 1.0 0
+4801 signage 660 660 886 886 1.0 0
+4801 del_signage_table 834 834
+4801 signage 886 886 370 370 1.0 0
+5401 del_signage_table 56 56
+5401 signage 82 82 136 136 1.0 0
+5401 signage 95 95 834 834 1.0 0
+5401 del_signage_table 136 136
+5401 del_signage_table 204 204
+5401 signage 246 246 82 82 1.0 0
+5401 del_signage_table 252 252
+5401 del_signage_table 259 259
+5401 signage 265 265 488 488 1.0 0
+5401 signage 274 274 370 370 1.0 0
+5401 signage 296 296 95 95 1.0 0
+5401 del_signage_table 370 370
+5401 del_signage_table 410 410
+5401 signage 488 488 605 605 1.0 0
+5401 signage 605 605 246 246 1.0 0
+5401 del_signage_table 637 637
+5401 del_signage_table 660 660
+5401 signage 834 834 410 410 1.0 0
+5401 signage 886 886 95 95 1.0 0
+6001 del_signage_table 56 56
+6001 del_signage_table 82 82
+6001 del_signage_table 95 95
+6001 del_signage_table 136 136
+6001 signage 204 204 246 246 1.0 0
+6001 signage 246 246 136 136 1.0 0
+6001 signage 252 252 204 204 1.0 0
+6001 del_signage_table 259 259
+6001 del_signage_table 265 265
+6001 signage 274 274 886 886 1.0 0
+6001 signage 296 296 886 886 1.0 0
+6001 del_signage_table 370 370
+6001 signage 410 410 637 637 1.0 0
+6001 del_signage_table 488 488
+6001 del_signage_table 605 605
+6001 del_signage_table 637 637
+6001 del_signage_table 660 660
+6001 del_signage_table 834 834
+6001 del_signage_table 886 886
+6601 del_signage_table 56 56
+6601 signage 82 82 136 136 1.0 0
+6601 del_signage_table 95 95
+6601 signage 136 136 274 274 1.0 0
+6601 del_signage_table 204 204
+6601 signage 246 246 95 95 1.0 0
+6601 signage 252 252 246 246 1.0 0
+6601 signage 259 259 274 274 1.0 0
+6601 signage 265 265 660 660 1.0 0
+6601 del_signage_table 274 274
+6601 signage 296 296 82 82 1.0 0
+6601 signage 370 370 82 82 1.0 0
+6601 signage 410 410 259 259 1.0 0
+6601 del_signage_table 488 488
+6601 signage 605 605 265 265 1.0 0
+6601 del_signage_table 637 637
+6601 signage 660 660 296 296 1.0 0
+6601 del_signage_table 834 834
+6601 del_signage_table 886 886
+7201 del_signage_table 56 56
+7201 del_signage_table 82 82
+7201 signage 95 95 370 370 1.0 0
+7201 del_signage_table 136 136
+7201 del_signage_table 204 204
+7201 signage 246 246 82 82 1.0 0
+7201 del_signage_table 252 252
+7201 signage 259 259 637 637 1.0 0
+7201 del_signage_table 265 265
+7201 del_signage_table 274 274
+7201 signage 296 296 660 660 1.0 0
+7201 del_signage_table 370 370
+7201 signage 410 410 660 660 1.0 0
+7201 del_signage_table 488 488
+7201 signage 605 605 370 370 1.0 0
+7201 signage 637 637 204 204 1.0 0
+7201 del_signage_table 660 660
+7201 del_signage_table 834 834
+7201 del_signage_table 886 886
+7801 del_signage_table 56 56
+7801 signage 82 82 136 136 1.0 0
+7801 signage 95 95 274 274 1.0 0
+7801 signage 136 136 834 834 1.0 0
+7801 del_signage_table 204 204
+7801 del_signage_table 246 246
+7801 del_signage_table 252 252
+7801 signage 259 259 252 252 1.0 0
+7801 signage 265 265 82 82 1.0 0
+7801 del_signage_table 274 274
+7801 signage 296 296 56 56 1.0 0
+7801 signage 370 370 252 252 1.0 0
+7801 del_signage_table 410 410
+7801 del_signage_table 488 488
+7801 signage 605 605 410 410 1.0 0
+7801 signage 637 637 265 265 1.0 0
+7801 del_signage_table 660 660
+7801 del_signage_table 834 834
+7801 del_signage_table 886 886
+8401 del_signage_table 56 56
+8401 del_signage_table 82 82
+8401 del_signage_table 95 95
+8401 del_signage_table 136 136
+8401 del_signage_table 204 204
+8401 signage 246 246 265 265 1.0 0
+8401 signage 252 252 95 95 1.0 0
+8401 signage 259 259 82 82 1.0 0
+8401 signage 265 265 886 886 1.0 0
+8401 del_signage_table 274 274
+8401 signage 296 296 274 274 1.0 0
+8401 del_signage_table 370 370
+8401 del_signage_table 410 410
+8401 del_signage_table 488 488
+8401 del_signage_table 605 605
+8401 signage 637 637 660 660 1.0 0
+8401 del_signage_table 660 660
+8401 signage 834 834 136 136 1.0 0
+8401 del_signage_table 886 886
+9001 signage 56 56 136 136 1.0 0
+9001 del_signage_table 82 82
+9001 signage 95 95 56 56 1.0 0
+9001 del_signage_table 136 136
+9001 signage 204 204 265 265 1.0 0
+9001 signage 246 246 605 605 1.0 0
+9001 signage 252 252 410 410 1.0 0
+9001 signage 259 259 660 660 1.0 0
+9001 del_signage_table 265 265
+9001 signage 274 274 488 488 1.0 0
+9001 del_signage_table 296 296
+9001 del_signage_table 370 370
+9001 signage 410 410 296 296 1.0 0
+9001 del_signage_table 488 488
+9001 signage 605 605 886 886 1.0 0
+9001 signage 637 637 296 296 1.0 0
+9001 del_signage_table 660 660
+9001 signage 834 834 95 95 1.0 0
+9001 del_signage_table 886 886
+9601 del_signage_table 56 56
+9601 signage 82 82 246 246 1.0 0
+9601 del_signage_table 95 95
+9601 del_signage_table 136 136
+9601 signage 204 204 605 605 1.0 0
+9601 del_signage_table 246 246
+9601 del_signage_table 252 252
+9601 signage 259 259 410 410 1.0 0
+9601 signage 265 265 274 274 1.0 0
+9601 signage 274 274 259 259 1.0 0
+9601 del_signage_table 296 296
+9601 del_signage_table 370 370
+9601 signage 410 410 82 82 1.0 0
+9601 signage 488 488 296 296 1.0 0
+9601 del_signage_table 605 605
+9601 signage 637 637 259 259 1.0 0
+9601 del_signage_table 660 660
+9601 del_signage_table 834 834
+9601 del_signage_table 886 886
+10201 signage 56 56 370 370 1.0 0
+10201 signage 82 82 637 637 1.0 0
+10201 signage 95 95 637 637 1.0 0
+10201 del_signage_table 136 136
+10201 del_signage_table 204 204
+10201 del_signage_table 246 246
+10201 del_signage_table 252 252
+10201 del_signage_table 259 259
+10201 signage 265 265 246 246 1.0 0
+10201 del_signage_table 274 274
+10201 del_signage_table 296 296
+10201 signage 370 370 204 204 1.0 0
+10201 signage 410 410 488 488 1.0 0
+10201 signage 488 488 834 834 1.0 0
+10201 del_signage_table 605 605
+10201 signage 637 637 274 274 1.0 0
+10201 signage 660 660 274 274 1.0 0
+10201 signage 834 834 660 660 1.0 0
+10201 del_signage_table 886 886
+10801 signage 56 56 246 246 1.0 0
+10801 signage 82 82 136 136 1.0 0
+10801 signage 95 95 637 637 1.0 0
+10801 del_signage_table 136 136
+10801 del_signage_table 204 204
+10801 signage 246 246 410 410 1.0 0
+10801 del_signage_table 252 252
+10801 del_signage_table 259 259
+10801 del_signage_table 265 265
+10801 signage 274 274 488 488 1.0 0
+10801 signage 296 296 252 252 1.0 0
+10801 signage 370 370 82 82 1.0 0
+10801 del_signage_table 410 410
+10801 del_signage_table 488 488
+10801 signage 605 605 82 82 1.0 0
+10801 signage 637 637 82 82 1.0 0
+10801 signage 660 660 82 82 1.0 0
+10801 del_signage_table 834 834
+10801 del_signage_table 886 886
+11401 signage 56 56 637 637 1.0 0
+11401 del_signage_table 82 82
+11401 del_signage_table 95 95
+11401 del_signage_table 136 136
+11401 signage 204 204 410 410 1.0 0
+11401 signage 246 246 82 82 1.0 0
+11401 signage 252 252 259 259 1.0 0
+11401 del_signage_table 259 259
+11401 del_signage_table 265 265
+11401 del_signage_table 274 274
+11401 signage 296 296 95 95 1.0 0
+11401 del_signage_table 370 370
+11401 del_signage_table 410 410
+11401 del_signage_table 488 488
+11401 signage 605 605 488 488 1.0 0
+11401 del_signage_table 637 637
+11401 del_signage_table 660 660
+11401 signage 834 834 259 259 1.0 0
+11401 del_signage_table 886 886
+12001 signage 56 56 136 136 1.0 0
+12001 del_signage_table 82 82
+12001 signage 95 95 259 259 1.0 0
+12001 signage 136 136 82 82 1.0 0
+12001 signage 204 204 82 82 1.0 0
+12001 del_signage_table 246 246
+12001 signage 252 252 204 204 1.0 0
+12001 del_signage_table 259 259
+12001 signage 265 265 410 410 1.0 0
+12001 del_signage_table 274 274
+12001 signage 296 296 370 370 1.0 0
+12001 del_signage_table 370 370
+12001 del_signage_table 410 410
+12001 del_signage_table 488 488
+12001 del_signage_table 605 605
+12001 signage 637 637 136 136 1.0 0
+12001 signage 660 660 204 204 1.0 0
+12001 signage 834 834 605 605 1.0 0
+12001 signage 886 886 56 56 1.0 0
+12601 del_signage_table 56 56
+12601 del_signage_table 82 82
+12601 signage 95 95 370 370 1.0 0
+12601 signage 136 136 834 834 1.0 0
+12601 del_signage_table 204 204
+12601 signage 246 246 82 82 1.0 0
+12601 del_signage_table 252 252
+12601 signage 259 259 834 834 1.0 0
+12601 signage 265 265 834 834 1.0 0
+12601 signage 274 274 136 136 1.0 0
+12601 signage 296 296 95 95 1.0 0
+12601 del_signage_table 370 370
+12601 signage 410 410 637 637 1.0 0
+12601 del_signage_table 488 488
+12601 del_signage_table 605 605
+12601 signage 637 637 274 274 1.0 0
+12601 del_signage_table 660 660
+12601 signage 834 834 265 265 1.0 0
+12601 signage 886 886 246 246 1.0 0
+13201 del_signage_table 56 56
+13201 del_signage_table 82 82
+13201 del_signage_table 95 95
+13201 del_signage_table 136 136
+13201 del_signage_table 204 204
+13201 del_signage_table 246 246
+13201 signage 252 252 605 605 1.0 0
+13201 del_signage_table 259 259
+13201 del_signage_table 265 265
+13201 del_signage_table 274 274
+13201 del_signage_table 296 296
+13201 signage 370 370 246 246 1.0 0
+13201 del_signage_table 410 410
+13201 signage 488 488 136 136 1.0 0
+13201 signage 605 605 136 136 1.0 0
+13201 del_signage_table 637 637
+13201 signage 660 660 637 637 1.0 0
+13201 del_signage_table 834 834
+13201 signage 886 886 82 82 1.0 0
+13801 signage 56 56 886 886 1.0 0
+13801 signage 82 82 370 370 1.0 0
+13801 del_signage_table 95 95
+13801 signage 136 136 95 95 1.0 0
+13801 del_signage_table 204 204
+13801 del_signage_table 246 246
+13801 signage 252 252 56 56 1.0 0
+13801 del_signage_table 259 259
+13801 signage 265 265 246 246 1.0 0
+13801 signage 274 274 660 660 1.0 0
+13801 signage 296 296 246 246 1.0 0
+13801 del_signage_table 370 370
+13801 del_signage_table 410 410
+13801 del_signage_table 488 488
+13801 signage 605 605 82 82 1.0 0
+13801 signage 637 637 834 834 1.0 0
+13801 del_signage_table 660 660
+13801 signage 834 834 136 136 1.0 0
+13801 signage 886 886 252 252 1.0 0
+14401 del_signage_table 56 56
+14401 del_signage_table 82 82
+14401 signage 95 95 82 82 1.0 0
+14401 signage 136 136 370 370 1.0 0
+14401 signage 204 204 252 252 1.0 0
+14401 signage 246 246 95 95 1.0 0
+14401 signage 252 252 82 82 1.0 0
+14401 signage 259 259 637 637 1.0 0
+14401 del_signage_table 265 265
+14401 del_signage_table 274 274
+14401 signage 296 296 265 265 1.0 0
+14401 signage 370 370 410 410 1.0 0
+14401 signage 410 410 204 204 1.0 0
+14401 del_signage_table 488 488
+14401 del_signage_table 605 605
+14401 del_signage_table 637 637
+14401 del_signage_table 660 660
+14401 signage 834 834 136 136 1.0 0
+14401 signage 886 886 204 204 1.0 0
+15001 del_signage_table 56 56
+15001 del_signage_table 82 82
+15001 del_signage_table 95 95
+15001 signage 136 136 259 259 1.0 0
+15001 signage 204 204 605 605 1.0 0
+15001 del_signage_table 246 246
+15001 signage 252 252 246 246 1.0 0
+15001 signage 259 259 265 265 1.0 0
+15001 del_signage_table 265 265
+15001 signage 274 274 246 246 1.0 0
+15001 del_signage_table 296 296
+15001 del_signage_table 370 370
+15001 del_signage_table 410 410
+15001 del_signage_table 488 488
+15001 signage 605 605 95 95 1.0 0
+15001 del_signage_table 637 637
+15001 del_signage_table 660 660
+15001 signage 834 834 204 204 1.0 0
+15001 signage 886 886 252 252 1.0 0
+15601 del_signage_table 56 56
+15601 signage 82 82 605 605 1.0 0
+15601 del_signage_table 95 95
+15601 del_signage_table 136 136
+15601 signage 204 204 136 136 1.0 0
+15601 signage 246 246 95 95 1.0 0
+15601 del_signage_table 252 252
+15601 del_signage_table 259 259
+15601 signage 265 265 834 834 1.0 0
+15601 signage 274 274 259 259 1.0 0
+15601 del_signage_table 296 296
+15601 signage 370 370 246 246 1.0 0
+15601 signage 410 410 637 637 1.0 0
+15601 signage 488 488 370 370 1.0 0
+15601 signage 605 605 834 834 1.0 0
+15601 signage 637 637 95 95 1.0 0
+15601 del_signage_table 660 660
+15601 del_signage_table 834 834
+15601 del_signage_table 886 886
+16201 signage 56 56 637 637 1.0 0
+16201 signage 82 82 296 296 1.0 0
+16201 signage 95 95 259 259 1.0 0
+16201 del_signage_table 136 136
+16201 signage 204 204 259 259 1.0 0
+16201 signage 246 246 204 204 1.0 0
+16201 del_signage_table 252 252
+16201 signage 259 259 82 82 1.0 0
+16201 signage 265 265 136 136 1.0 0
+16201 del_signage_table 274 274
+16201 del_signage_table 296 296
+16201 del_signage_table 370 370
+16201 del_signage_table 410 410
+16201 del_signage_table 488 488
+16201 signage 605 605 370 370 1.0 0
+16201 del_signage_table 637 637
+16201 del_signage_table 660 660
+16201 del_signage_table 834 834
+16201 del_signage_table 886 886
+16801 signage 56 56 296 296 1.0 0
+16801 del_signage_table 82 82
+16801 signage 95 95 252 252 1.0 0
+16801 del_signage_table 136 136
+16801 del_signage_table 204 204
+16801 signage 246 246 204 204 1.0 0
+16801 signage 252 252 265 265 1.0 0
+16801 signage 259 259 296 296 1.0 0
+16801 signage 265 265 259 259 1.0 0
+16801 del_signage_table 274 274
+16801 del_signage_table 296 296
+16801 signage 370 370 274 274 1.0 0
+16801 del_signage_table 410 410
+16801 del_signage_table 488 488
+16801 del_signage_table 605 605
+16801 signage 637 637 886 886 1.0 0
+16801 signage 660 660 834 834 1.0 0
+16801 signage 834 834 82 82 1.0 0
+16801 signage 886 886 252 252 1.0 0
+17401 signage 56 56 246 246 1.0 0
+17401 del_signage_table 82 82
+17401 signage 95 95 82 82 1.0 0
+17401 del_signage_table 136 136
+17401 signage 204 204 95 95 1.0 0
+17401 del_signage_table 246 246
+17401 signage 252 252 204 204 1.0 0
+17401 del_signage_table 259 259
+17401 del_signage_table 265 265
+17401 signage 274 274 136 136 1.0 0
+17401 signage 296 296 252 252 1.0 0
+17401 signage 370 370 296 296 1.0 0
+17401 del_signage_table 410 410
+17401 del_signage_table 488 488
+17401 signage 605 605 834 834 1.0 0
+17401 signage 637 637 265 265 1.0 0
+17401 del_signage_table 660 660
+17401 signage 834 834 265 265 1.0 0
+17401 del_signage_table 886 886
+18001 signage 56 56 95 95 1.0 0
+18001 signage 82 82 660 660 1.0 0
+18001 del_signage_table 95 95
+18001 signage 136 136 637 637 1.0 0
+18001 del_signage_table 204 204
+18001 signage 246 246 265 265 1.0 0
+18001 del_signage_table 252 252
+18001 del_signage_table 259 259
+18001 signage 265 265 204 204 1.0 0
+18001 del_signage_table 274 274
+18001 signage 296 296 246 246 1.0 0
+18001 signage 370 370 82 82 1.0 0
+18001 signage 410 410 637 637 1.0 0
+18001 del_signage_table 488 488
+18001 signage 605 605 886 886 1.0 0
+18001 del_signage_table 637 637
+18001 signage 660 660 410 410 1.0 0
+18001 del_signage_table 834 834
+18001 signage 886 886 410 410 1.0 0
+18601 del_signage_table 56 56
+18601 del_signage_table 82 82
+18601 del_signage_table 95 95
+18601 signage 136 136 637 637 1.0 0
+18601 signage 204 204 274 274 1.0 0
+18601 del_signage_table 246 246
+18601 signage 252 252 886 886 1.0 0
+18601 del_signage_table 259 259
+18601 signage 265 265 410 410 1.0 0
+18601 signage 274 274 56 56 1.0 0
+18601 del_signage_table 296 296
+18601 signage 370 370 204 204 1.0 0
+18601 del_signage_table 410 410
+18601 del_signage_table 488 488
+18601 signage 605 605 488 488 1.0 0
+18601 del_signage_table 637 637
+18601 del_signage_table 660 660
+18601 del_signage_table 834 834
+18601 del_signage_table 886 886
+19201 signage 56 56 296 296 1.0 0
+19201 del_signage_table 82 82
+19201 del_signage_table 95 95
+19201 del_signage_table 136 136
+19201 del_signage_table 204 204
+19201 signage 246 246 265 265 1.0 0
+19201 signage 252 252 204 204 1.0 0
+19201 del_signage_table 259 259
+19201 signage 265 265 259 259 1.0 0
+19201 del_signage_table 274 274
+19201 signage 296 296 886 886 1.0 0
+19201 signage 370 370 410 410 1.0 0
+19201 signage 410 410 488 488 1.0 0
+19201 signage 488 488 136 136 1.0 0
+19201 signage 605 605 886 886 1.0 0
+19201 signage 637 637 886 886 1.0 0
+19201 del_signage_table 660 660
+19201 signage 834 834 660 660 1.0 0
+19201 signage 886 886 370 370 1.0 0
+19801 del_signage_table 56 56
+19801 del_signage_table 82 82
+19801 signage 95 95 605 605 1.0 0
+19801 del_signage_table 136 136
+19801 signage 204 204 259 259 1.0 0
+19801 signage 246 246 95 95 1.0 0
+19801 signage 252 252 605 605 1.0 0
+19801 signage 259 259 410 410 1.0 0
+19801 signage 265 265 488 488 1.0 0
+19801 signage 274 274 265 265 1.0 0
+19801 del_signage_table 296 296
+19801 signage 370 370 605 605 1.0 0
+19801 del_signage_table 410 410
+19801 del_signage_table 488 488
+19801 signage 605 605 82 82 1.0 0
+19801 del_signage_table 637 637
+19801 del_signage_table 660 660
+19801 signage 834 834 56 56 1.0 0
+19801 signage 886 886 95 95 1.0 0

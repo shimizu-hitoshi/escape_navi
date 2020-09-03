@@ -98,7 +98,7 @@ class Curriculum:
                 test_env = Environment(args, "test")
                 tmp_score, _ = test_env.test(dict_model)
                 with open(resdir + "/Curriculum_log.txt", "a") as f:
-                    f.write("{:}\t{:}\t{:}\n".format(loop_i, training_target, tmp_score))
+                    f.write("{:}\t{:}\t{:}\t{:}\n".format(loop_i, train_env.NUM_EPISODES, training_target, tmp_score))
                     print(loop_i, training_target, tmp_score)
 
                 if tmp_score < best_score: # scoreは移動時間なので小さいほどよい

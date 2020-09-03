@@ -41,7 +41,7 @@ def show_stats(fn):
     print(np.max(time1), np.max(time1) // 60, ":", np.max(time1) % 60)
 
 if __name__ == '__main__':
-    # show_stats("tmp_result2/userlogs.txt")
+    show_stats("tmp_result2/userlogs.txt")
     show_stats("tmp_result/userlogs.txt")
     # print(sum_logs("tmp_result2") * 300 / 5000)
     # n = read_log("tmp_result2/log000010.txt")
