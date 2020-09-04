@@ -1,2 +1,2 @@
-../mkUserlist/data/kawaramachi
-../mkUserlist/data/kawaramachi
+data
+data

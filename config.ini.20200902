@@ -5,10 +5,10 @@ datadirlistfn=train_datadirlist_mini.txt
 sim_time=9000
 interval=300
 # actionfn=actions19.txt
-actionfn=data/goalids.txt
-edgedir=data
+actionfn=../mkUserlist/data/kawaramachi/goalids.txt
+edgedir=../mkUserlist/data/kawaramachi
 [TRAINING]
-training_target=data/goalids.txt
+training_target=../mkUserlist/data/kawaramachi/goalids.txt
 # training_target=goalids_mini.txt
 obs_step=4
 obs_degree=12
