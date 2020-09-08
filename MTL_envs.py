@@ -70,7 +70,7 @@ class Curriculum:
             dict_FixControler[sid] = controler
 
         # sys.exit()
-        best_score, R_base = test_env.test(actor_critic, dict_FixControler) # ルールベースの評価値を取得
+        best_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[]) # ルールベースの評価値を取得
         T_open, travel_time = R_base
         print("初回のスコア", best_score, T_open, np.mean(travel_time))
         R_base = (T_open , travel_time) # train環境に入力するため
@@ -107,7 +107,7 @@ class Curriculum:
 
                 actor_critic = train_env.train(actor_critic, dict_FixControler, config, training_target)
                 test_env = Environment(args, "test")
-                tmp_score, _ = test_env.test(actor_critic, dict_FixControler)
+                tmp_score, _ = test_env.test(actor_critic, dict_FixControler, fix_list=[training_target])
                 with open(resdir + "/Curriculum_log.txt", "a") as f:
                     f.write("{:}\t{:}\t{:}\t{:}\n".format(loop_i, train_env.NUM_EPISODES, training_target, tmp_score))
                     print(loop_i, training_target, tmp_score)
@@ -290,7 +290,7 @@ class Environment:
         return actor_critic
 
     # def test(self, dict_model): # 1並列を想定する
-    def test(self, actor_critic, dict_FixControler): # 1並列を想定する
+    def test(self, actor_critic, dict_FixControler, fix_list=None): # 1並列を想定する
         # self.NUM_AGENTS = len(dict_model)
         self.NUM_AGENTS = actor_critic.n_out
         NUM_PARALLEL = 1
@@ -315,7 +315,7 @@ class Environment:
                 print("obs",obs)
                 # for i, actor_critic in enumerate( actor_critics ):
                 for i in range( actor_critic.n_out ):
-                    if i in actor_critic.better_agents:
+                    if (i in actor_critic.better_agents) or (i in fix_list):
                         # print(actor_critic.__class__.__name__)
                         tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
                     else:
