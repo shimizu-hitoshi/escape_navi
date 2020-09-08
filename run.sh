@@ -25,8 +25,8 @@ python main.py --save --configfn config.ini
 # 再現実験
 # ../simulator/simulator ../mkUserlist/data/kawaramachi/agentlist.txt ../mkUserlist/data/kawaramachi/graph.twd ../mkUserlist/data/kawaramachi/goallist.txt -B logs/edge/sim_result_1/history_events.txt -o tmp_result -e 9000 -l 10 -S
 # cp logs/edge/sim_result_1/history_events.txt ./tmp_result
-../simulator/simulator ../mkUserlist/data/kawaramachi/agentlist.txt ../mkUserlist/data/kawaramachi/graph.twd ../mkUserlist/data/kawaramachi/goallist.txt -B results/event.txt -o tmp_result2 -e 9000 -l 10 -S
-cp results/event.txt ./tmp_result2
+# ../simulator/simulator ../mkUserlist/data/kawaramachi/agentlist.txt ../mkUserlist/data/kawaramachi/graph.twd ../mkUserlist/data/kawaramachi/goallist.txt -B results/event.txt -o tmp_result2 -e 9000 -l 10 -S
+# cp results/event.txt ./tmp_result2
 
 # 再現実験（共用計算機で学習したモデルを動画にするために）
 # ../simulator/simulator ../mkUserlist/data/kawaramachi/agentlist.txt ../mkUserlist/data/kawaramachi/graph.twd ../mkUserlist/data/kawaramachi/goallist.txt -B results/event.txt -o tmp_result -e 9000 -l 10 -S

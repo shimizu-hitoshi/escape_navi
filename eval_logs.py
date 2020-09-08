@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+# coding: utf-8
 
 import numpy as np
 import glob
+from pedestrians import calc_fix_time
 
 def read_userlogs(fn):
     ret = []
@@ -36,9 +38,15 @@ def sum_logs(logdir):
     return ret
 
 def show_stats(fn):
+    fix_time, distances = calc_fix_time("data")
     userlogs, time1 = read_userlogs(fn)
+    ext_time = []
+    for t, t_fix in zip(time1, fix_time):
+        ext_time.append(t - t_fix)
+
     print(np.mean(time1))
-    print(np.max(time1), np.max(time1) // 60, ":", np.max(time1) % 60)
+    print(np.mean(ext_time))
+    print(np.max(time1), "%02d:%02d"%(np.max(time1) // 60, np.max(time1) % 60) )
 
 if __name__ == '__main__':
     show_stats("tmp_result2/userlogs.txt")

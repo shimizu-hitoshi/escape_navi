@@ -1,8 +1,9 @@
 import argparse
 import gym
 import numpy as np
-from envs import Environment
-from envs import Curriculum
+from MTL_envs import Curriculum
+# from envs import Environment
+# from envs import Curriculum
 from myenv import env
 
 parser = argparse.ArgumentParser(description="A2C")

@@ -11,24 +11,29 @@ class ActorCritic(nn.Module):
         super(ActorCritic, self).__init__()
 
         def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
-
+        
+        self.n_out = n_out
+        self.better_agents = [] # ルールベースを超えたsidのリスト
         mid_io = 128
         self.linear1 = nn.Linear(n_in, mid_io)
         self.linear2 = nn.Linear(mid_io, mid_io)
         self.linear3 = nn.Linear(mid_io, mid_io)
 
         self.actor   = nn.Linear(mid_io, n_out)
+        actors = [nn.Linear(mid_io, n_out) for _ in range(n_out)]
+        self.actors   = nn.ModuleList(actors)
         # nn.init.normal_(self.actor.weight, 0.0, 1.0)
         self.critic  = nn.Linear(mid_io, 1)
         # nn.init.normal_(self.critic.weight, 0.0, 1.0)
 
-    def forward(self, x):
+    def forward(self, x, sid):
         h1 = F.relu(self.linear1(x))
         h2 = F.relu(self.linear2(h1))
         h3 = F.relu(self.linear3(h2))
 
         critic_output = self.critic(h3)
-        actor_output  = self.actor(h3)
+        actor_output  = self.actors[sid](h3)
+        # actor_output  = self.actor(h3)
         return critic_output, actor_output
 
     def set_edges(self, edges):
@@ -43,8 +48,8 @@ class ActorCritic(nn.Module):
         # print("ret",ret)
         return ret
 
-    def act(self, x, flg_greedy=False, flg_legal=True):
-        value, actor_output = self(x)
+    def act(self, x, sid, flg_greedy=False, flg_legal=True):
+        value, actor_output = self(x, sid)
         if flg_legal: # 空いている避難所のみを誘導先候補にする
             ret = torch.zeros(x.shape[0],1)
             legal_actions = self.legal_actions(x)
@@ -72,8 +77,8 @@ class ActorCritic(nn.Module):
             # print(action.shape)
             return action
  
-    def act_greedy(self, x):
-        return self.act(x, flg_greedy=True)
+    def act_greedy(self, x, sid):
+        return self.act(x, sid, flg_greedy=True)
 
         # value, actor_output = self(x)
         # legal_actions = self.legal_actions(x)
@@ -85,13 +90,13 @@ class ActorCritic(nn.Module):
         # # action       = action_probs.data.max(1)[1].view(-1, 1)
         # return action
 
-    def get_value(self, x):
+    def get_value(self, x, sid):
         # return state-value
-        value, actor_output = self(x)
+        value, actor_output = self(x, sid)
         return value
 
-    def evaluate_actions(self, x, actions):
-        value, actor_output = self(x)
+    def evaluate_actions(self, x, actions, sid):
+        value, actor_output = self(x, sid)
 
         log_probs = F.log_softmax(actor_output, dim=1)
 
