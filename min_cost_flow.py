@@ -2,6 +2,7 @@ import networkx as nx
 from pedestrians import read_agentlist
 from edges import Edge
 import sys
+import pandas as pd
 
 pedestrians = read_agentlist("data/agentlist.txt")
 edges = Edge("data")
@@ -47,3 +48,5 @@ for k,v in flowDict.items():
         print(k, k2, v2)
 # print(flowDict)
 print(flowCost)
+pd.to_pickle(flowDict, "flowDict.pickle")
+pd.to_pickle(flowCost, "flowCost.pickle")

@@ -17,7 +17,7 @@ import os, sys, glob
 from edges import Edge
 import datetime
 
-DEBUG = False # True # False # True # False
+DEBUG = True # False # True # False # True # False
 
 class Curriculum:
     def run(self, args):
@@ -219,6 +219,7 @@ class Environment:
 
         while True:
             for step in range(self.NUM_ADVANCED_STEP):
+                if DEBUG: agent_type = []
                 with torch.no_grad():
                     # action = actor_critic.act(rollouts.observations[step]) # ここでアクション決めて
                     action = torch.zeros(self.NUM_PARALLEL, self.NUM_AGENTS).long().to(self.device) # 各観測に対する，各エージェントの行動
@@ -227,11 +228,14 @@ class Environment:
                         if i == training_target:
                             tmp_action = actor_critic.act(current_obs, i)
                             target_action = copy.deepcopy(tmp_action)
+                            agent_type.append("actor_act")
                         elif i in actor_critic.better_agents:
                             # print(actor_critic.__class__.__name__)
                             tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
+                            agent_type.append("actor_greedy")
                         else:
                             tmp_action = dict_FixControler[i].act_greedy(obs)
+                            agent_type.append("FixControler")
                         action[:,i] = tmp_action.squeeze()
                     # for i, (k,v) in enumerate( dict_model.items() ):
                     #     if k == training_target:
@@ -240,6 +244,7 @@ class Environment:
                     #     else:
                     #         tmp_action = v.act_greedy(current_obs)
                     #     action[:,i] = tmp_action.squeeze()
+                if DEBUG: print(agent_type)
                 if DEBUG: print("step前のここ？",action.shape)
                 obs, reward, done, infos = self.envs.step(action) # これで時間を進める
                 episode_rewards += reward
@@ -309,6 +314,7 @@ class Environment:
         current_obs = obs
         T_open = []
         for step in range(self.max_step):
+            if DEBUG: agent_type = []
             with torch.no_grad():
                 # action = actor_critic.act(rollouts.observations[step]) # ここでアクション決めて
                 action = torch.zeros(self.NUM_PARALLEL, self.NUM_AGENTS).long().to(self.device) # 各観測に対する，各エージェントの行動
@@ -318,10 +324,13 @@ class Environment:
                     if (i in actor_critic.better_agents) or (i in test_list):
                         # print(actor_critic.__class__.__name__)
                         tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
+                        agent_type.append("actor_greedy")
                     else:
                         tmp_action = dict_FixControler[i].act_greedy(obs)
+                        agent_type.append("FixControler")
                     action[:,i] = tmp_action.squeeze()
                 print("action",action)
+            if DEBUG: print(agent_type)
             obs, reward, done, infos = self.envs.step(action) # これで時間を進める
             # episode_rewards += reward
             T_open.append(reward.item())
