@@ -44,8 +44,10 @@ def show_stats(fn):
     for t, t_fix in zip(time1, fix_time):
         ext_time.append(t - t_fix)
 
-    print(np.mean(time1))
-    print(np.mean(ext_time))
+    print(np.mean(time1), np.mean(ext_time), np.mean(fix_time))
+    # print(np.mean(time1))
+    # print(np.mean(ext_time))
+    # print(np.mean(fix_time))
     print(np.max(time1), "%02d:%02d"%(np.max(time1) // 60, np.max(time1) % 60) )
 
 if __name__ == '__main__':
