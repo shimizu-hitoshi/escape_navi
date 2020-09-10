@@ -69,6 +69,8 @@ class Curriculum:
             # dict_FixControler[shelter] = controler
             dict_FixControler[sid] = controler
 
+        update_score = np.zeros(test_env.n_out) # 学習が進んでいるか評価するため
+
         # sys.exit()
         best_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[]) # ルールベースの評価値を取得
         T_open, travel_time = R_base
@@ -112,13 +114,17 @@ class Curriculum:
                     f.write("{:}\t{:}\t{:}\t{:}\n".format(loop_i, train_env.NUM_EPISODES, training_target, tmp_score))
                     print(loop_i, training_target, tmp_score)
 
+                # 過去最高の性能を更新したエージェントがいれば，学習を継続する
+                if update_score[training_target] == 0 or tmp_score < update_score[training_target]:
+                    flg_update = True
+                    NG_target = []
+                    update_score[training_target] = copy.deepcopy( tmp_score )
+
                 if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
                     # best_score = copy.deepcopy(tmp_score)
                     # for node_id, model in dict_model.items(): # まとめてコピーしたらダメなのか？
                     #     dict_best_model[node_id] = copy.deepcopy(model)
                     # dict_best_model = copy.deepcopy(dict_model)
-                    flg_update = True
-                    NG_target = []
                     if training_target not in actor_critic.better_agents:
                         actor_critic.better_agents.append(training_target)
                     print(resdir + '/' + outputfn + " %s"%training_target +"で更新したのでセーブする")
