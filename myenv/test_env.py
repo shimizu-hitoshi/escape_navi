@@ -696,6 +696,7 @@ class SimEnv(gym.Env):
             # self.cur_time  = 0 # 同上
             print("INIT")
             # save initial state
+            # 以下コメントアウトで，毎回ffi作成->エラーになる
             self.init = False
         # else:
         #     # load inital state
@@ -716,14 +717,14 @@ if __name__=="__main__":
     config = configparser.ConfigParser()
     config.read('config.ini')
     # print("test")
-    env = SimEnv()
-    env.seed(seed=1, env_id=1, datadirs=["../data"], config=config, R_base=(None, None))
-    env.reset()
     while True:
+        env = SimEnv()
+        env.seed(seed=1, env_id=1, datadirs=["../data"], config=config, R_base=(None, None))
+        env.reset()
         for i in range(30):
             # action = torch.zeros(1, 19).long().to("cpu") # 各観測に対する，各エージェントの行動    
             action = torch.zeros(19).long().to("cpu") # 各観測に対する，各エージェントの行動    
             # print(action.shape)
             obs, reward, done, infos = env.step(action)
             # print(obs, reward, done, infos)
-        env.reset()
+        # env.reset()
