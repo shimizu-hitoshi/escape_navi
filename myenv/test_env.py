@@ -14,7 +14,7 @@ from edges import Edge
 import copy
 import torch
 
-DEBUG = False # True # False # True # False
+DEBUG = True # False # True # False
 
 class SimEnv(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -98,6 +98,8 @@ class SimEnv(gym.Env):
             f.write("CURRENT {:} {:} {:} {:} {:} {:}\n".format(self.env_id, self.cur_time, action, sum_pop, reward, self.episode_reward))
         self.num_step += 1
         done = self.max_step <= self.num_step
+        print(self.max_step, self.num_step, done)
+        # done = False
         # travel_time = self.mk_travel_open()
         info = {}
         if done:
@@ -112,7 +114,8 @@ class SimEnv(gym.Env):
                     "agentid":agentid
                     }
             # print("info",info)
-        if DEBUG: print(self.state.shape, reward, done, info)
+        if DEBUG: print(self.state.shape, reward, done)
+        # if DEBUG: print(self.state.shape, reward, done, info)
         return self.state, reward, done, info # obseration, reward, done, info
 
     def reset(self):
@@ -397,7 +400,7 @@ class SimEnv(gym.Env):
         # events = self.get_events(action, t)
         for e in events:
             self.lib.setBombDirect(e.encode('ascii'))
-            if DEBUG: print(e)
+            # if DEBUG: print(e)
             self.event_history.append(e)
         return events
 
@@ -717,14 +720,17 @@ if __name__=="__main__":
     config = configparser.ConfigParser()
     config.read('config.ini')
     # print("test")
+    env = SimEnv()
+    env.seed(seed=1, env_id=1, datadirs=["../data"], config=config, R_base=(None, None))
+    env.reset()
     while True:
-        env = SimEnv()
-        env.seed(seed=1, env_id=1, datadirs=["../data"], config=config, R_base=(None, None))
-        env.reset()
         for i in range(30):
+        # for i in range(300):
             # action = torch.zeros(1, 19).long().to("cpu") # 各観測に対する，各エージェントの行動    
             action = torch.zeros(19).long().to("cpu") # 各観測に対する，各エージェントの行動    
+            action = np.zeros(19, dtype=int)
             # print(action.shape)
-            obs, reward, done, infos = env.step(action)
-            # print(obs, reward, done, infos)
+            obs, reward, done, info = env.step(action)
+            print(i, obs, reward, done)
+            # print(i, obs, reward, done, info)
         # env.reset()
