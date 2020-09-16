@@ -1,6 +1,0 @@
-1000	traffic_regulation	343	336	1
-1200	traffic_regulation	343	336	0
-1300	set_gate	341	339	10	60
-1310	set_gate	344	341	10	60
-1400	delete_gate	344	341
-1500	traffic_regulation	772	150	2 0.4

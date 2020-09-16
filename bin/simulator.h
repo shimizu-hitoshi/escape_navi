@@ -303,6 +303,8 @@ public:
 	signage(){
 		log_id	= 0;
 	}
+	~signage(){
+	}
 
 	std::map<condition, std::vector<values> > signages;
 	std::vector<log> logs;
@@ -638,6 +640,7 @@ public:
 		int		size;
 		bomb	b;
 		bombs.clear();
+		std::vector<bomb>().swap(bombs);
 		fread(&size, sizeof(int), 1, fp);
 		for(int i = 0; i < size; i++){
 			fread(&b.time, sizeof(int), 1, fp);
@@ -810,6 +813,7 @@ public:
 	std::vector<int>	alive;				//生存エージェントリスト
 	std::vector<int>	zombie;				//電車待ちエージェント
 
+
 	simulation_setting(){
 		log_interval	=	60;
 		edge_log	=	false;
@@ -818,6 +822,8 @@ public:
 	~simulation_setting(){
 		alive.clear();
 		std::vector<int>().swap(alive);
+		zombie.clear();
+		std::vector<int>().swap(zombie);
 	}
 	void	write2bin(FILE	*fp){
 		int	i, l;
@@ -879,6 +885,8 @@ public:
 		cumilative	= 0;
 	}
 	~station(){
+		entrances.clear();
+		std::vector<entrance>().swap(entrances);
 	}
 
 	bool	check(int p){				//駅への入場判定
@@ -937,6 +945,14 @@ public:
 	int				id;
 	int				len_dijkstra;
 	double			*dijkstra;			//dijkstraマップ本体
+	stop_point(){
+		id	= -1;
+	}
+	~stop_point(){
+		if( id != -1)
+			delete [] dijkstra;
+		id	= -1;
+	}
 };
 
 
