@@ -88,6 +88,7 @@ class Curriculum:
         # tmp_fixed = copy.deepcopy(dict_target["training"])
         loop_i = 0 # カリキュラムのループカウンタ
         NG_target = [] # scoreが改善しなかったtargetリスト
+        train_env = Environment(args, "train", R_base, loop_i)
         while True:
             loop_i += 1
             flg_update = False
@@ -96,7 +97,6 @@ class Curriculum:
                 if training_target in NG_target: # 改善しなかった対象は省略
                     continue
                 # 突然エラー出たので，毎回インスタンス生成するように修正
-                train_env = Environment(args, "train", R_base, loop_i)
                 # dict_target["training"] = [training_target]
                 # dict_target["fixed"] = tmp_fixed
                 # dict_target["fixed"].remove(training_target)
@@ -108,7 +108,7 @@ class Curriculum:
                 #     if DEBUG: print(training_target, "番目のエージェント生成")
 
                 actor_critic = train_env.train(actor_critic, dict_FixControler, config, training_target)
-                test_env = Environment(args, "test")
+                # test_env = Environment(args, "test")
                 tmp_score, _ = test_env.test(actor_critic, dict_FixControler, test_list=[training_target])
                 with open(resdir + "/Curriculum_log.txt", "a") as f:
                     f.write("{:}\t{:}\t{:}\t{:}\n".format(loop_i, train_env.NUM_EPISODES, training_target, tmp_score))
@@ -195,6 +195,7 @@ class Environment:
         self.n_in  = self.envs.observation_space.shape[0]
         self.n_out = self.envs.action_space.n
         self.obs_shape       = self.n_in
+        self.obs_init = self.envs.reset()
 
     # def set_R_base(self, R_base):
     #     self.envs.set_R_base(R_base)
@@ -216,7 +217,8 @@ class Environment:
 
         episode         = np.zeros(self.NUM_PARALLEL)
 
-        obs = self.envs.reset()
+        # obs = self.envs.reset()
+        obs = self.obs_init
         obs = np.array(obs)
         obs = torch.from_numpy(obs).float()
         current_obs = obs
@@ -234,14 +236,14 @@ class Environment:
                         if i == training_target:
                             tmp_action = actor_critic.act(current_obs, i)
                             target_action = copy.deepcopy(tmp_action)
-                            agent_type.append("actor_act")
+                            if DEBUG: agent_type.append("actor_act")
                         elif i in actor_critic.better_agents:
                             # print(actor_critic.__class__.__name__)
                             tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
-                            agent_type.append("actor_greedy")
+                            if DEBUG: agent_type.append("actor_greedy")
                         else:
                             tmp_action = dict_FixControler[i].act_greedy(obs)
-                            agent_type.append("FixControler")
+                            if DEBUG: agent_type.append("FixControler")
                         action[:,i] = tmp_action.squeeze()
                     # for i, (k,v) in enumerate( dict_model.items() ):
                     #     if k == training_target:
@@ -314,7 +316,8 @@ class Environment:
         episode_rewards = torch.zeros([self.NUM_PARALLEL, 1])
         final_rewards   = torch.zeros([self.NUM_PARALLEL, 1])
 
-        obs = self.envs.reset()
+        # obs = self.envs.reset()
+        obs = self.obs_init
         obs = np.array(obs)
         obs = torch.from_numpy(obs).float()
         current_obs = obs
