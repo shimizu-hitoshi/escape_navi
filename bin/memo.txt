@@ -1,0 +1,2 @@
+test.cpp		#restart連打するテスト用メイン
+Makefile		#test.cpp用makefile
