@@ -1683,8 +1683,8 @@ int	simulator::iterate(){
 				uf[u].logs.push_back(trj);
 			}
 
-			bool mv_chk =false;
-			if(uf[u].quata>0.0) mv_chk = true;
+			bool mv_chk =true;
+			// if(uf[u].quata>0.0) mv_chk = true;
 			uf[u].quata	-= uf[u].delta;
 			if(uf[u].quata <= 0.0){
 
