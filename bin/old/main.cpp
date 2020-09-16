@@ -31,10 +31,11 @@ void init_restart(int argc, char** argv){
 	
     sim.initialize(argc, argv);
 
-	printf("NTIME %d\n", sim.sset.nTime);
-    for(int i = 0; i <5; i++){ 
-		printf("i:%d t:%f\n",i+1, sim.born[i].second );
-    }
+	// この下の表示は，たぶんデバグ用なのでコメントアウト
+	// printf("NTIME %d\n", sim.sset.nTime);
+    // for(int i = 0; i <5; i++){ 
+	// 	printf("i:%d t:%f\n",i+1, sim.born[i].second );
+    // }
 }
 void restart(){
 	sim.sset.nTime	= 0;
@@ -43,9 +44,8 @@ void restart(){
 	delete [] sim.uf;
 	sim.st.clear();
 
+    sim.sset.alive.clear();
     sim.traffic_logs.clear();
-
-	sim.kanban.clear();
 
 	char bin[128];
 	sprintf(bin, "%s/init.bin", sim.output);
@@ -53,10 +53,10 @@ void restart(){
 	sim.reset_condition();
 	sim.bpt =0;
 	
-	printf("NTIME %d\n", sim.sset.nTime);
-    for(int i = 0; i <5; i++){ 
-		printf("i:%d t:%f\n",i+1, sim.born[i].second );
-    }
+	// printf("NTIME %d\n", sim.sset.nTime);
+    // for(int i = 0; i <5; i++){ 
+	// 	printf("i:%d t:%f\n",i+1, sim.born[i].second );
+    // }
     for(sim.bpt=0; sim.bpt < sim.N; sim.bpt++){ 
        if(sim.born[sim.bpt].second >= sim.sset.nTime) break;
     }

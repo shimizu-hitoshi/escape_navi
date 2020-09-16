@@ -817,11 +817,11 @@ void	graph_tensor::dijkstra(station &st){
 	st.dijkstra	= value;
 
 	//目的地から非接続だった時、エラーを吐いて終了する
-	// for(i = 0; i < M; i++)
-	// 	if(value[i] == DBL_MAX){
-	// 		fprintf(stderr, "No route station(%d) was found \n", i+1);
-	// 		//exit(1);
-	// 	}
+	for(i = 0; i < M; i++)
+		if(value[i] == DBL_MAX){
+		  //fprintf(stderr, "No route station(%d) was found \n", i+1);
+			//exit(1);
+		}
 }
 
 //dijkstra経由地Ver
@@ -874,13 +874,12 @@ void	graph_tensor::dijkstra(stop_point &st){
 	st.len_dijkstra	= M;
 	st.dijkstra	= value;
 
-
 	//非接続だった時、エラーを吐いて終了する
-	// for(i = 0; i < M; i++)
-	// 	if(value[i] == DBL_MAX){
-	// 		fprintf(stderr,"No route station was found\n");
-	// 		//exit(1);
-	// 	}
+	for(i = 0; i < M; i++)
+		if(value[i] == DBL_MAX){
+			// fprintf(stderr,"No route station was found\n");
+			//exit(1);
+		}
 }
 
 
@@ -1683,7 +1682,7 @@ int	simulator::iterate(){
 				uf[u].logs.push_back(trj);
 			}
 
-			bool mv_chk =true;
+			bool mv_chk = true; //20200714清水加筆
 			// if(uf[u].quata>0.0) mv_chk = true;
 			uf[u].quata	-= uf[u].delta;
 			if(uf[u].quata <= 0.0){
@@ -1979,25 +1978,21 @@ void	simulator::load_binary(char *fn){
 #endif
 	}
 
-	navi_index.clear();
-	std::vector<int>().swap(navi_index);
+
 	fread(&size, sizeof(int), 1, fp);
 	for(i = 0; i < size; i++){
 		fread(&j, sizeof(int), 1, fp);
 		navi_index.push_back(j);
 	}
 
-	navi_log.clear();
-	std::vector<navigation>().swap(navi_log);
+
 	fread(&size, sizeof(int), 1, fp);
 	for(i = 0; i < size; i++){
 		navigation	navi;
 		navi.read2bin(fp);
 		navi_log.push_back(navi);
 	}
-
 	traffic_logs.clear();
-	std::vector<traffic_log>().swap(traffic_logs);
 	fread(&size, sizeof(int), 1, fp);
 	for(i = 0; i < size; i++){
 		traffic_log log;
@@ -2013,7 +2008,6 @@ void	simulator::load_binary(char *fn){
 		od_logs.push_back(log);
 	}
 
-	dia.clear();
 	dia.read2bin(fp);
 	fclose(fp);
 
@@ -2206,7 +2200,7 @@ void simulator::initialize(int argc,char **argv ){
 	}
 	if(input.count("resume") ){
 		load_binary(input["resume"].back());
-		reset_condition();
+		reset_condition(); //"remove"が表示される
 
 		//
 		for(unsigned int i = 0; i < st.size(); i++)
