@@ -817,11 +817,11 @@ void	graph_tensor::dijkstra(station &st){
 	st.dijkstra	= value;
 
 	//目的地から非接続だった時、エラーを吐いて終了する
-	for(i = 0; i < M; i++)
-		if(value[i] == DBL_MAX){
-			fprintf(stderr, "No route station(%d) was found \n", i+1);
-			//exit(1);
-		}
+	// for(i = 0; i < M; i++)
+	// 	if(value[i] == DBL_MAX){
+	// 		fprintf(stderr, "No route station(%d) was found \n", i+1);
+	// 		//exit(1);
+	// 	}
 }
 
 //dijkstra経由地Ver
@@ -876,11 +876,11 @@ void	graph_tensor::dijkstra(stop_point &st){
 
 
 	//非接続だった時、エラーを吐いて終了する
-	for(i = 0; i < M; i++)
-		if(value[i] == DBL_MAX){
-			fprintf(stderr,"No route station was found\n");
-			//exit(1);
-		}
+	// for(i = 0; i < M; i++)
+	// 	if(value[i] == DBL_MAX){
+	// 		fprintf(stderr,"No route station was found\n");
+	// 		//exit(1);
+	// 	}
 }
 
 
