@@ -10,6 +10,7 @@ from controler import FixControler
 from mp.envs import make_vec_envs
 import json
 import numpy as np
+import pandas as pd
 import configparser
 from torch.autograd import Variable
 import shutil
@@ -17,7 +18,7 @@ import os, sys, glob
 from edges import Edge
 import datetime
 
-DEBUG = True # False # True # False # True # False
+DEBUG = False # True # False # True # False # True # False
 
 class Curriculum:
     def run(self, args):
@@ -45,6 +46,8 @@ class Curriculum:
         # dict_best_model = {}
 
         dict_FixControler = {}
+
+        update_score = np.zeros(test_env.n_out) # 学習が進んでいるか評価するため
         if args.checkpoint:
             # モデルを読み込む処理
             ifn = args.inputfn
@@ -57,6 +60,10 @@ class Curriculum:
             #     actor_critic = load_model(test_env.n_in, test_env.n_out, ifn).to(test_env.device)
             #     actor_critic.set_edges(edges)
             #     dict_model[node_id] = actor_critic
+            scorefn = ifn + ".score"
+            if os.path.exists(scorefn):# 各エージェントの学習結果の最高性能の記録
+                update_score = pd.read_pickle(scorefn)
+                print("update_score", update_score)
         else:
             actor_critic = ActorCritic(test_env.n_in, test_env.n_out)
             actor_critic.set_edges(edges)
@@ -68,8 +75,6 @@ class Curriculum:
             #     continue
             # dict_FixControler[shelter] = controler
             dict_FixControler[sid] = controler
-
-        update_score = np.zeros(test_env.n_out) # 学習が進んでいるか評価するため
 
         # sys.exit()
         best_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[]) # ルールベースの評価値を取得
@@ -89,26 +94,15 @@ class Curriculum:
         loop_i = 0 # カリキュラムのループカウンタ
         NG_target = [] # scoreが改善しなかったtargetリスト
         train_env = Environment(args, "train", R_base, loop_i)
-        while True:
+        # while True:
+        while (loop_i == 0):
             loop_i += 1
             flg_update = False
             # for training_target in training_targets:
             for training_target in range(actor_critic.n_out):
                 if training_target in NG_target: # 改善しなかった対象は省略
                     continue
-                # 突然エラー出たので，毎回インスタンス生成するように修正
-                # dict_target["training"] = [training_target]
-                # dict_target["fixed"] = tmp_fixed
-                # dict_target["fixed"].remove(training_target)
-                # dict_model = copy.deepcopy(dict_best_model)
-                # targetがまだデフォルト制御なら，新規にエージェントを生成する
-                # if dict_best_model[training_target].__class__.__name__ == "FixControler":
-                #     dict_model[training_target] = ActorCritic(train_env.n_in, train_env.n_out)
-                #     dict_model[training_target].set_edges(edges)
-                #     if DEBUG: print(training_target, "番目のエージェント生成")
-
                 actor_critic = train_env.train(actor_critic, dict_FixControler, config, training_target)
-                # test_env = Environment(args, "test")
                 tmp_score, _ = test_env.test(actor_critic, dict_FixControler, test_list=[training_target])
                 with open(resdir + "/Curriculum_log.txt", "a") as f:
                     f.write("{:}\t{:}\t{:}\t{:}\n".format(loop_i, train_env.NUM_EPISODES, training_target, tmp_score))
@@ -121,26 +115,15 @@ class Curriculum:
                     update_score[training_target] = copy.deepcopy( tmp_score )
 
                 if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
-                    # best_score = copy.deepcopy(tmp_score)
-                    # for node_id, model in dict_model.items(): # まとめてコピーしたらダメなのか？
-                    #     dict_best_model[node_id] = copy.deepcopy(model)
-                    # dict_best_model = copy.deepcopy(dict_model)
+                    best_score = copy.deepcopy(tmp_score)
                     if training_target not in actor_critic.better_agents:
                         actor_critic.better_agents.append(training_target)
-                    print(resdir + '/' + outputfn + " %s"%training_target +"で更新したのでセーブする")
-                    save_model(actor_critic, resdir + '/' + outputfn )
-                    # save_model(dict_model[training_target], resdir + '/' + outputfn + "_%s"%training_target )
-                else: # 性能を更新できなかったら，戻す
-                    # dict_model[training_target] = dict_best_model[training_target]
+                        print("better_agents", actor_critic.better_agents)
+                else: # 性能を更新できなかったら，NG_targetに記録
                     NG_target.append(training_target)
-            if args.save: # 毎回モデルを保存
-                save_model(actor_critic, resdir + '/' + outputfn)
-                # for node_id, model in dict_best_model.items():
-                #     if model.__class__.__name__ == "FixControler":
-                #         print("node", node_id, " is FixControler")
-                #     else:
-                #         print(resdir + '/' + outputfn + "_%s"%node_id +"をセーブする")
-                #         save_model(model, resdir + '/' + outputfn + "_%s"%node_id )
+                if args.save: # 毎回モデルを保存
+                    save_model(actor_critic, resdir + '/' + outputfn)
+                    pd.to_pickle(update_score, resdir + '/' + outputfn + ".score")
             if not flg_update: # 1個もtargetが更新されなかったら終了
                 break
         # 終了
@@ -148,7 +131,7 @@ class Curriculum:
             f.write("Curriculum 正常終了: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
             f.write("final score:\t{:}\n".format(best_score))
             print("ここでCurriculum終了")
-            print("initial score:\t{:}\n".format(best_score))
+            print("final score:\t{:}\n".format(best_score))
 
 class Environment:
     def __init__(self, args, flg_test=False, R_base=(None,None), loop_i=999):
@@ -333,10 +316,10 @@ class Environment:
                     if (i in actor_critic.better_agents) or (i in test_list):
                         # print(actor_critic.__class__.__name__)
                         tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
-                        agent_type.append("actor_greedy")
+                        if DEBUG: agent_type.append("actor_greedy")
                     else:
                         tmp_action = dict_FixControler[i].act_greedy(obs)
-                        agent_type.append("FixControler")
+                        if DEBUG: agent_type.append("FixControler")
                     action[:,i] = tmp_action.squeeze()
                 print("action",action)
             if DEBUG: print(agent_type)
