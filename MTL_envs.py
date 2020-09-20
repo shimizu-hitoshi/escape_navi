@@ -18,7 +18,7 @@ import os, sys, glob
 from edges import Edge
 import datetime
 
-DEBUG = False # True # False # True # False # True # False
+DEBUG = True # False # True # False # True # False # True # False
 
 class Curriculum:
     def run(self, args):
@@ -64,6 +64,11 @@ class Curriculum:
             if os.path.exists(scorefn):# 各エージェントの学習結果の最高性能の記録
                 update_score = pd.read_pickle(scorefn)
                 print("update_score", update_score)
+            betterfn = ifn + ".better_agents"
+            if os.path.exists(scorefn):# 各エージェントの学習結果の最高性能の記録
+                better_agents = pd.read_pickle(betterfn)
+                actor_critic.set_better_agents(better_agents)
+                print("better_agents", better_agents)
         else:
             actor_critic = ActorCritic(test_env.n_in, test_env.n_out)
             actor_critic.set_edges(edges)
@@ -77,6 +82,11 @@ class Curriculum:
             dict_FixControler[sid] = controler
 
         # sys.exit()
+        # if args.test: # testモードなら，以下の学習はしない
+        #     print(actor_critic.better_agents)
+        #     best_score, R_base = test_env.test(actor_critic, dict_FixControler) # 読み込んだモデルの評価値を取得
+            # sys.exit()
+        # else:
         best_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[]) # ルールベースの評価値を取得
         T_open, travel_time = R_base
         print("初回のスコア", best_score, T_open, np.mean(travel_time))
@@ -124,9 +134,11 @@ class Curriculum:
                 if args.save: # 毎回モデルを保存
                     save_model(actor_critic, resdir + '/' + outputfn)
                     pd.to_pickle(update_score, resdir + '/' + outputfn + ".score")
+                    pd.to_pickle(actor_critic.better_agents, resdir + '/' + outputfn + ".better_agents")
             if not flg_update: # 1個もtargetが更新されなかったら終了
                 break
         # 終了
+        dt = datetime.datetime.now() # 現在時刻->実験開始時刻をログ出力するため
         with open(resdir + "/Curriculum_log.txt", "a") as f:
             f.write("Curriculum 正常終了: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
             f.write("final score:\t{:}\n".format(best_score))

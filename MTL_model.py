@@ -106,3 +106,6 @@ class ActorCritic(nn.Module):
         entropy = -(log_probs * probs).sum(-1).mean()
 
         return value, action_log_probs, entropy
+
+    def set_better_agents(self, better_agents):
+        self.better_agents = better_agents
