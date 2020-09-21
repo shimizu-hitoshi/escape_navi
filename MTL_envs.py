@@ -85,17 +85,18 @@ class Curriculum:
         # sys.exit()
         # if args.test: # testモードなら，以下の学習はしない
         #     print(actor_critic.better_agents)
-        #     best_score, R_base = test_env.test(actor_critic, dict_FixControler) # 読み込んだモデルの評価値を取得
+        #     base_score, R_base = test_env.test(actor_critic, dict_FixControler) # 読み込んだモデルの評価値を取得
             # sys.exit()
         # else:
-        best_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
+        base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
         T_open, travel_time = R_base
-        print("初回のスコア", best_score, T_open, np.mean(travel_time))
+        print("初回のスコア", base_score, T_open, np.mean(travel_time))
         R_base = (T_open , travel_time) # train環境に入力するため
         with open(resdir + "/Curriculum_log.txt", "a") as f:
             f.write("Curriculum start: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
-            f.write("initial score:\t{:}\n".format(best_score))
-            print("initial score:\t{:}\n".format(best_score))
+            f.write("initial score:\t{:}\n".format(base_score))
+            print("initial score:\t{:}\n".format(base_score))
+        best_score = copy.deepcopy(base_score) # 初回を暫定一位にする
 
         if args.test: # testモードなら，以下の学習はしない
             sys.exit()
@@ -125,11 +126,14 @@ class Curriculum:
                     NG_target = []
                     update_score[training_target] = copy.deepcopy( tmp_score )
 
-                if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
-                    best_score = copy.deepcopy(tmp_score)
+                if tmp_score < base_score: # scoreは移動時間なので小さいほどよい
+                    # best_score = copy.deepcopy(tmp_score)
                     if training_target not in actor_critic.better_agents:
                         actor_critic.better_agents.append(training_target)
                         print("better_agents", actor_critic.better_agents)
+
+                if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
+                    best_score = copy.deepcopy(tmp_score)
                 else: # 性能を更新できなかったら，NG_targetに記録
                     NG_target.append(training_target)
                 if args.save: # 毎回モデルを保存
