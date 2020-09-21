@@ -74,20 +74,21 @@ class Curriculum:
             actor_critic.set_edges(edges)
 
         # dict_FixControlerに，ルールベースのエージェントを配置しておく
+        fix_list = []
         for sid, shelter in enumerate(shelters):
             controler = FixControler(sid, edges)
             # if shelter in dict_model: # モデルを読み込んだnodeはスキップ
             #     continue
             # dict_FixControler[shelter] = controler
             dict_FixControler[sid] = controler
-
+            fix_list.append(sid)
         # sys.exit()
         # if args.test: # testモードなら，以下の学習はしない
         #     print(actor_critic.better_agents)
         #     best_score, R_base = test_env.test(actor_critic, dict_FixControler) # 読み込んだモデルの評価値を取得
             # sys.exit()
         # else:
-        best_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[]) # ルールベースの評価値を取得
+        best_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
         T_open, travel_time = R_base
         print("初回のスコア", best_score, T_open, np.mean(travel_time))
         R_base = (T_open , travel_time) # train環境に入力するため
@@ -298,7 +299,7 @@ class Environment:
         return actor_critic
 
     # def test(self, dict_model): # 1並列を想定する
-    def test(self, actor_critic, dict_FixControler, test_list=None): # 1並列を想定する
+    def test(self, actor_critic, dict_FixControler, test_list=[], fix_list=[]): # 1並列を想定する
         # self.NUM_AGENTS = len(dict_model)
         self.NUM_AGENTS = actor_critic.n_out
         NUM_PARALLEL = 1
@@ -325,7 +326,7 @@ class Environment:
                 print("obs",obs)
                 # for i, actor_critic in enumerate( actor_critics ):
                 for i in range( actor_critic.n_out ):
-                    if (i in actor_critic.better_agents) or (i in test_list):
+                    if ((i in actor_critic.better_agents) or (i in test_list)) and (i not in fix_list):
                         # print(actor_critic.__class__.__name__)
                         tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
                         if DEBUG: agent_type.append("actor_greedy")
