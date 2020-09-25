@@ -18,7 +18,7 @@ import os, sys, glob
 from edges import Edge
 import datetime
 
-DEBUG = True # False # True # False # True # False # True # False
+DEBUG = False # True # False # True # False # True # False # True # False
 
 class Curriculum:
     def run(self, args):
@@ -74,27 +74,29 @@ class Curriculum:
             actor_critic.set_edges(edges)
 
         # dict_FixControlerに，ルールベースのエージェントを配置しておく
+        fix_list = []
         for sid, shelter in enumerate(shelters):
             controler = FixControler(sid, edges)
             # if shelter in dict_model: # モデルを読み込んだnodeはスキップ
             #     continue
             # dict_FixControler[shelter] = controler
             dict_FixControler[sid] = controler
-
+            fix_list.append(sid)
         # sys.exit()
         # if args.test: # testモードなら，以下の学習はしない
         #     print(actor_critic.better_agents)
-        #     best_score, R_base = test_env.test(actor_critic, dict_FixControler) # 読み込んだモデルの評価値を取得
+        #     base_score, R_base = test_env.test(actor_critic, dict_FixControler) # 読み込んだモデルの評価値を取得
             # sys.exit()
         # else:
-        best_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[]) # ルールベースの評価値を取得
+        base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
         T_open, travel_time = R_base
-        print("初回のスコア", best_score, T_open, np.mean(travel_time))
+        print("初回のスコア", base_score, T_open, np.mean(travel_time))
         R_base = (T_open , travel_time) # train環境に入力するため
         with open(resdir + "/Curriculum_log.txt", "a") as f:
             f.write("Curriculum start: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
-            f.write("initial score:\t{:}\n".format(best_score))
-            print("initial score:\t{:}\n".format(best_score))
+            f.write("initial score:\t{:}\n".format(base_score))
+            print("initial score:\t{:}\n".format(base_score))
+        best_score = copy.deepcopy(base_score) # 初回を暫定一位にする
 
         if args.test: # testモードなら，以下の学習はしない
             sys.exit()
@@ -124,11 +126,14 @@ class Curriculum:
                     NG_target = []
                     update_score[training_target] = copy.deepcopy( tmp_score )
 
-                if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
-                    best_score = copy.deepcopy(tmp_score)
+                if tmp_score < base_score: # scoreは移動時間なので小さいほどよい
+                    # best_score = copy.deepcopy(tmp_score)
                     if training_target not in actor_critic.better_agents:
                         actor_critic.better_agents.append(training_target)
                         print("better_agents", actor_critic.better_agents)
+
+                if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
+                    best_score = copy.deepcopy(tmp_score)
                 else: # 性能を更新できなかったら，NG_targetに記録
                     NG_target.append(training_target)
                 if args.save: # 毎回モデルを保存
@@ -298,7 +303,7 @@ class Environment:
         return actor_critic
 
     # def test(self, dict_model): # 1並列を想定する
-    def test(self, actor_critic, dict_FixControler, test_list=None): # 1並列を想定する
+    def test(self, actor_critic, dict_FixControler, test_list=[], fix_list=[]): # 1並列を想定する
         # self.NUM_AGENTS = len(dict_model)
         self.NUM_AGENTS = actor_critic.n_out
         NUM_PARALLEL = 1
@@ -325,7 +330,7 @@ class Environment:
                 print("obs",obs)
                 # for i, actor_critic in enumerate( actor_critics ):
                 for i in range( actor_critic.n_out ):
-                    if (i in actor_critic.better_agents) or (i in test_list):
+                    if ((i in actor_critic.better_agents) or (i in test_list)) and (i not in fix_list):
                         # print(actor_critic.__class__.__name__)
                         tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
                         if DEBUG: agent_type.append("actor_greedy")
@@ -363,7 +368,10 @@ class Environment:
                         # episode[i] += 1
             if 'travel_time' in infos[0]: # test()では１並列前提
                 travel_time = infos[0]['travel_time']
-
+                if ("all_reached" in infos[0]) and (infos[0]["all_reached"] == True) :
+                    ret = np.mean(travel_time)
+                else:
+                    ret = np.inf
             # final_rewards *= masks
             # final_rewards += (1-masks) * episode_rewards
             # episode_rewards *= masks
@@ -377,7 +385,7 @@ class Environment:
             # 逆に，テスト結果をどこかに保存する必要がある
 
         print("ここでtest終了")
-        return np.mean(travel_time), (T_open, travel_time)
+        return ret, (T_open, travel_time)
         # return final_rewards.mean().numpy(), (T_open, travel_time)
 
 def save_model(model, fn="model"):

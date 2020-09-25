@@ -108,7 +108,8 @@ class SimEnv(gym.Env):
                     "events": self.event_history,
                     "env_id":self.env_id,
                     "travel_time":travel_time,
-                    "agentid":agentid
+                    "agentid":agentid,
+                    "all_reached":len(agentid) == self.num_agents # 全員ゴール
                     }
             # print("info",info)
         if DEBUG: print(self.state.shape, reward, done, info)
@@ -272,6 +273,8 @@ class SimEnv(gym.Env):
         # print(agentid, travel_time)
         # if len(agentid) == 0:
         #     return 0
+        if len(agentid) != self.num_agents:
+            return -1
         reward = np.sum( self.travel_open[agentid] - travel_time ) / np.sum( self.travel_open[agentid] )
         # reward = np.sum( self.T_open[agentid] - travel_time ) / np.sum( self.T_open[agentid] )
         if reward < 0:
@@ -433,6 +436,8 @@ class SimEnv(gym.Env):
         stop_time = self.cur_time # + self.interval
         start_time = 0
         tmp = self.lib.goalAgentCnt(start_time, stop_time-1, -1) # all goal
+        # if tmp < self.num_agents:
+        #     return -1, self.sim_time
         res = self.ffi.new("int[%d][3]" % tmp)
         l = self.lib.goalAgent(start_time, stop_time-1, tmp+1, res)
         agentid = np.array( [res[i][0] for i in range(l)] )

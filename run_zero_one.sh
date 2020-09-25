@@ -9,10 +9,10 @@
 
 # 手元で学習するために
 # python main.py --save --configfn config.ini
-python main.py --save --configfn config_zero_one.ini
+# python main.py --save --configfn config_zero_one.ini
 # python main.py --save --configfn config_time_once.ini
 # python main.py --save --configfn config_time.ini
-# python main.py --save --configfn config_zero_one.ini --checkpoint --inputfn logs/Curriculum/model
+python main.py --save --configfn config_zero_one.ini --checkpoint --inputfn logs/Curriculum_RL_shimizu_20200925/model
 
 # for i in `seq 1 10`
 # do

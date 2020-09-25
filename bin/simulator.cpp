@@ -2049,7 +2049,9 @@ void simulator::reset_condition(){
 	sig.clear();
 	navi.clear();
 	tb.removeUnexploded();
+#ifdef	DEBUG
 	printf("remove\n");
+#endif
 }
 
 void simulator::initialize(int argc,char **argv ){
