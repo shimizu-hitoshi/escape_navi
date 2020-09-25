@@ -1,6 +1,6 @@
 #include "simulator.h"
 #include "cdef.h"
-
+//#define	DEBUG
 	
 simulator sim;
 void init(int argc, char** argv){
@@ -30,11 +30,12 @@ void init_restart(int argc, char** argv){
     //delete [] sim.sp;
 	
     sim.initialize(argc, argv);
-
+#ifdef DEBUG
 	printf("NTIME %d\n", sim.sset.nTime);
     for(int i = 0; i <5; i++){ 
 		printf("i:%d t:%f\n",i+1, sim.born[i].second );
     }
+#endif
 }
 void restart(){
 	sim.sset.nTime	= 0;
@@ -52,11 +53,12 @@ void restart(){
 	sim.load_binary(bin);
 	sim.reset_condition();
 	sim.bpt =0;
-	
+#ifdef DEBUG
 	printf("NTIME %d\n", sim.sset.nTime);
     for(int i = 0; i <5; i++){ 
 		printf("i:%d t:%f\n",i+1, sim.born[i].second );
     }
+#endif
     for(sim.bpt=0; sim.bpt < sim.N; sim.bpt++){ 
        if(sim.born[sim.bpt].second >= sim.sset.nTime) break;
     }

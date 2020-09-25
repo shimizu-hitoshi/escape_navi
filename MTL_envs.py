@@ -18,7 +18,7 @@ import os, sys, glob
 from edges import Edge
 import datetime
 
-DEBUG = True # False # True # False # True # False # True # False
+DEBUG = False # True # False # True # False # True # False # True # False
 
 class Curriculum:
     def run(self, args):
@@ -368,7 +368,10 @@ class Environment:
                         # episode[i] += 1
             if 'travel_time' in infos[0]: # test()では１並列前提
                 travel_time = infos[0]['travel_time']
-
+                if ("all_reached" in infos[0]) and (infos[0]["all_reached"] == True) :
+                    ret = np.mean(travel_time)
+                else:
+                    ret = np.inf
             # final_rewards *= masks
             # final_rewards += (1-masks) * episode_rewards
             # episode_rewards *= masks
@@ -382,7 +385,7 @@ class Environment:
             # 逆に，テスト結果をどこかに保存する必要がある
 
         print("ここでtest終了")
-        return np.mean(travel_time), (T_open, travel_time)
+        return ret, (T_open, travel_time)
         # return final_rewards.mean().numpy(), (T_open, travel_time)
 
 def save_model(model, fn="model"):
