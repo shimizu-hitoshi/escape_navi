@@ -9,16 +9,16 @@
 
 # 手元で学習するために
 # python main.py --save --configfn config.ini
-python main.py --save --configfn config_zero_one.ini
+python main.py --save --configfn config.ini
 # python main.py --save --configfn config_time_once.ini
 # python main.py --save --configfn config_time.ini
 # python main.py --save --configfn config_zero_one.ini --checkpoint --inputfn logs/Curriculum/model
 
-# for i in `seq 1 10`
-# do
-# echo "$i 回目のループです"
-# python main.py --save --configfn config_zero_one.ini --checkpoint --inputfn logs/Curriculum/model ; cp logs/Curriculum/model logs/Curriculum/model_$i ; cp logs/Curriculum/model.score logs/Curriculum/model_$i.score
-# done
+for i in `seq 1 10`
+do
+echo "$i 回目のループです"
+python main.py --save --configfn config.ini --checkpoint --inputfn logs/Curriculum/model ; cp logs/Curriculum/model logs/Curriculum/model_$i ; cp logs/Curriculum/model.score logs/Curriculum/model_$i.score ; cp logs/Curriculum/model.better_agents logs/Curriculum/model_$i.better_agents
+done
 
 # 共用計算機で学習したモデルを動画にするために
 # python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum20200826/model
