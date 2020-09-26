@@ -1,0 +1,469 @@
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+1 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory
+2 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory
+3 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory
+4 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory
+5 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory
+6 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory
+7 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory
+8 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory
+9 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory
+10 回目のループです
+<Section: TEST>
+(None, None)
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 788, in get
+    value = d[option]
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 916, in __getitem__
+    return self.__missing__(key)            # support subclasses that define __missing__
+  File "/home/ubuntu/anaconda3/lib/python3.7/collections/__init__.py", line 908, in __missing__
+    raise KeyError(key)
+KeyError: 'obs_degree'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 52, in <module>
+    curriculum.run(args)
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 27, in run
+    test_env = Environment(args, "test")
+  File "/home/ubuntu/escape_navi/MTL_envs.py", line 194, in __init__
+    self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 44, in make_vec_envs
+    envs = DummyVecEnv(envs)
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in __init__
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/baselines/baselines/common/vec_env/dummy_vec_env.py", line 18, in <listcomp>
+    self.envs = [fn() for fn in env_fns]
+  File "/home/ubuntu/escape_navi/mp/envs.py", line 24, in _thunk
+    env.seed(seed, env_id, datadir, config, R_base)
+  File "/home/ubuntu/escape_navi/myenv/env.py", line 174, in seed
+    self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 818, in getint
+    fallback=fallback, **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 808, in _get_conv
+    **kwargs)
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 802, in _get
+    return conv(self.get(section, option, **kwargs))
+  File "/home/ubuntu/anaconda3/lib/python3.7/configparser.py", line 791, in get
+    raise NoOptionError(option, section)
+configparser.NoOptionError: No option 'obs_degree' in section: 'TRAINING'
+cp: cannot stat 'logs/Curriculum/model': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.score': No such file or directory
+cp: cannot stat 'logs/Curriculum/model.better_agents': No such file or directory

@@ -1,0 +1,35 @@
+# Settings for simulation
+[SIMULATION]
+# datadirlistfn=train_datadirlist.txt
+datadirlistfn=train_datadirlist_mini.txt
+sim_time=9000
+interval=300
+# actionfn=actions19.txt
+actionfn=data/goalids.txt
+edgedir=data
+[TRAINING]
+training_target=data/goalids.txt
+# training_target=goalids_mini.txt
+obs_step=4
+obs_degree=12
+# num_parallel=8
+num_parallel=16
+# num_parallel=3
+# num_parallel=1
+num_advanced_step=30
+num_episodes=3
+# num_episodes=200
+#num_episodes=10
+resdir=logs/time_once
+outputfn=model
+gamma=0.99
+loss_coef=0.5
+entropy_coef=0.01
+max_grad_norm=0.5
+flg_reward=time_once
+# flg_reward=edge
+[TEST]
+resdir=results
+[CURRICULUM]
+resdir=logs/Curriculum
+outputfn=model

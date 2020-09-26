@@ -171,7 +171,7 @@ class SimEnv(gym.Env):
         # self.num_agents = config.getint('SIMULATION', 'num_agents')
         # self.num_edges  = config.getint('SIMULATION', 'num_edges')
         self.obs_step   = config.getint('TRAINING',   'obs_step')
-        self.obs_degree   = config.getint('TRAINING',   'obs_degree')
+        # self.obs_degree   = config.getint('TRAINING',   'obs_degree')
         # self.datadir         = config.get('SIMULATION',    'datadir')
         self.tmp_resdir = config['TRAINING']['resdir']
         self.actions = np.loadtxt( config['SIMULATION']['actionfn'] , dtype=int )
