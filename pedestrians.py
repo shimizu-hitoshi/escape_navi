@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 import os, re
 import networkx as nx
@@ -26,6 +28,21 @@ def read_agentlist(ifn):
             ret.append(ped)
     return ret
 
+def save_agentlist(ofn, agents):
+    with open(ofn, "w") as fp:
+        fp.write("%s 6\n"%len(agents))
+        for agent in agents:
+            out = "%d %d %.16f %d %d %d %d %d\n"%(
+                agent.idx,
+                agent.departure,
+                agent.speed,
+                agent.origin,
+                agent.destination,
+                agent.group_idx,
+                agent.direction_idx,
+                agent.num_via)
+            fp.write(out)
+
 def calc_fix_time(ddir):
     ifn = "%s/agentlist.txt"%ddir
     pedestrians = read_agentlist(ifn)
@@ -44,8 +61,14 @@ def calc_fix_time(ddir):
         fix_time.append(distance / ped.speed)
     return fix_time, distances
 
+def test_read_save(ddir):
+    ifn = "%s/agentlist.txt"%ddir
+    pedestrians = read_agentlist(ifn)
+    save_agentlist("%s/agentlist_new.txt"%ddir, pedestrians)
+
 if __name__ == '__main__':
     ddir = "data"
-    fix_time, distances = calc_fix_time(ddir)
-    # print(dict_distance)
-    print(np.mean(fix_time))
+    # fix_time, distances = calc_fix_time(ddir)
+    # # print(dict_distance)
+    # print(np.mean(fix_time))
+    test_read_save(ddir)

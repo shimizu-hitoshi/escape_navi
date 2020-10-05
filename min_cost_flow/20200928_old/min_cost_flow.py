@@ -39,6 +39,42 @@ def calc_save_min_cost_flow():
     pd.to_pickle(flowDict, "flowDict.pickle")
     pd.to_pickle(flowCost, "flowCost.pickle")
 
+def calc_save_min_cost_flow2():
+    G = nx.DiGraph()
+    G.add_node("O", demand=-N)
+    G.add_node("D", demand=N)
+
+    tmp_S = {}
+    for node_id, goal_id in edges.observed_goal.items():
+        G.add_node("G%d"%goal_id, demand=0)
+        G.add_edge("G%d"%goal_id, "D", weight=0, capacity=edges.goal_capa[goal_id])
+        tmp_S[goal_id] = 0
+
+    for ped in pedestrians[:N]:
+        # G.add_node("P%d"%ped.idx, demand=0)
+        # G.add_edge("O", "P%d"%ped.idx, weight=0, capacity=1)
+        tmp_S[edges.observed_goal[ped.destination]] += 1
+        # for node_id, goal_id in edges.observed_goal.items():
+        #     dist = edges.DistanceMatrix[edges.observed_goal[ped.destination], goal_id]
+        #     w = int(dist/ped.speed)
+        #     print(ped.idx, ped.destination, goal_id, dist, w)
+        #     G.add_edge("P%d"%ped.idx, "G%d"%goal_id, weight=int(dist/ped.speed), capacity=1)
+
+
+    for node_id, goal_id in edges.observed_goal.items():
+        # スタートする避難所=歩行者の当初の目的地
+        G.add_node("S%d"%goal_id, demand=0)
+        G.add_edge("O", "S%d"%goal_id, weight=0, capacity=tmp_S[goal_id])
+        for node_id2, goal_id2 in edges.observed_goal.items():
+            dist = edges.DistanceMatrix[edges.observed_goal[goal_id, goal_id2]
+            G.add_edge("S%d"%goal_id, "G%d"%goal_id2, weight=int(dist), capacity=tmp_)
+
+    
+    flowCost, flowDict = nx.capacity_scaling(G, demand="demand", capacity="capacity", weight="weight")
+    pd.to_pickle(flowDict, "flowDict.pickle")
+    pd.to_pickle(flowCost, "flowCost.pickle")
+
+
 if __name__=="__main__":
     if not os.path.exists("flowDict.pickle"):
         calc_save_min_cost_flow()

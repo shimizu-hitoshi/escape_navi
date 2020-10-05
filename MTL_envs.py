@@ -88,7 +88,10 @@ class Curriculum:
         #     base_score, R_base = test_env.test(actor_critic, dict_FixControler) # 読み込んだモデルの評価値を取得
             # sys.exit()
         # else:
-        base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
+        if args.test:
+            base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=[]) # 学習結果の評価値を取得
+        else:
+            base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
         T_open, travel_time = R_base
         print("初回のスコア", base_score, T_open, np.mean(travel_time))
         R_base = (T_open , travel_time) # train環境に入力するため

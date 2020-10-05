@@ -22,7 +22,8 @@
 # 共用計算機で学習したモデルを動画にするために
 # python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum20200826/model
 # python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum/model_15
-python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum/model
+# python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum/model
+python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum_RL_shimizu_20200925/model_30
 # ベースラインを動画にするために
 # python main.py --test --configfn config.ini
 
@@ -39,6 +40,8 @@ python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curricul
 # 再現実験（共用計算機で学習したモデルを動画にするために）
 # ../simulator/simulator ../mkUserlist/data/kawaramachi/agentlist.txt ../mkUserlist/data/kawaramachi/graph.twd ../mkUserlist/data/kawaramachi/goallist.txt -B results/event.txt -o tmp_result -e 9000 -l 10 -S
 # cp results/event.txt ./tmp_result
+../simulator/simulator data/agentlist.txt data/graph.twd data/goallist.txt -B results/event.txt -o result_movie_20200928 -e 9000 -l 10 -S
+cp results/event.txt ./result_movie_20200928
 
 # 動画生成
 # cd ../mkUserlist
