@@ -101,7 +101,7 @@ class Curriculum:
             print("initial score:\t{:}\n".format(base_score))
         best_score = copy.deepcopy(base_score) # 初回を暫定一位にする
 
-        if args.test: # testモードなら，以下の学習はしない
+        if args.test or args.base: # testモードなら，以下の学習はしない
             sys.exit()
 
         # dict_best_model = copy.deepcopy(dict_model)
@@ -360,9 +360,11 @@ class Environment:
             #             print(info['env_id'], info['episode']['r'])
 
             # イベント保存のためには，->要仕様検討
+            # print(infos[0]["events"])
             if 'events' in infos[0]: # test()では１並列前提
                 eventsfn = self.resdir + "/event.txt"
-                with open(eventsfn, "a") as f: 
+                # with open(eventsfn, "a") as f: 
+                with open(eventsfn, "w") as f: 
                     if DEBUG: print("{:}保存します".format(eventsfn))
                     # for i, info in enumerate(infos):
                     for event in infos[0]['events']:

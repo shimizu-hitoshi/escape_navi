@@ -43,6 +43,8 @@ parser.add_argument('--save', action='store_true',
         help='is save model')
 parser.add_argument('--test', action='store_true',
         help='test mode')
+parser.add_argument('--base', action='store_true',
+        help='base mode')
 parser.add_argument('--cuda', action='store_true',
         help='when you use cuda, you enable this option.')
 
