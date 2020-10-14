@@ -14,13 +14,10 @@ int		cntOnEdge(int fr, int to);
 void    setBombDirect(char *text);
 void    restart();
 
-void	init_restart(int argc, char** argv);
+void    init_restart(int argc, char** argv);
 void	save_ulog(char *fn);
-void	save_odlog(char *fn);
 int		goalAgentCnt(int stime, int etime, int node);
-int		goalAgent(int stime, int etime, int node, int n,  int result[][3]);
-int		chgDestAgentCnt(int stime, int etime, int node1, int node2, int dest);
-int 	chgDestAgent(int stime, int etime, int node1, int node2, int dest, int n, int result[][6]);
+int		goalAgent(int stime, int etime,int n,  int result[][3]);
 #ifdef __cplusplus
 }
 #endif

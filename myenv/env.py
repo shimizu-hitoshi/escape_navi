@@ -426,7 +426,8 @@ class SimEnv(gym.Env):
         start_time = self.cur_time - self.interval
         tmp = self.lib.goalAgentCnt(start_time, stop_time-1, -1) # all goal
         res = self.ffi.new("int[%d][3]" % tmp)
-        l = self.lib.goalAgent(start_time, stop_time-1, tmp+1, res)
+        # l = self.lib.goalAgent(start_time, stop_time-1, tmp+1, res)
+        l = self.lib.goalAgent(start_time, stop_time-1, -1, tmp+1, res)
         agentid = np.array( [res[i][0] for i in range(l)] )
         travel_time = np.array( [res[i][1] for i in range(l)] )
         return agentid, travel_time
@@ -439,7 +440,7 @@ class SimEnv(gym.Env):
         # if tmp < self.num_agents:
         #     return -1, self.sim_time
         res = self.ffi.new("int[%d][3]" % tmp)
-        l = self.lib.goalAgent(start_time, stop_time-1, tmp+1, res)
+        l = self.lib.goalAgent(start_time, stop_time-1, -1, tmp+1, res)
         agentid = np.array( [res[i][0] for i in range(l)] )
         travel_time = np.array( [res[i][1] for i in range(l)] )
         return agentid, travel_time
@@ -636,8 +637,10 @@ class SimEnv(gym.Env):
         void  restart();
         void  save_ulog(char *fn);
         void  init_restart(int argc, char** argv);
-        int   goalAgentCnt(int stime, int etime, int cnt);
-        int   goalAgent(int stime, int etime,int n,  int result[][3]);
+        int	    goalAgentCnt(int stime, int etime, int cnt);
+        int		goalAgent(int stime, int etime,int node,int n,  int result[][3]);
+        int		chgDestAgentCnt(int stime, int etime, int node1, int node2, int dest);
+        int 	chgDestAgent(int stime, int etime, int node1, int node2, int dest, int n, int result[][6]);
         """
         return ret
 

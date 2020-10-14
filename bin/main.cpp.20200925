@@ -46,7 +46,7 @@ void restart(){
 
     sim.traffic_logs.clear();
 
-	//sim.kanban.clear();
+	sim.kanban.clear();
 
 	char bin[128];
 	sprintf(bin, "%s/init.bin", sim.output);
@@ -154,9 +154,6 @@ void save_ulog(char *fn){
 	sim.save_userlog(fn, sim.uf);
 }
 
-void save_odlog(char *fn){
-	sim.save_od_hist(fn);
-}
 
 int	goalAgentCnt(int stime, int etime, int node){
 	int c	= 0;
@@ -173,7 +170,7 @@ int	goalAgentCnt(int stime, int etime, int node){
 	}
 	return c;
 }
-int	goalAgent(int stime, int etime, int node, int n,  int result[][3]){
+int	goalAgent(int stime, int etime, int n,  int result[][3]){
 	int c	= 0;
 	for(int i = 0; i <(int) sim.N; i++){
 		if(
@@ -181,8 +178,6 @@ int	goalAgent(int stime, int etime, int node, int n,  int result[][3]){
 			|| sim.uf[i].dead < stime
 			|| sim.uf[i].dead >etime
 		)
-			continue;
-		if(node >=0 && node != sim.uf[i].logs.back().start)
 			continue;
 		result[c][0]	= i;
 		result[c][1]	= sim.uf[i].dead- sim.uf[i].born;
@@ -193,45 +188,7 @@ int	goalAgent(int stime, int etime, int node, int n,  int result[][3]){
 	return c;
 }
 
-int chgDestAgentCnt(int stime, int etime, int node1, int node2, int dest){
-	int c = 0;
-	for(int i = 0; i < (int) sim.od_logs.size(); i++){
-		if(
-				sim.od_logs[i].time < stime
-			||	sim.od_logs[i].time > etime
-			|| (node1>=0 && node1 != sim.od_logs[i].node)
-			|| (node2>=0 && node2 != sim.od_logs[i].node2)
-			|| (dest>=0  && dest  != sim.od_logs[i].dest)
-		)
-			continue;
-		c++;
-	}
-	return c;
-}
 
-
-int chgDestAgent(int stime, int etime, int node1, int node2, int dest, int n, int result[][6]){
-	int c = 0;
-	for(int i = 0; i < (int) sim.od_logs.size(); i++){
-		if(
-				sim.od_logs[i].time < stime
-			||	sim.od_logs[i].time > etime
-			|| (node1>=0 && node1 != sim.od_logs[i].node)
-			|| (node2>=0 && node2 != sim.od_logs[i].node2)
-			|| (dest>=0  && dest  != sim.od_logs[i].dest)
-		)
-			continue;
-		result[c][0]	= sim.od_logs[i].uid;
-		result[c][1]	= sim.od_logs[i].time;
-		result[c][2]	= sim.od_logs[i].node;
-		result[c][3]	= sim.od_logs[i].node2;
-		result[c][4]	= sim.od_logs[i].dest;
-		result[c][5]	= sim.od_logs[i].grp;
-		c++;
-		if(n==c)return -1;
-	}
-	return c;
-}
 
 //
 //

@@ -36,8 +36,8 @@ python main.py --base --configfn config.ini
 # cp logs/edge/sim_result_1/history_events.txt ./tmp_result
 # ../simulator/simulator ../mkUserlist/data/kawaramachi/agentlist.txt ../mkUserlist/data/kawaramachi/graph.twd ../mkUserlist/data/kawaramachi/goallist.txt -B results/event.txt -o tmp_result2 -e 9000 -l 10 -S
 # cp results/event.txt ./tmp_result2
-../simulator/simulator data/agentlist.txt data/graph.twd data/goallist.txt -B results/event.txt -o result_base -e 9000 -l 10 -S
-cp results/event.txt ./result_base/base_event.txt
+# ../simulator/simulator data/agentlist.txt data/graph.twd data/goallist.txt -B results/event.txt -o result_base -e 9000 -l 10 -S
+# cp results/event.txt ./result_base/base_event.txt
 
 # 再現実験（共用計算機で学習したモデルを動画にするために）
 # ../simulator/simulator ../mkUserlist/data/kawaramachi/agentlist.txt ../mkUserlist/data/kawaramachi/graph.twd ../mkUserlist/data/kawaramachi/goallist.txt -B results/event.txt -o tmp_result -e 9000 -l 10 -S
