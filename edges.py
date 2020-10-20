@@ -36,6 +36,9 @@ class Edge():
         #     self.obsv_dist[idx]  = self.edges.dist[fr, to]
         #     self.obsv_width[idx] = self.edges.width[fr, to]
 
+    def nodeid2goalid(self, nodeid):
+        goalid = self.observed_goal[nodeid]
+        return goalid
 
     def mk_DistanceMatrix(self):
         ret = np.zeros((len(self.observed_goal), len(self.observed_goal)))

@@ -221,8 +221,8 @@ int chgDestAgent(int stime, int etime, int node1, int node2, int dest, int n, in
 			|| (dest>=0  && dest  != sim.od_logs[i].dest)
 		)
 			continue;
-		result[c][0]	= sim.od_logs[i].uid;
-		result[c][1]	= sim.od_logs[i].time;
+		result[c][0]	= sim.od_logs[i].time;
+		result[c][1]	= sim.od_logs[i].uid;
 		result[c][2]	= sim.od_logs[i].node;
 		result[c][3]	= sim.od_logs[i].node2;
 		result[c][4]	= sim.od_logs[i].dest;

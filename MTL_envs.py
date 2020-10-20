@@ -8,6 +8,7 @@ from MTL_brain import Brain
 from storage import RolloutStorage
 from controler import FixControler
 from mp.envs import make_vec_envs
+from converter import RewardMaker
 import json
 import numpy as np
 import pandas as pd
@@ -92,9 +93,9 @@ class Curriculum:
             base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=[]) # 学習結果の評価値を取得
         else:
             base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
-        T_open, travel_time = R_base
-        print("初回のスコア", base_score, T_open, np.mean(travel_time))
-        R_base = (T_open , travel_time) # train環境に入力するため
+        T_open, dict_travel_time = R_base
+        print("初回のスコア", base_score, T_open) # , np.mean(travel_time))
+        R_base = (T_open , dict_travel_time) # train環境に入力するため
         with open(resdir + "/Curriculum_log.txt", "a") as f:
             f.write("Curriculum start: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
             f.write("initial score:\t{:}\n".format(base_score))
@@ -102,13 +103,16 @@ class Curriculum:
         best_score = copy.deepcopy(base_score) # 初回を暫定一位にする
 
         if args.test or args.base: # testモードなら，以下の学習はしない
+            # baseモードは，ベースラインを実行するだけで終了
             sys.exit()
 
         # dict_best_model = copy.deepcopy(dict_model)
         # tmp_fixed = copy.deepcopy(dict_target["training"])
         loop_i = 0 # カリキュラムのループカウンタ
         NG_target = [] # scoreが改善しなかったtargetリスト
-        train_env = Environment(args, "train", R_base, loop_i)
+        # train_env = Environment(args, "train", R_base, loop_i)
+        train_env = Environment(args, "train")
+        train_env.reward_maker.set_R_base(R_base)
         # while True:
         while (loop_i == 0):
             loop_i += 1
@@ -200,8 +204,11 @@ class Environment:
         self.obs_shape       = self.n_in
         self.obs_init = self.envs.reset()
 
-    # def set_R_base(self, R_base):
-    #     self.envs.set_R_base(R_base)
+        self.reward_maker = RewardMaker()
+
+    def set_R_base(self, R_base):
+        self.reward_maker.set_R_base(R_base)
+        # self.envs.set_R_base(R_base)
 
     def train(self, actor_critic, dict_FixControler, config, training_target):
         self.NUM_AGENTS = actor_critic.n_out
@@ -257,9 +264,11 @@ class Environment:
                     #     action[:,i] = tmp_action.squeeze()
                 if DEBUG: print(agent_type)
                 if DEBUG: print("step前のここ？",action.shape)
-                obs, reward, done, infos = self.envs.step(action) # これで時間を進める
+                obs, dummy_rewards, done, infos = self.envs.step(action) # これで時間を進める
+                # reward = rewards[training_target] # 学習対象エージェントの報酬だけ取り出す
+                print("info2reward")
+                reward = self.reward_maker.info2reward(infos, training_target)
                 episode_rewards += reward
-
                 # if done then clean the history of observation
                 masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in done])
                 if DEBUG: print("done.shape",done.shape)
@@ -298,7 +307,7 @@ class Environment:
             rollout.after_update()
             
             if int(episode.mean())+1 > self.NUM_EPISODES:
-                # print("ループ抜ける")
+                print("ループ抜ける")
                 break
         # ここでベストなモデルを保存していた（備忘）
         print("%s番目のエージェントのtrain終了"%training_target)
@@ -371,8 +380,10 @@ class Environment:
                         f.write("{:}\n".format(event))
                         if DEBUG: print(event)
                         # episode[i] += 1
-            if 'travel_time' in infos[0]: # test()では１並列前提
+            # if 'travel_time' in infos[0]: # test()では１並列前提
                 travel_time = infos[0]['travel_time']
+                agentid = infos[0]['agentid']
+                dict_travel_time = dict(zip(agentid, travel_time))
                 if ("all_reached" in infos[0]) and (infos[0]["all_reached"] == True) :
                     ret = np.mean(travel_time)
                 else:
@@ -390,7 +401,7 @@ class Environment:
             # 逆に，テスト結果をどこかに保存する必要がある
 
         print("ここでtest終了")
-        return ret, (T_open, travel_time)
+        return ret, (T_open, dict_travel_time)
         # return final_rewards.mean().numpy(), (T_open, travel_time)
 
 def save_model(model, fn="model"):

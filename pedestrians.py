@@ -5,6 +5,11 @@ import os, re
 import networkx as nx
 from edges import Edge
 
+class Crowd():
+    def __init__(self, ifn):
+        self.pedestrians = read_agentlist(ifn)
+
+
 class Pedestrian():
     def __init__(self, line):
         self.idx = int( line[0] )

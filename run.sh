@@ -9,7 +9,7 @@
 
 # 手元で学習するために
 # python main.py --save --configfn config.ini
-# python main.py --save --configfn config_zero_one.ini
+python main.py --save --configfn config_zero_one.ini
 # python main.py --save --configfn config_time_once.ini
 # python main.py --save --configfn config_time.ini
 # python main.py --save --configfn config_zero_one.ini --checkpoint --inputfn logs/Curriculum/model
@@ -25,7 +25,7 @@
 # python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum20200824170428/model
 # ベースラインを動画にするために
 # python main.py --test --configfn config.ini
-python main.py --base --configfn config.ini
+# python main.py --base --configfn config.ini
 
 # 手元で学習したモデルを読み込むテスト
 # python main.py --test --configfn config.ini --checkpoint --inputfn logs/Curriculum/model

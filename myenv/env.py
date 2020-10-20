@@ -38,19 +38,19 @@ class SimEnv(gym.Env):
             # print("action.shape", action.shape)
             dict_actions[node_id] = self._get_action(action[i])
             self.tmp_action_matrix[i, action[i]] = 1.
-        for shelter_id, node_id in enumerate( self.actions ): # エージェントではない避難所の行動
-            if node_id in self.agents: # self.sidの代入と更新タイミングに注意
-                continue
-            _action = self.others[shelter_id].get_action(self.goal_state)
-            dict_actions[node_id] = self._get_action(_action)
-            # # for other in self.others:
-            #     # if shelter_id == self.sid: # self.sidの代入と更新タイミングに注意
-            #     if node_id == self.sid: # self.sidの代入と更新タイミングに注意
-            #         # 自エージェントのactionだけ下で上書き
-            #         dict_actions[node_id] = self._get_action(action)
-            #     else:
-            #         _action = self.others[shelter_id].get_action(self.goal_state)
-            #         dict_actions[node_id] = self._get_action(_action)
+        # for shelter_id, node_id in enumerate( self.actions ): # エージェントではない避難所の行動
+        #     if node_id in self.agents: # self.sidの代入と更新タイミングに注意
+        #         continue
+        #     _action = self.others[shelter_id].get_action(self.goal_state)
+        #     dict_actions[node_id] = self._get_action(_action)
+        #     # # for other in self.others:
+        #     #     # if shelter_id == self.sid: # self.sidの代入と更新タイミングに注意
+        #     #     if node_id == self.sid: # self.sidの代入と更新タイミングに注意
+        #     #         # 自エージェントのactionだけ下で上書き
+        #     #         dict_actions[node_id] = self._get_action(action)
+        #     #     else:
+        #     #         _action = self.others[shelter_id].get_action(self.goal_state)
+        #     #         dict_actions[node_id] = self._get_action(_action)
         # _action = self._get_action(action)
         # self.call_traffic_regulation(_action, self.num_step)
         # print("dict_actions",dict_actions)
@@ -62,34 +62,9 @@ class SimEnv(gym.Env):
         # self.state = self._get_observation(self.cur_time + self.interval) # iterate
         # observation = self.state2obsv( self.state, self.id ) 
         # observation = self.state 
-        # reward = self._get_reward_time()
-        # reward = self._get_reward()
-        # reward = self._get_reward(self.edge_state)
         sum_pop = np.sum(self.edge_state) * self.interval / self.num_agents # 累積すると平均移動時間
-
-        # if self.flg_reward == "goal":
-        #     reward, G = self._get_reward_goal()
-        #     self.prev_reward = copy.deepcopy(G)
-        # elif self.flg_reward == "goal_cum":
-        #     reward, _ = self._get_reward_goal_cum()
-        #     # self.prev_reward = copy.deepcopy(G)
-        # elif self.flg_reward == "edge_wo_T0":
-        #     reward = self._get_reward_wo_T0(self.state)
-        # elif self.flg_reward == "speed":
-        #     reward = self._get_reward_speed(self.state)
-        # elif self.flg_reward == "speed_w_V0":
-        #     reward = self._get_reward_speed_w_V0(self.state)
+        reward = 0.
         if DEBUG: print("in step(), flg_reward = ", self.flg_reward)
-        if self.flg_reward == "time":
-            reward = self._get_reward_time()
-        elif self.flg_reward == "time_once":
-            reward = self._get_reward_total_time_once()
-        # elif self.flg_reward == "total_time_once_wo_norm":
-        #     reward = self._get_reward_total_time_once_wo_norm()
-        elif self.flg_reward == "each_agent":
-            reward = self._navi_all()
-        else: # self.flg_reward == "edge":
-            reward = self._get_reward()
 
         # self.episode_reward += sum_pop
         self.episode_reward += reward
@@ -447,7 +422,23 @@ class SimEnv(gym.Env):
         travel_time = np.array( [res[i][1] for i in range(l)] )
         return agentid, travel_time
 
-    def _navi_all(self):
+    def _first_navi(self):
+        ret = np.zeros(self.edges.num_obsv_goal)
+        agentid, travel_time = self._goal_time_all()
+        if len(agentid) < self.num_agents:
+            return ret
+        # 最初に誘導した避難所ごとに平均移動時間を求める
+        dict_travel_time = dict(zip(agentid, travel_time))
+        print("dict_travel_time", dict_travel_time)
+        print("self.edges.observed_goal", self.edges.observed_goal)
+        for goalid, nodeid in enumerate( sorted(self.edges.observed_goal.keys()) ):
+            print(self.first_dest[nodeid])
+            print([dict_travel_time[aid] for aid in self.first_dest[nodeid]])
+            print(np.mean( [dict_travel_time[aid] for aid in self.first_dest[nodeid]] ))
+            ret[goalid] = np.mean( [dict_travel_time[aid] for aid in self.first_dest[nodeid]] )
+        return ret
+
+    def _show_navi_history(self):
         # 現時点までに誘導された人の情報を表示する
         stop_time = self.cur_time # + self.interval
         start_time = 0
@@ -550,6 +541,7 @@ class SimEnv(gym.Env):
         self.datadir = datadir
         agentfn    = os.path.dirname(os.path.abspath(__file__)) + "/../%s/agentlist.txt"%self.datadir
         self.speed = self.get_speed(agentfn)
+        self.first_dest = self.get_first_dest(agentfn)
         self.num_agents = self.get_num_agents(agentfn)
 
     def set_resdir(self, resdir):
@@ -728,7 +720,24 @@ class SimEnv(gym.Env):
     def get_speed(self, agentfn):
         with open(agentfn) as f:
             lines = f.readlines()
-        return sum([float(l.split('\t')[2]) for l in lines[1:]]) / float(lines[0].split(' ')[0])
+        # return sum([float(l.split('\t')[2]) for l in lines[1:]]) / float(lines[0].split(' ')[0])
+        return sum([float(l.split()[2]) for l in lines[1:]]) / float(lines[0].split(' ')[0])
+
+    def get_first_dest(self, agentfn):
+        with open(agentfn) as f:
+            lines = f.readlines()
+        agentids = [int(l.split()[0]) for l in lines[1:]]
+        dests = [int(l.split()[4]) for l in lines[1:]]
+        ret = {}
+        for agentid, dest in zip(agentids, dests):
+            if dest not in ret:
+                ret[dest] = []
+                # print(dest)
+            ret[dest].append(agentid)
+        # ret = dict(zip(agentids, dests))
+        # print("first_dest",ret)
+        # sys.exit()
+        return ret
 
     def get_num_agents(self, agentfn):
         with open(agentfn) as f:
