@@ -86,6 +86,8 @@ class SimEnv(gym.Env):
             reward = self._get_reward_total_time_once()
         # elif self.flg_reward == "total_time_once_wo_norm":
         #     reward = self._get_reward_total_time_once_wo_norm()
+        elif self.flg_reward == "each_agent":
+            reward = self._navi_all()
         else: # self.flg_reward == "edge":
             reward = self._get_reward()
 
@@ -444,6 +446,24 @@ class SimEnv(gym.Env):
         agentid = np.array( [res[i][0] for i in range(l)] )
         travel_time = np.array( [res[i][1] for i in range(l)] )
         return agentid, travel_time
+
+    def _navi_all(self):
+        # 現時点までに誘導された人の情報を表示する
+        stop_time = self.cur_time # + self.interval
+        start_time = 0
+        tmp = self.lib.chgDestAgentCnt(start_time, stop_time-1, -1, -1 ,-1) # 末尾はfrom, to, dest
+        # if tmp < self.num_agents:
+        #     return -1, self.sim_time
+        if tmp > 0:
+            res = self.ffi.new("int[%d][6]" % tmp)
+            l = self.lib.chgDestAgent(start_time, stop_time-1, -1, -1, -1, tmp+1, res)
+            agentid = np.array( [res[i][0] for i in range(l)] )
+            froms = np.array( [res[i][2] for i in range(l)] )
+            dests = np.array( [res[i][4] for i in range(l)] )
+            print(agentid)
+            print(froms)
+            print(dests)
+        return 0
 
     # def call_edge_cnt(self, stop_time=0):
     #     """

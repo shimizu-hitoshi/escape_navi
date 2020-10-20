@@ -1,9 +1,0 @@
-# python main.py --save --configfn config_speed.ini &
-# python main.py --save --configfn config_edge.ini &
-# python main.py --save --configfn config_edge_wo_T0.ini &
-# python main.py --save --configfn config_goal.ini &
-# python main.py --save --configfn config_goal_cum.ini &
-# python main.py --save --configfn config_speed_w_V0.ini
-# python main.py --save --configfn config_time.ini &
-python main.py --save --configfn config_total_time_once.ini &
-python main.py --save --configfn config_total_time_once_wo_norm.ini &
