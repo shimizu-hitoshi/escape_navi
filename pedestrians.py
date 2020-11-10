@@ -8,6 +8,37 @@ from edges import Edge
 class Crowd():
     def __init__(self, ifn):
         self.pedestrians = read_agentlist(ifn)
+        self.agentfn = ifn
+        self.N = self.get_num_agents()
+        self.speed = self.get_speed()
+        self.first_dest = self.get_first_dest()
+
+    def get_speed(self):
+        with open(self.agentfn) as f:
+            lines = f.readlines()
+        # return sum([float(l.split('\t')[2]) for l in lines[1:]]) / float(lines[0].split(' ')[0])
+        return sum([float(l.split()[2]) for l in lines[1:]]) / float(lines[0].split(' ')[0])
+
+    def get_first_dest(self):
+        with open(self.agentfn) as f:
+            lines = f.readlines()
+        agentids = [int(l.split()[0]) for l in lines[1:]]
+        dests = [int(l.split()[4]) for l in lines[1:]]
+        ret = {}
+        for agentid, dest in zip(agentids, dests):
+            if dest not in ret:
+                ret[dest] = []
+                # print(dest)
+            ret[dest].append(agentid)
+        # ret = dict(zip(agentids, dests))
+        # print("first_dest",ret)
+        # sys.exit()
+        return ret
+
+    def get_num_agents(self):
+        with open(self.agentfn) as f:
+            lines = f.readlines()
+        return int(lines[0].split(' ')[0])
 
 
 class Pedestrian():

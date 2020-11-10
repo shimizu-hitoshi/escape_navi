@@ -158,14 +158,15 @@ class Curriculum:
             print("final score:\t{:}\n".format(best_score))
 
 class Environment:
-    def __init__(self, args, flg_test=False, R_base=(None,None), loop_i=999):
+    # def __init__(self, args, flg_test=False, R_base=(None,None), loop_i=999):
+    def __init__(self, args, flg_test=False):
         config = configparser.ConfigParser()
         config.read(args.configfn)
         # config.read('config.ini')
         self.sim_time  = config.getint('SIMULATION', 'sim_time')
         self.interval  = config.getint('SIMULATION', 'interval')
         self.max_step  = int( np.ceil( self.sim_time / self.interval ))
-        self.loop_i = loop_i
+        # self.loop_i = loop_i
         # NUM_PROCESSES     = config.getint('TRAINING', 'num_processes')
         if flg_test=="test":
             self.NUM_PARALLEL = 1
@@ -198,13 +199,15 @@ class Environment:
 
         self.device = torch.device("cuda:0" if args.cuda else "cpu")
 
-        self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+        # self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config, R_base)
+        self.envs = make_vec_envs(args.env_name, args.seed, self.NUM_PARALLEL, self.device, self.datadirs, config)
         self.n_in  = self.envs.observation_space.shape[0]
         self.n_out = self.envs.action_space.n
         self.obs_shape       = self.n_in
         self.obs_init = self.envs.reset()
 
         self.reward_maker = RewardMaker()
+        self.reward_maker.set_agentfns(self.datadirs)
 
     def set_R_base(self, R_base):
         self.reward_maker.set_R_base(R_base)
@@ -264,22 +267,25 @@ class Environment:
                     #     action[:,i] = tmp_action.squeeze()
                 if DEBUG: print(agent_type)
                 if DEBUG: print("step前のここ？",action.shape)
-                obs, dummy_rewards, done, infos = self.envs.step(action) # これで時間を進める
+                obs, dummy_rewards, dones, infos = self.envs.step(action) # これで時間を進める
                 # reward = rewards[training_target] # 学習対象エージェントの報酬だけ取り出す
-                print("info2reward")
-                reward = self.reward_maker.info2reward(infos, training_target)
+                reward = self.reward_maker.info2reward(infos, training_target, step)
                 episode_rewards += reward
+                if DEBUG: print("info2reward", reward)
                 # if done then clean the history of observation
                 masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in done])
                 if DEBUG: print("done.shape",done.shape)
                 if DEBUG: print("masks.shape",masks.shape)
                 if DEBUG: print("obs.shape",obs.shape)
-                with open(self.resdir + "/episode_reward.txt", "a") as f:
-                    for i, info in enumerate(infos):
-                        if 'episode' in info:
-                            f.write("{:}\t{:}\t{:}\t{:}\n".format(training_target,episode[i], info['env_id'], info['episode']['r']))
-                            print(training_target, episode[i], info['env_id'], info['episode']['r'])
-                            episode[i] += 1
+
+                for i, done in enumerate(dones):
+                    if done: episode[i] += 1
+                # with open(self.resdir + "/episode_reward.txt", "a") as f:
+                #     for i, info in enumerate(infos):
+                #         if 'episode' in info:
+                #             f.write("{:}\t{:}\t{:}\t{:}\n".format(training_target,episode[i], info['env_id'], info['episode']['r']))
+                #             print(training_target, episode[i], info['env_id'], info['episode']['r'])
+                #             episode[i] += 1
 
                 final_rewards *= masks
                 final_rewards += (1-masks) * episode_rewards
@@ -291,8 +297,10 @@ class Environment:
 
                 rollout.insert(current_obs, target_action.data, reward, masks, self.NUM_ADVANCED_STEP)
                 with open(self.resdir + "/reward_log.txt", "a") as f: # このログはエピソードが終わったときだけでいい->要修正
-                    f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i,training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
-                    print(self.loop_i,training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
+                    f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
+                    print(training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
+                    # f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i,training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
+                    # print(self.loop_i,training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
 
             with torch.no_grad():
                 next_value = actor_critic.get_value(rollout.observations[-1], training_target).detach()
@@ -301,7 +309,7 @@ class Environment:
             value_loss, action_loss, total_loss, entropy = global_brain.update(rollout, training_target)
 
             with open(self.resdir + "/loss_log.txt", "a") as f:
-                f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i, training_target, episode.mean(), value_loss, action_loss, entropy, total_loss))
+                f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), value_loss, action_loss, entropy, total_loss))
                 print("value_loss {:.4f}\taction_loss {:.4f}\tentropy {:.4f}\ttotal_loss {:.4f}".format(value_loss, action_loss, entropy, total_loss))
 
             rollout.after_update()
@@ -354,9 +362,8 @@ class Environment:
             if DEBUG: print(agent_type)
             obs, reward, done, infos = self.envs.step(action) # これで時間を進める
             # episode_rewards += reward
-            T_open.append(reward.item())
             # if done then clean the history of observation
-            masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in done])
+            masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in dones])
             if DEBUG: print(masks)
             # テストのときは，rewardの保存は不要では？
             # if DEBUG: print("done.shape",done.shape)
@@ -388,6 +395,10 @@ class Environment:
                     ret = np.mean(travel_time)
                 else:
                     ret = np.inf
+
+            T_open.append(infos[0])
+            # T_open.append(reward.item())
+
             # final_rewards *= masks
             # final_rewards += (1-masks) * episode_rewards
             # episode_rewards *= masks

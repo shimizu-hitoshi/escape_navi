@@ -76,19 +76,19 @@ class SimEnv(gym.Env):
         done = self.max_step <= self.num_step
         # travel_time = self.mk_travel_open()
         info = {}
-        if done:
-            agentid, travel_time = self._goal_time_all() # 歩行者の移動速度リストを取得
-            info = {
-                    "episode": {
-                        "r": self.episode_reward
-                        },
-                    "events": self.event_history,
-                    "env_id":self.env_id,
-                    "travel_time":travel_time,
-                    "agentid":agentid,
-                    "all_reached":len(agentid) == self.num_agents # 全員ゴール
-                    }
-            # print("info",info)
+        # if done:
+        agentid, travel_time = self._goal_time_all() # 歩行者の移動速度リストを取得
+        info = {
+                "episode": {
+                    "r": self.episode_reward
+                    },
+                "events": self.event_history,
+                "env_id":self.env_id,
+                "travel_time":travel_time,
+                "agentid":agentid,
+                "all_reached":len(agentid) == self.num_agents # 全員ゴール
+                }
+        # print("info",info)
         if DEBUG: print(self.state.shape, reward, done, info)
         return self.state, reward, done, info # obseration, reward, done, info
 
@@ -120,9 +120,10 @@ class SimEnv(gym.Env):
     def close(self):
         pass
 
-    def seed(self, seed=None, env_id=None, datadirs=None, config=None, R_base=(None, None)):
-        print(R_base)
-        self.T_open, self.travel_open = R_base
+    # def seed(self, seed=None, env_id=None, datadirs=None, config=None, R_base=(None, None)):
+    def seed(self, seed=None, env_id=None, datadirs=None, config=None):
+        # print(R_base)
+        # self.T_open, self.travel_open = R_base
         # print("T_open @ seed",self.T_open)
         # print("travel_open @ seed",self.travel_open)
         # training_targets = dict_target["training"]

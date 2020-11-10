@@ -184,11 +184,11 @@ int	goalAgent(int stime, int etime, int node, int n,  int result[][3]){
 			continue;
 		if(node >=0 && node != sim.uf[i].logs.back().start)
 			continue;
-		if(n==c)return -1;
 		result[c][0]	= i;
 		result[c][1]	= sim.uf[i].dead- sim.uf[i].born;
 		result[c][2]	= sim.uf[i].logs.back().start;
 		c++;
+		if(n==c)return -1;
 	}
 	return c;
 }
@@ -221,7 +221,6 @@ int chgDestAgent(int stime, int etime, int node1, int node2, int dest, int n, in
 			|| (dest>=0  && dest  != sim.od_logs[i].dest)
 		)
 			continue;
-		if(n==c)return -1;
 		result[c][0]	= sim.od_logs[i].time;
 		result[c][1]	= sim.od_logs[i].uid;
 		result[c][2]	= sim.od_logs[i].node;
@@ -229,6 +228,7 @@ int chgDestAgent(int stime, int etime, int node1, int node2, int dest, int n, in
 		result[c][4]	= sim.od_logs[i].dest;
 		result[c][5]	= sim.od_logs[i].grp;
 		c++;
+		if(n==c)return -1;
 	}
 	return c;
 }

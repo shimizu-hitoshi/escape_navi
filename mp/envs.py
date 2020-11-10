@@ -16,24 +16,28 @@ from baselines.common.vec_env.vec_normalize import VecNormalize as VecNormalize_
 # from baselines.common.vec_env.vec_normalize import VecNormalize as VecNormalize_
 
 # See https://github.com/ikostrikov/pytorch-a2c-ppo-acktr-gail/blob/master/a2c_ppo_acktr/envs.py
-def make_env(env_name, seed, env_id, datadir, config, R_base):
+# def make_env(env_name, seed, env_id, datadir, config, R_base):
+def make_env(env_name, seed, env_id, datadir, config):
     # print("R_base @ make_env",R_base)
     def _thunk():
         # print("seed and rank: ",seed, rank)
         env = gym.make(env_name)
-        env.seed(seed, env_id, datadir, config, R_base)
+        # env.seed(seed, env_id, datadir, config, R_base)
+        env.seed(seed, env_id, datadir, config)
         # obs_shape = env.observation_space.shape
         return env
     return _thunk
 
 # def make_vec_envs(env_name, seed, num_process, device, datadirs, training_targets, config):
-def make_vec_envs(env_name, seed, num_parallel, device, datadirs, config, R_base=(None,None)):
+# def make_vec_envs(env_name, seed, num_parallel, device, datadirs, config, R_base=(None,None)):
+def make_vec_envs(env_name, seed, num_parallel, device, datadirs, config):
     # print(len(datadirs), len(training_targets), len(fixed_agents))
     # print(dict_target)
     # print("R_base @ make_vec_envs",R_base)
     envs = [
             # make_env(env_name, seed, i, datadirs[i], training_targets[i], config)
-            make_env(env_name, seed, i, datadirs, config, R_base)
+            # make_env(env_name, seed, i, datadirs, config, R_base)
+            make_env(env_name, seed, i, datadirs, config)
             for i in range(num_parallel) # i: env_id ということにする
             # for i in range(num_parallel * len(training_targets))
             # for i in range(num_process)
@@ -69,5 +73,5 @@ class VecPyTorch(VecEnvWrapper):
         reward = torch.from_numpy(reward).unsqueeze(dim=1).float()
         return obs, reward, done, info
 
-    def set_t_open(self, T_open):
-        self.venv.set_t_open(T_open)
+    # def set_t_open(self, T_open):
+    #     self.venv.set_t_open(T_open)
