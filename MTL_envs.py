@@ -273,7 +273,7 @@ class Environment:
                 episode_rewards += reward
                 if DEBUG: print("info2reward", reward)
                 # if done then clean the history of observation
-                masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in done])
+                masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in dones])
                 if DEBUG: print("done.shape",done.shape)
                 if DEBUG: print("masks.shape",masks.shape)
                 if DEBUG: print("obs.shape",obs.shape)
@@ -360,7 +360,7 @@ class Environment:
                     action[:,i] = tmp_action.squeeze()
                 print("action",action)
             if DEBUG: print(agent_type)
-            obs, reward, done, infos = self.envs.step(action) # これで時間を進める
+            obs, reward, dones, infos = self.envs.step(action) # これで時間を進める
             # episode_rewards += reward
             # if done then clean the history of observation
             masks = torch.FloatTensor([[0.0] if done_ else [1.0] for done_ in dones])
