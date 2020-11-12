@@ -83,10 +83,13 @@ class SimEnv(gym.Env):
                     "r": self.episode_reward
                     },
                 "events": self.event_history,
-                "env_id":self.env_id,
-                "travel_time":travel_time,
-                "agentid":agentid,
-                "all_reached":len(agentid) == self.num_agents # 全員ゴール
+                "env_id": self.env_id,
+                # "travel_time":travel_time,
+                # "agentid":agentid,
+                "edge_state": self.edge_state, # 道路上の人数
+                "goal_time": (agentid, travel_time), # self._goal_time_all(), # ( agentid, travel_time )
+                "navi_": self._get_navi_all(), # ( agentid, froms, dests )
+                "all_reached": len(agentid) == self.num_agents # 全員ゴールしたか？
                 }
         # print("info",info)
         if DEBUG: print(self.state.shape, reward, done, info)
@@ -221,55 +224,6 @@ class SimEnv(gym.Env):
     def _get_action(self, action):
         return self.actions[action]
 
-    # def _get_reward_goal(self): # sum of people who reached goal
-    #     G = np.sum( self._goal_cnt() )
-    #     G_diff = G - self.prev_goal
-    #     reward = G_diff / self.num_agents # - (1./ self.max_step)
-    #     return reward, G
-
-    # def _get_reward_goal_cum(self): # sum of people who reached goal
-    #     G = np.sum( self._goal_cnt() )
-    #     reward = G / self.num_agents # - (1./ self.max_step)
-    #     return reward, G
-
-    def _get_reward_time(self): # mean travel time of people who reached goal
-        agentid, travel_time = self._goal_time()
-        # print(agentid, travel_time)
-        if len(agentid) == 0:
-            return 0
-        reward = np.sum( self.travel_open[agentid] - travel_time ) / np.sum( self.travel_open[agentid] )
-        if reward < 0:
-            return max(reward, -1)
-        return min(reward, 1)
-
-    def _get_reward_total_time_once(self): # mean travel time of people who reached goal
-        if self.travel_open is None:
-            return 0
-        if self.max_step > self.num_step + 1:
-            return 0 # reward only last step
-        agentid, travel_time = self._goal_time_all()
-        # print(agentid, travel_time)
-        # if len(agentid) == 0:
-        #     return 0
-        if len(agentid) != self.num_agents:
-            return -1
-        reward = np.sum( self.travel_open[agentid] - travel_time ) / np.sum( self.travel_open[agentid] )
-        # reward = np.sum( self.T_open[agentid] - travel_time ) / np.sum( self.T_open[agentid] )
-        if reward < 0:
-            return max(reward, -1)
-        return min(reward, 1)
-
-    # def _get_reward_total_time_once_wo_norm(self): # mean travel time of people who reached goal
-    #     if self.max_step > self.num_step + 1:
-    #         return 0 # reward only last step
-    #     agentid, travel_time = self._goal_time_all()
-    #     # print(agentid, travel_time)
-    #     # if len(agentid) == 0:
-    #     #     return 0
-    #     reward = np.sum( - travel_time ) / ( 1. * self.sim_time * self.num_agents)
-    #     if reward < 0:
-    #         return max(reward, -1)
-    #     return min(reward, 1)
 
     # def mk_travel_open(self): # travel time of people who reached goal
     #     stop_time = (self.max_step + 1) * self.interval
@@ -283,78 +237,6 @@ class SimEnv(gym.Env):
     #     # print(travel_time)
     #     return travel_time
 
-    # def _get_reward_speed(self, observation):
-    #     # moving speedをRewardとする
-    #     # 最大値を取るか，平均を取るかは要検討
-    #     # 全歩行者数でRewardを決定
-    #     v_mean = self.speed
-    #     th     = 1.8 / (v_mean + 0.3)
-    #     num_agent = observation[self.num_obsv * (self.obs_step-1):] # observationのサイズを変更したので要修正
-    #     rho    = num_agent / (self.edges.dist * self.edges.width)
-    #     # rho    = rho[self.num_edges * (self.obs_step-1):]
-    #     rho_   = np.where(rho == 0, float('-inf'), rho)
-    #     v_1    = np.where((0 <= rho) & (rho < th), v_mean, 0)
-    #     v_2    = np.where((th <= rho_) & (rho_ < 6), 1.8 / rho_ - 0.3, 0)
-    #     v      = (v_1 + v_2) * num_agent # weighted
-    #     # reward = (v_mean - v) / v_mean
-    #     if np.sum(num_agent) == 0:
-    #         v = v_mean
-    #     else:
-    #         v = np.sum(v) / np.sum(num_agent)
-    #     reward = ( v_mean - v ) / v_mean
-    #     return -reward
-
-    # def _get_reward_speed_w_V0(self, observation):
-    #     # moving speedをRewardとする
-    #     # 最大値を取るか，平均を取るかは要検討
-    #     # 全歩行者数でRewardを決定
-    #     v_mean = self.speed
-    #     th     = 1.8 / (v_mean + 0.3)
-    #     num_agent = observation[self.num_obsv * (self.obs_step-1):]
-    #     rho    = num_agent / (self.edges.dist * self.edges.width)
-    #     # rho    = rho[self.num_edges * (self.obs_step-1):]
-    #     rho_   = np.where(rho == 0, float('-inf'), rho)
-    #     v_1    = np.where((0 <= rho) & (rho < th), v_mean, 0)
-    #     v_2    = np.where((th <= rho_) & (rho_ < 6), 1.8 / rho_ - 0.3, 0)
-    #     v      = (v_1 + v_2) * num_agent # weighted
-    #     # reward = (v_mean - v) / v_mean
-    #     if np.sum(num_agent) == 0:
-    #         v = v_mean
-    #     else:
-    #         v = np.sum(v) / np.sum(num_agent)
-    #     # reward = ( v_mean - v ) / v_mean
-
-    #     if self.V_open[self.num_step] == 0:
-    #         if v == 0:
-    #             return 0
-    #         else:
-    #             return 1
-    #     reward = (self.V_open[self.num_step] - v) / (self.V_open[self.num_step])
-    #     if reward < 0:
-    #         return max(reward, -1)
-    #     return min(reward, 1)
-
-    # def _get_reward_wo_T0(self, observation):
-    #     reward = ( self.num_agents - self._get_num_traveler(observation)) / (1. * self.num_agents)
-    #     return reward
-
-    def _get_reward(self):
-        # t_open
-        tmp_state = np.sum( self.edge_state ) * self.interval / self.num_agents
-        # print("T_open",self.T_open)
-        if self.T_open is None:
-            return tmp_state
-        else:
-            if self.T_open[self.num_step] == 0:
-                if tmp_state == 0:
-                    return 0
-                else:
-                    return -1
-            reward = (self.T_open[self.num_step] - tmp_state) / (self.T_open[self.num_step])
-            # print("tmp_reward", reward)
-            if reward < 0:
-                return max(reward, -1)
-            return min(reward, 1)
 
 
     # def _get_travel_time(self, observation):
@@ -438,6 +320,20 @@ class SimEnv(gym.Env):
             print(np.mean( [dict_travel_time[aid] for aid in self.first_dest[nodeid]] ))
             ret[goalid] = np.mean( [dict_travel_time[aid] for aid in self.first_dest[nodeid]] )
         return ret
+
+    def _get_navi_all(self):
+        # 現時点までに誘導された人の情報を求める
+        stop_time = self.cur_time # + self.interval
+        start_time = 0
+        tmp = self.lib.chgDestAgentCnt(start_time, stop_time-1, -1, -1 ,-1) # 末尾はfrom, to, dest
+        if tmp == 0:
+            return
+        res = self.ffi.new("int[%d][6]" % tmp)
+        l = self.lib.chgDestAgent(start_time, stop_time-1, -1, -1, -1, tmp+1, res)
+        agentid = np.array( [res[i][0] for i in range(l)] )
+        froms = np.array( [res[i][2] for i in range(l)] )
+        dests = np.array( [res[i][4] for i in range(l)] )
+        return agentid, froms, dests
 
     def _show_navi_history(self):
         # 現時点までに誘導された人の情報を表示する

@@ -29,7 +29,7 @@ class Crowd():
             if dest not in ret:
                 ret[dest] = []
                 # print(dest)
-            ret[dest].append(agentid)
+            ret[dest].append(agentid) # key: 目的地, value: IDリスト
         # ret = dict(zip(agentids, dests))
         # print("first_dest",ret)
         # sys.exit()

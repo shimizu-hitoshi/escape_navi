@@ -208,6 +208,7 @@ class Environment:
 
         self.reward_maker = RewardMaker()
         self.reward_maker.set_agentfns(self.datadirs)
+        self.reward_maker.set_edges(self.datadirs)
 
     def set_R_base(self, R_base):
         self.reward_maker.set_R_base(R_base)
@@ -388,8 +389,9 @@ class Environment:
                         if DEBUG: print(event)
                         # episode[i] += 1
             # if 'travel_time' in infos[0]: # test()では１並列前提
-                travel_time = infos[0]['travel_time']
-                agentid = infos[0]['agentid']
+                agentid, travel_time = infos[0]['goal_time']
+                # travel_time = infos[0]['travel_time']
+                # agentid = infos[0]['agentid']
                 dict_travel_time = dict(zip(agentid, travel_time))
                 if ("all_reached" in infos[0]) and (infos[0]["all_reached"] == True) :
                     ret = np.mean(travel_time)
