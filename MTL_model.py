@@ -19,7 +19,7 @@ class ActorCritic(nn.Module):
         self.linear2 = nn.Linear(mid_io, mid_io)
         self.linear3 = nn.Linear(mid_io, mid_io)
 
-        self.actor   = nn.Linear(mid_io, n_out)
+        self.actor   = nn.Linear(mid_io, n_out) # この行たぶん不要
         actors = [nn.Linear(mid_io, n_out) for _ in range(n_out)]
         self.actors   = nn.ModuleList(actors)
         # nn.init.normal_(self.actor.weight, 0.0, 1.0)
@@ -109,3 +109,32 @@ class ActorCritic(nn.Module):
 
     def set_better_agents(self, better_agents):
         self.better_agents = better_agents
+
+class ActorN_CriticN(ActorCritic):
+    def __init__(self, n_in, n_out):
+        super(ActorN_CriticN, self).__init__()
+
+        def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
+        
+        self.n_out = n_out
+        self.better_agents = [] # ルールベースを超えたsidのリスト
+        mid_io = 128
+        self.linear1 = nn.Linear(n_in, mid_io)
+        self.linear2 = nn.Linear(mid_io, mid_io)
+        self.linear3 = nn.Linear(mid_io, mid_io)
+
+        actors = [nn.Linear(mid_io, n_out) for _ in range(n_out)]
+        self.actors   = nn.ModuleList(actors)
+        critics = [nn.Linear(mid_io, 1) for _ in range(n_out)]
+        self.critics  = nn.ModuleList(critics)
+
+    def forward(self, x, sid):
+        h1 = F.relu(self.linear1(x))
+        h2 = F.relu(self.linear2(h1))
+        h3 = F.relu(self.linear3(h2))
+
+        critic_output = self.critics[sid](h3)
+        actor_output  = self.actors[sid](h3)
+        # actor_output  = self.actor(h3)
+        return critic_output, actor_output
+

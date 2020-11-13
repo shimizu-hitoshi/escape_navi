@@ -4,6 +4,7 @@ import copy
 # from model import ActorCritic
 # from brain import Brain
 from MTL_model import ActorCritic
+from MTL_model import ActorN_CriticN
 from MTL_brain import Brain
 from storage import RolloutStorage
 from controler import FixControler
@@ -71,7 +72,8 @@ class Curriculum:
                 actor_critic.set_better_agents(better_agents)
                 print("better_agents", better_agents)
         else:
-            actor_critic = ActorCritic(test_env.n_in, test_env.n_out)
+            # actor_critic = ActorCritic(test_env.n_in, test_env.n_out)
+            actor_critic = ActorN_CriticN(test_env.n_in, test_env.n_out)
             actor_critic.set_edges(edges)
 
         # dict_FixControlerに，ルールベースのエージェントを配置しておく
@@ -423,7 +425,8 @@ def save_model(model, fn="model"):
     torch.save(model.state_dict(), fn)
 
 def load_model(n_in, n_out, fn="model"):
-    model = ActorCritic(n_in, n_out)
+    model = ActorN_CriticN(n_in, n_out)
+    # model = ActorCritic(n_in, n_out)
     model.load_state_dict(torch.load(fn))
     # model.eval()
     return model
