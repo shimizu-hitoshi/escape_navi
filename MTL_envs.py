@@ -94,7 +94,8 @@ class Curriculum:
         else:
             base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
         T_open, dict_travel_time = R_base
-        print("初回のスコア", base_score, T_open) # , np.mean(travel_time))
+        # print("初回のスコア", base_score, T_open) # , np.mean(travel_time))
+        print("初回のスコア", base_score) # , np.mean(travel_time))
         R_base = (T_open , dict_travel_time) # train環境に入力するため
         with open(resdir + "/Curriculum_log.txt", "a") as f:
             f.write("Curriculum start: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
@@ -281,12 +282,6 @@ class Environment:
 
                 for i, done in enumerate(dones):
                     if done: episode[i] += 1
-                # with open(self.resdir + "/episode_reward.txt", "a") as f:
-                #     for i, info in enumerate(infos):
-                #         if 'episode' in info:
-                #             f.write("{:}\t{:}\t{:}\t{:}\n".format(training_target,episode[i], info['env_id'], info['episode']['r']))
-                #             print(training_target, episode[i], info['env_id'], info['episode']['r'])
-                #             episode[i] += 1
 
                 final_rewards *= masks
                 final_rewards += (1-masks) * episode_rewards
@@ -308,12 +303,19 @@ class Environment:
 
             rollout.compute_returns(next_value, self.gamma)
             value_loss, action_loss, total_loss, entropy = global_brain.update(rollout, training_target)
+            rollout.after_update()
 
             with open(self.resdir + "/loss_log.txt", "a") as f:
                 f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), value_loss, action_loss, entropy, total_loss))
                 print("value_loss {:.4f}\taction_loss {:.4f}\tentropy {:.4f}\ttotal_loss {:.4f}".format(value_loss, action_loss, entropy, total_loss))
 
-            rollout.after_update()
+            with open(self.resdir + "/episode_reward.txt", "a") as f:
+                for i, info in enumerate(infos):
+                    if 'episode' in info:
+                        f.write("{:}\t{:}\t{:}\t{:}\n".format(training_target,episode[i], info['env_id'], info['episode']['r']))
+                        print(training_target, episode[i], info['env_id'], info['episode']['r'])
+                        # episode[i] += 1
+
             
             if int(episode.mean())+1 > self.NUM_EPISODES:
                 print("ループ抜ける")
@@ -348,7 +350,7 @@ class Environment:
             with torch.no_grad():
                 # action = actor_critic.act(rollouts.observations[step]) # ここでアクション決めて
                 action = torch.zeros(self.NUM_PARALLEL, self.NUM_AGENTS).long().to(self.device) # 各観測に対する，各エージェントの行動
-                print("obs",obs)
+                if DEBUG: print("obs",obs)
                 # for i, actor_critic in enumerate( actor_critics ):
                 for i in range( actor_critic.n_out ):
                     if ((i in actor_critic.better_agents) or (i in test_list)) and (i not in fix_list):
@@ -359,7 +361,7 @@ class Environment:
                         tmp_action = dict_FixControler[i].act_greedy(obs)
                         if DEBUG: agent_type.append("FixControler")
                     action[:,i] = tmp_action.squeeze()
-                print("action",action)
+                if DEBUG: print("action",action)
             if DEBUG: print(agent_type)
             obs, reward, dones, infos = self.envs.step(action) # これで時間を進める
             # episode_rewards += reward
