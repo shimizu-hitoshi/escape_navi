@@ -110,7 +110,7 @@ class ActorCritic(nn.Module):
     def set_better_agents(self, better_agents):
         self.better_agents = better_agents
 
-class ActorN_CriticN(ActorCritic):
+class ActorN_CriticN(nn.Module):
     def __init__(self, n_in, n_out):
         super(ActorN_CriticN, self).__init__()
 
