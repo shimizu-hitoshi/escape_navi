@@ -110,9 +110,10 @@ class ActorCritic(nn.Module):
     def set_better_agents(self, better_agents):
         self.better_agents = better_agents
 
-class ActorN_CriticN(nn.Module):
+class ActorN_CriticN(ActorCritic):
     def __init__(self, n_in, n_out):
-        super(ActorN_CriticN, self).__init__()
+        # super(ActorN_CriticN, self).__init__()
+        super().__init__(n_in, n_out)
 
         def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
         
@@ -138,3 +139,104 @@ class ActorN_CriticN(nn.Module):
         # actor_output  = self.actor(h3)
         return critic_output, actor_output
 
+class ActorN_CriticN_share2(ActorCritic):
+    def __init__(self, n_in, n_out):
+        # super(ActorN_CriticN, self).__init__()
+        super().__init__(n_in, n_out)
+
+        def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
+        
+        self.n_out = n_out
+        self.better_agents = [] # ルールベースを超えたsidのリスト
+        mid_io = 128
+        self.linear1 = nn.Linear(n_in, mid_io)
+        self.linear2 = nn.Linear(mid_io, mid_io)
+        layter3s = [nn.Linear(mid_io, mid_io) for _ in range(n_out)]
+        self.linear3 = nn.ModuleList(layter3s)
+        # self.linear3 = nn.Linear(mid_io, mid_io)
+
+        actors = [nn.Linear(mid_io, n_out) for _ in range(n_out)]
+        self.actors   = nn.ModuleList(actors)
+        critics = [nn.Linear(mid_io, 1) for _ in range(n_out)]
+        self.critics  = nn.ModuleList(critics)
+
+    def forward(self, x, sid):
+        h1 = F.relu(self.linear1(x))
+        h2 = F.relu(self.linear2(h1))
+        h3 = F.relu(self.linear3[sid](h2))
+
+        critic_output = self.critics[sid](h3)
+        actor_output  = self.actors[sid](h3)
+        # actor_output  = self.actor(h3)
+        return critic_output, actor_output
+
+
+class ActorN_CriticN_share1(ActorCritic):
+    def __init__(self, n_in, n_out):
+        # super(ActorN_CriticN, self).__init__()
+        super().__init__(n_in, n_out)
+
+        def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
+        
+        self.n_out = n_out
+        self.better_agents = [] # ルールベースを超えたsidのリスト
+        mid_io = 128
+        self.linear1 = nn.Linear(n_in, mid_io)
+        layter2s = [nn.Linear(mid_io, mid_io) for _ in range(n_out)]
+        self.linear2 = nn.ModuleList(layter2s)
+        # self.linear2 = nn.Linear(mid_io, mid_io)
+        layter3s = [nn.Linear(mid_io, mid_io) for _ in range(n_out)]
+        self.linear3 = nn.ModuleList(layter3s)
+        # self.linear3 = nn.Linear(mid_io, mid_io)
+
+        actors = [nn.Linear(mid_io, n_out) for _ in range(n_out)]
+        self.actors   = nn.ModuleList(actors)
+        critics = [nn.Linear(mid_io, 1) for _ in range(n_out)]
+        self.critics  = nn.ModuleList(critics)
+
+    def forward(self, x, sid):
+        h1 = F.relu(self.linear1(x))
+        h2 = F.relu(self.linear2[sid](h1))
+        h3 = F.relu(self.linear3[sid](h2))
+
+        critic_output = self.critics[sid](h3)
+        actor_output  = self.actors[sid](h3)
+        # actor_output  = self.actor(h3)
+        return critic_output, actor_output
+
+
+class ActorN_CriticN_share0(ActorCritic):
+    def __init__(self, n_in, n_out):
+        # super(ActorN_CriticN, self).__init__()
+        super().__init__(n_in, n_out)
+
+        def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
+        
+        self.n_out = n_out
+        self.better_agents = [] # ルールベースを超えたsidのリスト
+        mid_io = 128
+
+        layter1s = [nn.Linear(mid_in, mid_io) for _ in range(n_out)]
+        self.linear1 = nn.ModuleList(layter1s)
+        # self.linear1 = nn.Linear(n_in, mid_io)
+        layter2s = [nn.Linear(mid_io, mid_io) for _ in range(n_out)]
+        self.linear2 = nn.ModuleList(layter2s)
+        # self.linear2 = nn.Linear(mid_io, mid_io)
+        layter3s = [nn.Linear(mid_io, mid_io) for _ in range(n_out)]
+        self.linear3 = nn.ModuleList(layter3s)
+        # self.linear3 = nn.Linear(mid_io, mid_io)
+
+        actors = [nn.Linear(mid_io, n_out) for _ in range(n_out)]
+        self.actors   = nn.ModuleList(actors)
+        critics = [nn.Linear(mid_io, 1) for _ in range(n_out)]
+        self.critics  = nn.ModuleList(critics)
+
+    def forward(self, x, sid):
+        h1 = F.relu(self.linear1[sid](x))
+        h2 = F.relu(self.linear2[sid](h1))
+        h3 = F.relu(self.linear3[sid](h2))
+
+        critic_output = self.critics[sid](h3)
+        actor_output  = self.actors[sid](h3)
+        # actor_output  = self.actor(h3)
+        return critic_output, actor_output
