@@ -4,7 +4,7 @@ import copy
 # from model import ActorCritic
 # from brain import Brain
 from MTL_model import ActorCritic
-from MTL_model import ActorN_CriticN
+from MTL_model import ActorN_CriticN_share0 as ActorN_CriticN
 from MTL_brain import Brain
 from storage import RolloutStorage
 from controler import FixControler

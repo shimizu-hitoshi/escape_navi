@@ -216,7 +216,7 @@ class ActorN_CriticN_share0(ActorCritic):
         self.better_agents = [] # ルールベースを超えたsidのリスト
         mid_io = 128
 
-        layter1s = [nn.Linear(mid_in, mid_io) for _ in range(n_out)]
+        layter1s = [nn.Linear(n_in, mid_io) for _ in range(n_out)]
         self.linear1 = nn.ModuleList(layter1s)
         # self.linear1 = nn.Linear(n_in, mid_io)
         layter2s = [nn.Linear(mid_io, mid_io) for _ in range(n_out)]
