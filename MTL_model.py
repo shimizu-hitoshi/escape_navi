@@ -133,6 +133,15 @@ class ActorCritic(nn.Module):
             action[:,i] = tmp_action.squeeze()
         return action
 
+    def test_act_all(self, x, test_list, fix_list): # 評価用=softmaxしない
+        action = torch.zeros(x.shape[0], self.n_out).long() # .to(self.device) # 各観測に対する，各エージェントの行動
+        for i in range( self.n_out ):
+            if ((i in self.better_agents) or (i in test_list)) and (i not in fix_list):
+                tmp_action = self.act_greedy(x, i) # ここでアクション決めて
+            else:
+                tmp_action = self.dict_FixControler[i].act_greedy(x)
+            action[:,i] = tmp_action.squeeze()
+        return action
 
 class ActorN_CriticN(ActorCritic):
     def __init__(self, n_in, n_out):

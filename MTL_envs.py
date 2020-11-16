@@ -259,7 +259,8 @@ class Environment:
                     # if DEBUG: print("actionサイズ",self.NUM_PARALLEL, self.NUM_AGENTS)
                     action = actor_critic.act_all(obs, training_target)
                     target_action = copy.deepcopy( action[:,training_target].unsqueeze(1) )
-                    print(target_action.shape)
+                    target_action = action[:,training_target].unsqueeze(1)
+                    # print(target_action.shape)
                     # for i in range( actor_critic.n_out ):
                     #     if i == training_target:
                     #         tmp_action = actor_critic.act(current_obs, i)
@@ -363,7 +364,7 @@ class Environment:
             if DEBUG: agent_type = []
             with torch.no_grad():
                 # action = actor_critic.act(rollouts.observations[step]) # ここでアクション決めて
-                action = actor_critic.act_all(obs, training_target = None)
+                action = actor_critic.test_act_all(obs, test_list, fix_list)
                 # target_action = copy.deepcopy( action[:,training_target] )
             #     action = torch.zeros(self.NUM_PARALLEL, self.NUM_AGENTS).long().to(self.device) # 各観測に対する，各エージェントの行動
             #     if DEBUG: print("obs",obs)
