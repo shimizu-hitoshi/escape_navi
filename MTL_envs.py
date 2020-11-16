@@ -121,8 +121,8 @@ class Curriculum:
         # train_env = Environment(args, "train", R_base, loop_i)
         train_env = Environment(args, "train")
         train_env.reward_maker.set_R_base(R_base)
-        # while True:
-        while (loop_i == 0):
+        while True:
+        # while (loop_i == 0):
             loop_i += 1
             flg_update = False
             # for training_target in training_targets:
