@@ -7,7 +7,7 @@ from MTL_model import ActorCritic
 from MTL_model import ActorN_CriticN_share0 as ActorN_CriticN
 from MTL_brain import Brain
 from storage import RolloutStorage
-from controler import FixControler
+# from controler import FixControler
 from mp.envs import make_vec_envs
 from converter import RewardMaker
 import json
@@ -47,7 +47,6 @@ class Curriculum:
         # better_agents = [] # ルールベースを超えたエージェントIDのリスト
         # dict_best_model = {}
 
-        dict_FixControler = {}
 
         update_score = np.zeros(test_env.n_out) # 学習が進んでいるか評価するため
         if args.checkpoint:
@@ -56,6 +55,8 @@ class Curriculum:
             # ifns = glob.glob(args.inputfn + "_*")
             actor_critic = load_model(test_env.n_in, test_env.n_out, ifn).to(test_env.device)
             actor_critic.set_edges(edges)
+            actor_critic.set_FixControler(edges)
+
             # for ifn in ifns:
             #     print("loading: ",ifn)
             #     node_id = int( ifn.split("_")[-1] )
@@ -75,16 +76,18 @@ class Curriculum:
             # actor_critic = ActorCritic(test_env.n_in, test_env.n_out)
             actor_critic = ActorN_CriticN(test_env.n_in, test_env.n_out)
             actor_critic.set_edges(edges)
+            actor_critic.set_FixControler(edges)
 
+        # dict_FixControler = {}
         # dict_FixControlerに，ルールベースのエージェントを配置しておく
         fix_list = []
         for sid, shelter in enumerate(shelters):
-            controler = FixControler(sid, edges)
+            fix_list.append(sid)
+            # controler = FixControler(sid, edges)
             # if shelter in dict_model: # モデルを読み込んだnodeはスキップ
             #     continue
             # dict_FixControler[shelter] = controler
-            dict_FixControler[sid] = controler
-            fix_list.append(sid)
+            # dict_FixControler[sid] = controler
         # sys.exit()
         # if args.test: # testモードなら，以下の学習はしない
         #     print(actor_critic.better_agents)
@@ -92,9 +95,11 @@ class Curriculum:
             # sys.exit()
         # else:
         if args.test:
-            base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=[]) # 学習結果の評価値を取得
+            # base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=[]) # 学習結果の評価値を取得
+            base_score, R_base = test_env.test(actor_critic, test_list=[], fix_list=[]) # 学習結果の評価値を取得
         else:
-            base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
+            # base_score, R_base = test_env.test(actor_critic, dict_FixControler, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
+            base_score, R_base = test_env.test(actor_critic, test_list=[], fix_list=fix_list) # ルールベースの評価値を取得
         T_open, dict_travel_time = R_base
         # print("初回のスコア", base_score, T_open) # , np.mean(travel_time))
         print("初回のスコア", base_score) # , np.mean(travel_time))
@@ -124,8 +129,10 @@ class Curriculum:
             for training_target in range(actor_critic.n_out):
                 if training_target in NG_target: # 改善しなかった対象は省略
                     continue
-                actor_critic = train_env.train(actor_critic, dict_FixControler, config, training_target)
-                tmp_score, _ = test_env.test(actor_critic, dict_FixControler, test_list=[training_target])
+                # actor_critic = train_env.train(actor_critic, dict_FixControler, config, training_target)
+                # tmp_score, _ = test_env.test(actor_critic, dict_FixControler, test_list=[training_target])
+                actor_critic = train_env.train(actor_critic, config, training_target)
+                tmp_score, _ = test_env.test(actor_critic, test_list=[training_target])
                 with open(resdir + "/Curriculum_log.txt", "a") as f:
                     f.write("{:}\t{:}\t{:}\t{:}\n".format(loop_i, train_env.NUM_EPISODES, training_target, tmp_score))
                     print(loop_i, training_target, tmp_score)
@@ -217,7 +224,8 @@ class Environment:
         self.reward_maker.set_R_base(R_base)
         # self.envs.set_R_base(R_base)
 
-    def train(self, actor_critic, dict_FixControler, config, training_target):
+    # def train(self, actor_critic, dict_FixControler, config, training_target):
+    def train(self, actor_critic, config, training_target):
         self.NUM_AGENTS = actor_critic.n_out
         # self.NUM_AGENTS = len(dict_model)
         # print("train", dict_model)
@@ -247,21 +255,24 @@ class Environment:
                 if DEBUG: agent_type = []
                 with torch.no_grad():
                     # action = actor_critic.act(rollouts.observations[step]) # ここでアクション決めて
-                    action = torch.zeros(self.NUM_PARALLEL, self.NUM_AGENTS).long().to(self.device) # 各観測に対する，各エージェントの行動
-                    if DEBUG: print("actionサイズ",self.NUM_PARALLEL, self.NUM_AGENTS)
-                    for i in range( actor_critic.n_out ):
-                        if i == training_target:
-                            tmp_action = actor_critic.act(current_obs, i)
-                            target_action = copy.deepcopy(tmp_action)
-                            if DEBUG: agent_type.append("actor_act")
-                        elif i in actor_critic.better_agents:
-                            # print(actor_critic.__class__.__name__)
-                            tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
-                            if DEBUG: agent_type.append("actor_greedy")
-                        else:
-                            tmp_action = dict_FixControler[i].act_greedy(obs)
-                            if DEBUG: agent_type.append("FixControler")
-                        action[:,i] = tmp_action.squeeze()
+                    # action = torch.zeros(self.NUM_PARALLEL, self.NUM_AGENTS).long().to(self.device) # 各観測に対する，各エージェントの行動
+                    # if DEBUG: print("actionサイズ",self.NUM_PARALLEL, self.NUM_AGENTS)
+                    action = actor_critic.act_all(obs, training_target)
+                    target_action = copy.deepcopy( action[:,training_target].unsqueeze(1) )
+                    print(target_action.shape)
+                    # for i in range( actor_critic.n_out ):
+                    #     if i == training_target:
+                    #         tmp_action = actor_critic.act(current_obs, i)
+                    #         target_action = copy.deepcopy(tmp_action)
+                    #         if DEBUG: agent_type.append("actor_act")
+                    #     elif i in actor_critic.better_agents:
+                    #         # print(actor_critic.__class__.__name__)
+                    #         tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
+                    #         if DEBUG: agent_type.append("actor_greedy")
+                    #     else:
+                    #         tmp_action = dict_FixControler[i].act_greedy(obs)
+                    #         if DEBUG: agent_type.append("FixControler")
+                    #     action[:,i] = tmp_action.squeeze()
                     # for i, (k,v) in enumerate( dict_model.items() ):
                     #     if k == training_target:
                     #         tmp_action = v.act(current_obs)
@@ -328,7 +339,8 @@ class Environment:
         return actor_critic
 
     # def test(self, dict_model): # 1並列を想定する
-    def test(self, actor_critic, dict_FixControler, test_list=[], fix_list=[]): # 1並列を想定する
+    # def test(self, actor_critic, dict_FixControler, test_list=[], fix_list=[]): # 1並列を想定する
+    def test(self, actor_critic, test_list=[], fix_list=[]): # 1並列を想定する
         # self.NUM_AGENTS = len(dict_model)
         self.NUM_AGENTS = actor_critic.n_out
         NUM_PARALLEL = 1
@@ -351,20 +363,22 @@ class Environment:
             if DEBUG: agent_type = []
             with torch.no_grad():
                 # action = actor_critic.act(rollouts.observations[step]) # ここでアクション決めて
-                action = torch.zeros(self.NUM_PARALLEL, self.NUM_AGENTS).long().to(self.device) # 各観測に対する，各エージェントの行動
-                if DEBUG: print("obs",obs)
-                # for i, actor_critic in enumerate( actor_critics ):
-                for i in range( actor_critic.n_out ):
-                    if ((i in actor_critic.better_agents) or (i in test_list)) and (i not in fix_list):
-                        # print(actor_critic.__class__.__name__)
-                        tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
-                        if DEBUG: agent_type.append("actor_greedy")
-                    else:
-                        tmp_action = dict_FixControler[i].act_greedy(obs)
-                        if DEBUG: agent_type.append("FixControler")
-                    action[:,i] = tmp_action.squeeze()
-                if DEBUG: print("action",action)
-            if DEBUG: print(agent_type)
+                action = actor_critic.act_all(obs, training_target = None)
+                # target_action = copy.deepcopy( action[:,training_target] )
+            #     action = torch.zeros(self.NUM_PARALLEL, self.NUM_AGENTS).long().to(self.device) # 各観測に対する，各エージェントの行動
+            #     if DEBUG: print("obs",obs)
+            #     # for i, actor_critic in enumerate( actor_critics ):
+            #     for i in range( actor_critic.n_out ):
+            #         if ((i in actor_critic.better_agents) or (i in test_list)) and (i not in fix_list):
+            #             # print(actor_critic.__class__.__name__)
+            #             tmp_action = actor_critic.act_greedy(obs, i) # ここでアクション決めて
+            #             if DEBUG: agent_type.append("actor_greedy")
+            #         else:
+            #             tmp_action = dict_FixControler[i].act_greedy(obs)
+            #             if DEBUG: agent_type.append("FixControler")
+            #         action[:,i] = tmp_action.squeeze()
+            #     if DEBUG: print("action",action)
+            # if DEBUG: print(agent_type)
             obs, reward, dones, infos = self.envs.step(action) # これで時間を進める
             # episode_rewards += reward
             # if done then clean the history of observation

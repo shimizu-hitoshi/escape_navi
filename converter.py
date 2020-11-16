@@ -7,6 +7,8 @@ import sys
 import numpy as np
 from edges import Edge
 
+DEBUG = False
+
 class RewardMaker(object):
     def __init__(self):
         pass
@@ -84,9 +86,9 @@ class RewardMaker(object):
                 goalid = self.edges[0].nodeid2goalid( self.crowds[0].pedestrians[aid-1].destination )
                 num_agent[goalid] -= 1
 
-            print("step", t)
-            print("R_base", self.R_base[t, training_target])
-            print("num_agent", num_agent[training_target])
+            if DEBUG: print("step", t)
+            if DEBUG: print("R_base", self.R_base[t, training_target])
+            if DEBUG: print("num_agent", num_agent[training_target])
 
             if self.R_base[t, training_target] == 0:
                 if num_agent[training_target] > 0:

@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from controler import FixControler
+
 def init(module, gain):
     nn.init.orthogonal_(module.weight.data, gain=gain)
     nn.init.constant_(module.bias.data, 0)
@@ -25,6 +27,13 @@ class ActorCritic(nn.Module):
         # nn.init.normal_(self.actor.weight, 0.0, 1.0)
         self.critic  = nn.Linear(mid_io, 1)
         # nn.init.normal_(self.critic.weight, 0.0, 1.0)
+
+    def set_FixControler(self, edges):
+        # 20201116: model内部にFixControlerを保持するように改造
+        self.dict_FixControler = {}
+        # dict_FixControlerに，ルールベースのエージェントを配置しておく
+        for sid in range(self.n_out):
+            self.dict_FixControler[sid] = FixControler(sid, edges)
 
     def forward(self, x, sid):
         h1 = F.relu(self.linear1(x))
@@ -109,6 +118,21 @@ class ActorCritic(nn.Module):
 
     def set_better_agents(self, better_agents):
         self.better_agents = better_agents
+
+    def act_all(self, x, training_target):
+        action = torch.zeros(x.shape[0], self.n_out).long() # .to(self.device) # 各観測に対する，各エージェントの行動
+        for i in range( self.n_out ):
+            if i == training_target:
+                tmp_action = self.act(x, i)
+                # target_action = copy.deepcopy(tmp_action)
+            elif i in self.better_agents:
+                # print(actor_critic.__class__.__name__)
+                tmp_action = self.act_greedy(x, i) # ここでアクション決めて
+            else:
+                tmp_action = self.dict_FixControler[i].act_greedy(x)
+            action[:,i] = tmp_action.squeeze()
+        return action
+
 
 class ActorN_CriticN(ActorCritic):
     def __init__(self, n_in, n_out):
