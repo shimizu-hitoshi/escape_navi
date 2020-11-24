@@ -33,7 +33,7 @@ class RewardMaker(object):
     def set_R_base(self, R_base): # 実行に数分かかるので，要改善
         T_open, dict_travel_time = R_base
         self.R_base = torch.zeros(len(T_open), len( self.crowds[0].first_dest.items() ))
-        self.group_agents = []
+        self.group_agents = [] # goalidごとに，agentidリストを保持
         for goalid, (nodeid, agentids) in enumerate( sorted( self.crowds[0].first_dest.items()) ):
             # print(goalid, (nodeid, agentids))
             print(goalid, len(agentids), np.mean( [dict_travel_time[agentid-1] for agentid in agentids] ) )
@@ -43,6 +43,7 @@ class RewardMaker(object):
         for t, infos in enumerate(T_open):
             # num_pedestrian = np.sum( infos["edge_state"] )
             agentid, travel_time = infos['goal_time']
+            # print("set_R_base", t, len(agentid), "人ゴール")
             # travel_time = infos['travel_time']
             # agentid = infos['agentid']
             # 当初目的地ごとに歩行者数を設定して
@@ -78,6 +79,7 @@ class RewardMaker(object):
         for i, info in enumerate(infos):
             num_agent = torch.zeros(len(self.group_agents))
             agentid, travel_time = info['goal_time']
+            # print(t, len(agentid), "人ゴール")
             # 当初目的地ごとに歩行者数を設定して
             for goalid, group_agent in enumerate( self.group_agents ):
                 num_agent[goalid] = len(group_agent)
@@ -120,7 +122,8 @@ class RewardMaker(object):
             #     reward[i,0] = np.mean( [tmp_travel_time[agentid] for agentid in agentids] )
 
         # reward = None
-        return reward
+        return reward, self.R_base[t, training_target], num_agent[training_target]
+        # return reward
 
     # def _get_reward_goal(self): # sum of people who reached goal
     #     G = np.sum( self._goal_cnt() )

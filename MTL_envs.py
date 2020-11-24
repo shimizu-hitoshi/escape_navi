@@ -54,8 +54,10 @@ class Curriculum:
             ifn = args.inputfn
             # ifns = glob.glob(args.inputfn + "_*")
             actor_critic = load_model(test_env.n_in, test_env.n_out, ifn).to(test_env.device)
-            actor_critic.set_edges(edges)
-            actor_critic.set_FixControler(edges)
+
+            # 下記のパラメータはload_modelで設定されるのではないか？
+            # actor_critic.set_edges(edges)
+            # actor_critic.set_FixControler(edges)
 
             # for ifn in ifns:
             #     print("loading: ",ifn)
@@ -67,11 +69,13 @@ class Curriculum:
             if os.path.exists(scorefn):# 各エージェントの学習結果の最高性能の記録
                 update_score = pd.read_pickle(scorefn)
                 print("update_score", update_score)
-            betterfn = ifn + ".better_agents"
-            if os.path.exists(scorefn):# 各エージェントの学習結果の最高性能の記録
-                better_agents = pd.read_pickle(betterfn)
-                actor_critic.set_better_agents(better_agents)
-                print("better_agents", better_agents)
+
+            # betterfn = ifn + ".better_agents"
+            # if os.path.exists(scorefn):# 各エージェントの学習結果の最高性能の記録
+            #     better_agents = pd.read_pickle(betterfn)
+            #     actor_critic.set_better_agents(better_agents)
+            #     print("better_agents", better_agents)
+
         else:
             # actor_critic = ActorCritic(test_env.n_in, test_env.n_out)
             actor_critic = ActorN_CriticN(test_env.n_in, test_env.n_out)
@@ -116,14 +120,14 @@ class Curriculum:
 
         # dict_best_model = copy.deepcopy(dict_model)
         # tmp_fixed = copy.deepcopy(dict_target["training"])
-        loop_i = 0 # カリキュラムのループカウンタ
+        # loop_i = 0 # カリキュラムのループカウンタ
         NG_target = [] # scoreが改善しなかったtargetリスト
         # train_env = Environment(args, "train", R_base, loop_i)
         train_env = Environment(args, "train")
         train_env.reward_maker.set_R_base(R_base)
         while True:
         # while (loop_i == 0):
-            loop_i += 1
+
             flg_update = False
             # for training_target in training_targets:
             for training_target in range(actor_critic.n_out):
@@ -134,8 +138,8 @@ class Curriculum:
                 actor_critic = train_env.train(actor_critic, config, training_target)
                 tmp_score, _ = test_env.test(actor_critic, test_list=[training_target])
                 with open(resdir + "/Curriculum_log.txt", "a") as f:
-                    f.write("{:}\t{:}\t{:}\t{:}\n".format(loop_i, train_env.NUM_EPISODES, training_target, tmp_score))
-                    print(loop_i, training_target, tmp_score)
+                    f.write("{:}\t{:}\t{:}\t{:}\n".format(actor_critic.loop_i, train_env.NUM_EPISODES, training_target, tmp_score))
+                    print(actor_critic.loop_i, training_target, tmp_score)
 
                 # 過去最高の性能を更新したエージェントがいれば，学習を継続する
                 if update_score[training_target] == 0 or tmp_score < update_score[training_target]:
@@ -251,6 +255,11 @@ class Environment:
         rollout.observations[0].copy_(current_obs)
 
         while True:
+            actor_critic.loop_i += 1
+            actor_critic.update_eps()
+            # actor_critic.eps -= 0.1
+            # if actor_critic.eps < 0:
+            #     actor_critic.eps = 0
             for step in range(self.NUM_ADVANCED_STEP):
                 if DEBUG: agent_type = []
                 with torch.no_grad():
@@ -285,7 +294,7 @@ class Environment:
                 if DEBUG: print("step前のここ？",action.shape)
                 obs, dummy_rewards, dones, infos = self.envs.step(action) # これで時間を進める
                 # reward = rewards[training_target] # 学習対象エージェントの報酬だけ取り出す
-                reward = self.reward_maker.info2reward(infos, training_target, step)
+                reward, _base, _score = self.reward_maker.info2reward(infos, training_target, step)
                 episode_rewards += reward
                 if DEBUG: print("info2reward", reward)
                 # if done then clean the history of observation
@@ -309,6 +318,7 @@ class Environment:
                 with open(self.resdir + "/reward_log.txt", "a") as f: # このログはエピソードが終わったときだけでいい->要修正
                     f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
                     print(training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
+                    if DEBUG: print( _base, _score)
                     # f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i,training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
                     # print(self.loop_i,training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
 

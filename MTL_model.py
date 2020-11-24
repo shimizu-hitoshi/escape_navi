@@ -34,6 +34,9 @@ class ActorCritic(nn.Module):
         # dict_FixControlerに，ルールベースのエージェントを配置しておく
         for sid in range(self.n_out):
             self.dict_FixControler[sid] = FixControler(sid, edges)
+        self.eps = 1.0 # ルールベースを選択する確率
+        self.loop_i = 0 # 学習した回数を自分で覚える
+        self.learn_time = 5000 # 500回学習したらルールベースを使わなくなる
 
     def forward(self, x, sid):
         h1 = F.relu(self.linear1(x))
@@ -63,17 +66,25 @@ class ActorCritic(nn.Module):
             ret = torch.zeros(x.shape[0],1)
             legal_actions = self.legal_actions(x)
             for i in range(x.shape[0]):
-                idxs = legal_actions[1][legal_actions[0]==i]
-                if flg_greedy:
-                    action_probs = F.softmax(actor_output[i,idxs], dim=0).detach()
-                    # print(action_probs.shape)
-                    # print(action_probs.data.max(0))
-                    tmp_action = action_probs.data.max(0)[1].view(-1, 1)
-                else: # 全避難所を誘導先候補にする
-                    action_probs = F.softmax(actor_output[i,idxs], dim=0)
-                    tmp_action = action_probs.multinomial(num_samples=1)
-                action = idxs[tmp_action]
-                ret[i,0] = action
+                if self.eps > torch.rand(1): # 一定確率でルールベースを選択
+                    # print("fix")
+                    tmp_action = self.dict_FixControler[sid].act_greedy(x)
+                    #     tmp_action = self.dict_FixControler[i].act_greedy(x)
+                    ret[i,0] = tmp_action[i,:]
+                    # ret[i,0] = tmp_action.squeeze()
+                else:
+                    # print("not fix")
+                    idxs = legal_actions[1][legal_actions[0]==i]
+                    if flg_greedy:
+                        action_probs = F.softmax(actor_output[i,idxs], dim=0).detach()
+                        # print(action_probs.shape)
+                        # print(action_probs.data.max(0))
+                        tmp_action = action_probs.data.max(0)[1].view(-1, 1)
+                    else: # 全避難所を誘導先候補にする
+                        action_probs = F.softmax(actor_output[i,idxs], dim=0)
+                        tmp_action = action_probs.multinomial(num_samples=1)
+                    action = idxs[tmp_action]
+                    ret[i,0] = action
             # print(ret.shape)
             return ret
         else:
@@ -134,11 +145,14 @@ class ActorCritic(nn.Module):
             if i == training_target:
                 tmp_action = self.act(x, i)
                 # target_action = copy.deepcopy(tmp_action)
-            elif i in self.better_agents:
-                # print(actor_critic.__class__.__name__)
-                tmp_action = self.act_greedy(x, i) # ここでアクション決めて
+            # elif i in self.better_agents:
             else:
-                tmp_action = self.dict_FixControler[i].act_greedy(x)
+                tmp_action = self.act_greedy(x, i)
+            # elif i in self.better_agents:
+            #     # print(actor_critic.__class__.__name__)
+            #     tmp_action = self.act_greedy(x, i) # ここでアクション決めて
+            # else:
+            #     tmp_action = self.dict_FixControler[i].act_greedy(x)
             action[:,i] = tmp_action.squeeze()
         return action
 
@@ -151,6 +165,10 @@ class ActorCritic(nn.Module):
                 tmp_action = self.dict_FixControler[i].act_greedy(x)
             action[:,i] = tmp_action.squeeze()
         return action
+    
+    def update_eps(self):
+        tmp_init = 0.9 # loop_i=0のときのepsの値
+        self.eps = max( tmp_init - (tmp_init * self.loop_i) / (1.0 * self.learn_time) , 0.0)
 
 class ActorN_CriticN(ActorCritic):
     def __init__(self, n_in, n_out):
