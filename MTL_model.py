@@ -54,7 +54,7 @@ class ActorCritic(nn.Module):
         ret = torch.where( x > 0 )
         if ret[0].shape[0] == 0: # どの避難所も残容量がなくなったら，全避難所を選択対象にする
             ret = torch.where( x == 0 )
-        print("legal_action: ret",ret)
+        # print("legal_action: ret",ret)
         return ret
 
     def act(self, x, sid, flg_greedy=False, flg_legal=True):
