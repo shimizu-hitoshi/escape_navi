@@ -55,9 +55,9 @@ class Curriculum:
             # ifns = glob.glob(args.inputfn + "_*")
             actor_critic = load_model(test_env.n_in, test_env.n_out, ifn).to(test_env.device)
 
-            # 下記のパラメータはload_modelで設定されるのではないか？
-            # actor_critic.set_edges(edges)
-            # actor_critic.set_FixControler(edges)
+            # 下記のパラメータはload_modelで設定されない
+            actor_critic.set_edges(edges)
+            actor_critic.set_FixControler(edges)
 
             # for ifn in ifns:
             #     print("loading: ",ifn)
