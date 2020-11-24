@@ -21,7 +21,7 @@ class ActorCritic(nn.Module):
         self.linear2 = nn.Linear(mid_io, mid_io)
         self.linear3 = nn.Linear(mid_io, mid_io)
 
-        self.actor   = nn.Linear(mid_io, n_out) # この行たぶん不要
+        # self.actor   = nn.Linear(mid_io, n_out) # この行たぶん不要
         actors = [nn.Linear(mid_io, n_out) for _ in range(n_out)]
         self.actors   = nn.ModuleList(actors)
         # nn.init.normal_(self.actor.weight, 0.0, 1.0)
@@ -52,9 +52,9 @@ class ActorCritic(nn.Module):
     def legal_actions(self, obs):
         x = obs[:,self.num_edges:(self.num_edges+self.num_goals)] # 状態の冒頭に道路上人数，次に残容量がある想定
         ret = torch.where( x > 0 )
-        if ret[0].shape[0] == 0:
+        if ret[0].shape[0] == 0: # どの避難所も残容量がなくなったら，全避難所を選択対象にする
             ret = torch.where( x == 0 )
-        # print("ret",ret)
+        print("legal_action: ret",ret)
         return ret
 
     def act(self, x, sid, flg_greedy=False, flg_legal=True):
@@ -104,14 +104,23 @@ class ActorCritic(nn.Module):
         value, actor_output = self(x, sid)
         return value
 
-    def evaluate_actions(self, x, actions, sid):
+    def evaluate_actions(self, x, actions, sid, flg_legal=True):
+
         value, actor_output = self(x, sid)
-
         log_probs = F.log_softmax(actor_output, dim=1)
-
         action_log_probs = log_probs.gather(1, actions)
+        # probs   = F.softmax(actor_output, dim=1)
+        probs = torch.zeros(actor_output.shape)
 
-        probs   = F.softmax(actor_output, dim=1)
+        if flg_legal: # 空いている避難所のみを誘導先候補にする
+            legal_actions = self.legal_actions(x)
+            for i in range(x.shape[0]):# i:並列SimのID
+                idxs = legal_actions[1][legal_actions[0]==i]
+                action_probs = F.softmax(actor_output[i,idxs], dim=0)
+                probs[i,idxs] = action_probs
+        else:
+            pass
+
         entropy = -(log_probs * probs).sum(-1).mean()
 
         return value, action_log_probs, entropy
