@@ -172,6 +172,8 @@ class ActorCritic(nn.Module):
     def update_eps(self, eps):
         # tmp_init = 0.9 # loop_i=0のときのepsの値
         # self.eps = max( tmp_init - (tmp_init * self.loop_i) / (1.0 * self.learn_time) , 0.0)
+        eps = max(1, eps)
+        eps = min(0, eps)
         self.eps = eps
     # def update_eps(self):
     #     tmp_init = 0.9 # loop_i=0のときのepsの値
