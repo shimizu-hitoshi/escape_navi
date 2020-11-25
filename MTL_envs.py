@@ -119,6 +119,7 @@ class Curriculum:
             sys.exit()
 
         capa_over_shelter_ids = [3,4,13,14,15,16,17,18] # 最初に向かう人数が定員以上の避難所
+        capa_over_shelter_ids = [17,18] # 最初に向かう人数が定員以上の避難所
         # dict_best_model = copy.deepcopy(dict_model)
         # tmp_fixed = copy.deepcopy(dict_target["training"])
         # loop_i = 0 # カリキュラムのループカウンタ
@@ -452,6 +453,7 @@ class Environment:
 
 def save_model(model, fn="model"):
     torch.save(model.state_dict(), fn)
+    # print("eps", model.eps)
     pd.to_pickle(model.eps, fn + ".eps")
 
 def load_model(n_in, n_out, fn="model"):
