@@ -8,7 +8,7 @@
 # python main.py --save --configfn config_total_time_once.ini &
 
 # 手元で学習するために
-# python main.py --save --configfn config.ini
+python main.py --save --configfn config.ini
 
 # python main.py --save --configfn config_zero_one.ini
 # python main.py --save --configfn config_time_once.ini

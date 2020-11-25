@@ -15,7 +15,7 @@ class ActorCritic(nn.Module):
         def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
         
         self.n_out = n_out
-        self.better_agents = [] # ルールベースを超えたsidのリスト
+        # self.better_agents = [] # ルールベースを超えたsidのリスト
         mid_io = 128
         self.linear1 = nn.Linear(n_in, mid_io)
         self.linear2 = nn.Linear(mid_io, mid_io)
@@ -139,8 +139,8 @@ class ActorCritic(nn.Module):
 
         return value, action_log_probs, entropy
 
-    def set_better_agents(self, better_agents):
-        self.better_agents = better_agents
+    # def set_better_agents(self, better_agents):
+    #     self.better_agents = better_agents
 
     def act_all(self, x, training_target):
         action = torch.zeros(x.shape[0], self.n_out).long() # .to(self.device) # 各観測に対する，各エージェントの行動
@@ -162,7 +162,8 @@ class ActorCritic(nn.Module):
     def test_act_all(self, x, test_list, fix_list): # 評価用=softmaxしない
         action = torch.zeros(x.shape[0], self.n_out).long() # .to(self.device) # 各観測に対する，各エージェントの行動
         for i in range( self.n_out ):
-            if ((i in self.better_agents) or (i in test_list)) and (i not in fix_list):
+            # if ((i in self.better_agents) or (i in test_list)) and (i not in fix_list):
+            if (i in test_list) and (i not in fix_list):
                 tmp_action = self.act_greedy(x, i) # ここでアクション決めて
             else:
                 tmp_action = self.dict_FixControler[i].act_greedy(x)
@@ -188,7 +189,7 @@ class ActorN_CriticN(ActorCritic):
         def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
         
         self.n_out = n_out
-        self.better_agents = [] # ルールベースを超えたsidのリスト
+        # self.better_agents = [] # ルールベースを超えたsidのリスト
         mid_io = 128
         self.linear1 = nn.Linear(n_in, mid_io)
         self.linear2 = nn.Linear(mid_io, mid_io)
@@ -217,7 +218,7 @@ class ActorN_CriticN_share2(ActorCritic):
         def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
         
         self.n_out = n_out
-        self.better_agents = [] # ルールベースを超えたsidのリスト
+        # self.better_agents = [] # ルールベースを超えたsidのリスト
         mid_io = 128
         self.linear1 = nn.Linear(n_in, mid_io)
         self.linear2 = nn.Linear(mid_io, mid_io)
@@ -249,7 +250,7 @@ class ActorN_CriticN_share1(ActorCritic):
         def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
         
         self.n_out = n_out
-        self.better_agents = [] # ルールベースを超えたsidのリスト
+        # self.better_agents = [] # ルールベースを超えたsidのリスト
         mid_io = 128
         self.linear1 = nn.Linear(n_in, mid_io)
         layter2s = [nn.Linear(mid_io, mid_io) for _ in range(n_out)]
@@ -283,7 +284,7 @@ class ActorN_CriticN_share0(ActorCritic):
         def init_(module): return init(module, gain=nn.init.calculate_gain('relu'))
         
         self.n_out = n_out
-        self.better_agents = [] # ルールベースを超えたsidのリスト
+        # self.better_agents = [] # ルールベースを超えたsidのリスト
         mid_io = 128
 
         layter1s = [nn.Linear(n_in, mid_io) for _ in range(n_out)]

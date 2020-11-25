@@ -131,7 +131,7 @@ class Curriculum:
         # while (loop_i == 0):
             actor_critic.update_eps(actor_critic.eps - 0.01)
 
-            flg_update = False
+            # flg_update = False
             # for training_target in training_targets:
             # for training_target in range(actor_critic.n_out):
             for training_target in capa_over_shelter_ids:
@@ -147,26 +147,27 @@ class Curriculum:
 
                 # 過去最高の性能を更新したエージェントがいれば，学習を継続する
                 if update_score[training_target] == 0 or tmp_score < update_score[training_target]:
-                    flg_update = True
-                    NG_target = []
+                    # flg_update = True
+                    # NG_target = []
                     update_score[training_target] = copy.deepcopy( tmp_score )
 
-                if tmp_score < base_score: # scoreは移動時間なので小さいほどよい
-                    # best_score = copy.deepcopy(tmp_score)
-                    if training_target not in actor_critic.better_agents:
-                        actor_critic.better_agents.append(training_target)
-                        print("better_agents", actor_critic.better_agents)
+                # if tmp_score < base_score: # scoreは移動時間なので小さいほどよい
+                #     # best_score = copy.deepcopy(tmp_score)
+                #     if training_target not in actor_critic.better_agents:
+                #         actor_critic.better_agents.append(training_target)
+                #         print("better_agents", actor_critic.better_agents)
 
-                if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
-                    best_score = copy.deepcopy(tmp_score)
-                else: # 性能を更新できなかったら，NG_targetに記録
-                    NG_target.append(training_target)
+                # if tmp_score < best_score: # scoreは移動時間なので小さいほどよい
+                #     best_score = copy.deepcopy(tmp_score)
+                # else: # 性能を更新できなかったら，NG_targetに記録
+                #     NG_target.append(training_target)
                 if args.save: # 毎回モデルを保存
                     save_model(actor_critic, resdir + '/' + outputfn)
                     pd.to_pickle(update_score, resdir + '/' + outputfn + ".score")
                     # pd.to_pickle(actor_critic.better_agents, resdir + '/' + outputfn + ".better_agents")
-            if not flg_update: # 1個もtargetが更新されなかったら終了
-                break
+            # if not flg_update: # 1個もtargetが更新されなかったら終了
+            #     break
+            break
         # 終了
         dt = datetime.datetime.now() # 現在時刻->実験開始時刻をログ出力するため
         with open(resdir + "/Curriculum_log.txt", "a") as f:

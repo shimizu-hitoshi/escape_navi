@@ -88,6 +88,7 @@ class SimEnv(gym.Env):
                 # "agentid":agentid,
                 "edge_state": self.edge_state, # 道路上の人数
                 "goal_time": (agentid, travel_time), # self._goal_time_all(), # ( agentid, travel_time )
+                "goal_cnt": self.goal_cnt,
                 "navi_": self._get_navi_all(), # ( agentid, froms, dests )
                 "all_reached": len(agentid) == self.num_agents # 全員ゴールしたか？
                 }
@@ -417,12 +418,12 @@ class SimEnv(gym.Env):
         # １ステップ分ずらす
         obs     = self.state[self.num_obsv:] # 左端を捨てる
         # 避難所の状況を取得
-        tmp_goal_state = copy.deepcopy( self._goal_cnt() )
-        # print(tmp_goal_state)
+        self.goal_cnt = copy.deepcopy( self._goal_cnt() )
+        # print(self.goal_cnt)
         self.edge_state = copy.deepcopy( self._edge_cnt() ) # 何度も使いそうなので保存
-        self.goal_state = self.edges.goal_capa - tmp_goal_state # 何度も使いそうなので保存
+        self.goal_state = self.edges.goal_capa - self.goal_cnt # 何度も使いそうなので保存
         # print(self.goal_state)
-        # print(np.sum(tmp_goal_state), np.sum(self.edge_state))
+        # print(np.sum(self.goal_cnt), np.sum(self.edge_state))
         cur_obs = np.append(self.edge_state , self.goal_state )
         cur_obs = np.append(cur_obs , self.navi_state )
         return np.append(obs, cur_obs) # 右端に追加

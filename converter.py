@@ -32,7 +32,10 @@ class RewardMaker(object):
 
     def set_R_base(self, R_base): # 実行に数分かかるので，要改善
         T_open, dict_travel_time = R_base
+        # R_base: 歩行中＠最初の避難所
+        # A_base: 到着済＠最後の避難所
         self.R_base = torch.zeros(len(T_open), len( self.crowds[0].first_dest.items() ))
+        self.A_base = torch.zeros(len(T_open), len( self.crowds[0].first_dest.items() ))
         self.group_agents = [] # goalidごとに，agentidリストを保持
         for goalid, (nodeid, agentids) in enumerate( sorted( self.crowds[0].first_dest.items()) ):
             # print(goalid, (nodeid, agentids))
@@ -42,6 +45,9 @@ class RewardMaker(object):
 
         for t, infos in enumerate(T_open):
             # num_pedestrian = np.sum( infos["edge_state"] )
+            goal_cnt = infos["goal_cnt"]
+            self.A_base[t,:] = torch.tensor(goal_cnt)
+
             agentid, travel_time = infos['goal_time']
             # print("set_R_base", t, len(agentid), "人ゴール")
             # travel_time = infos['travel_time']
@@ -60,7 +66,8 @@ class RewardMaker(object):
             #     self.R_base[t, goalid] = len([ aid for aid in agentid if aid in group_agent])
             # dict_travel_time = dict(zip(agentid, travel_time))
             # print(i, len(dict_travel_time))
-        print(self.R_base)
+        print("R_base",self.R_base)
+        print("A_base",self.A_base)
         # print("set_R_base")
         # sys.exit()
 
@@ -75,7 +82,9 @@ class RewardMaker(object):
         # print(infos)
         # print(self.crowds[0].first_dest)
         # sys.exit()
-        reward = torch.zeros((len(infos),1))
+        reward = torch.zeros((len(infos),1)) # 歩行人数から
+        reward1 = torch.zeros((len(infos),1)) # 歩行人数から
+        reward2 = torch.zeros((len(infos),1)) # 収容人数から
         for i, info in enumerate(infos):
             num_agent = torch.zeros(len(self.group_agents))
             agentid, travel_time = info['goal_time']
@@ -95,17 +104,32 @@ class RewardMaker(object):
             if DEBUG: print("R_base[t, training_target]", self.R_base.shape, t, training_target)
             if self.R_base[t, training_target] == 0:
                 if num_agent[training_target] > 0:
-                    reward[i,0] = -1
+                    reward1[i,0] = -1
                     continue
                 else: # num_agent == 0:
-                    reward[i,0] = 0
+                    reward1[i,0] = 0
                     continue
             else:
-                tmp_reward = 1.0 * ( self.R_base[t, training_target]  - num_agent[training_target]) / self.R_base[t, training_target] 
-                if tmp_reward < -1:
-                    tmp_reward = -1
-                reward[i,0] = tmp_reward
+                tmp_reward1 = 1.0 * ( self.R_base[t, training_target]  - num_agent[training_target]) / self.R_base[t, training_target] 
+                if tmp_reward1 < -1:
+                    tmp_reward1 = -1
+                reward1[i,0] = tmp_reward1
 
+            goal_cnt = info["goal_cnt"]
+            if self.A_base[t, training_target] == 0:
+                if goal_cnt[training_target] > 0:
+                    reward2[i,0] = -1
+                    continue
+                else: # num_agent == 0:
+                    reward2[i,0] = 0
+                    continue
+            else:
+                tmp_reward2 = 1.0 * ( self.A_base[t, training_target]  - goal_cnt[training_target]) / self.A_base[t, training_target] 
+                if tmp_reward2 < -1:
+                    tmp_reward2 = -1
+                reward2[i,0] = tmp_reward2
+
+            reward[i,0] = 0.5 * (reward1[i,0] - reward2[i,0])
             # travel_time = info['travel_time']
             # agentid = info['agentid']
             # print(self.crowds)
