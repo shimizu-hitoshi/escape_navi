@@ -17,6 +17,12 @@
 
 for i in `seq 1 10000`
 do
+# ファイルがあれば終了する
+if [ -f terminate.txt ]
+	then
+		echo "終了します : terminate.txt"
+		break
+	fi
 echo "$i 回目のループです"
 python main.py --save --configfn config.ini --checkpoint --inputfn logs/Curriculum/model ; cp logs/Curriculum/model logs/Curriculum/model_$i ; cp logs/Curriculum/model.score logs/Curriculum/model_$i.score
 done

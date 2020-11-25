@@ -9,15 +9,23 @@
 
 # 手元で学習するために
 # python main.py --save --configfn config.ini
-python main.py --save --configfn config_zero_one.ini
+# python main.py --save --configfn config_zero_one.ini
 # python main.py --save --configfn config_time_once.ini
 # python main.py --save --configfn config_time.ini
 # python main.py --save --configfn config_zero_one.ini --checkpoint --inputfn logs/Curriculum_RL_shimizu_20200925/model
 # python main.py --save --configfn config_zero_one.ini --checkpoint --inputfn logs/Curriculum/model
 # python main.py --save --configfn config_zero_one.ini
 
+
 for i in `seq 1 10`
 do
+# ファイルがあれば終了する
+if [ -f terminate.txt ]
+	then
+		echo "終了します : terminate.txt"
+		break
+	fi
+
 echo "$i 回目のループです"
 python main.py --save --configfn config_zero_one.ini --checkpoint --inputfn logs/Curriculum/model ; cp logs/Curriculum/model logs/Curriculum/model_$i ; cp logs/Curriculum/model.score logs/Curriculum/model_$i.score
 done
