@@ -92,6 +92,7 @@ class RewardMaker(object):
             if DEBUG: print("R_base", self.R_base[t, training_target])
             if DEBUG: print("num_agent", num_agent[training_target])
 
+            if DEBUG: print("R_base[t, training_target]", self.R_base.shape, t, training_target)
             if self.R_base[t, training_target] == 0:
                 if num_agent[training_target] > 0:
                     reward[i,0] = -1

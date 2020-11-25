@@ -27,6 +27,7 @@ class ActorCritic(nn.Module):
         # nn.init.normal_(self.actor.weight, 0.0, 1.0)
         self.critic  = nn.Linear(mid_io, 1)
         # nn.init.normal_(self.critic.weight, 0.0, 1.0)
+        self.eps = 0.9 # 1.0 # ルールベースを選択する確率
 
     def set_FixControler(self, edges):
         # 20201116: model内部にFixControlerを保持するように改造
@@ -34,9 +35,11 @@ class ActorCritic(nn.Module):
         # dict_FixControlerに，ルールベースのエージェントを配置しておく
         for sid in range(self.n_out):
             self.dict_FixControler[sid] = FixControler(sid, edges)
-        self.eps = 1.0 # ルールベースを選択する確率
-        self.loop_i = 0 # 学習した回数を自分で覚える
-        self.learn_time = 5000 # 500回学習したらルールベースを使わなくなる
+        
+        # 以下の変数を保存する方法が思いつかない->外部からepsを指定
+        # self.eps = 1.0 # ルールベースを選択する確率
+        # self.loop_i = 0 # 学習した回数を自分で覚える
+        # self.learn_time = 5000 # 500回学習したらルールベースを使わなくなる
 
     def forward(self, x, sid):
         h1 = F.relu(self.linear1(x))
@@ -166,9 +169,14 @@ class ActorCritic(nn.Module):
             action[:,i] = tmp_action.squeeze()
         return action
     
-    def update_eps(self):
-        tmp_init = 0.9 # loop_i=0のときのepsの値
-        self.eps = max( tmp_init - (tmp_init * self.loop_i) / (1.0 * self.learn_time) , 0.0)
+    def update_eps(self, eps):
+        # tmp_init = 0.9 # loop_i=0のときのepsの値
+        # self.eps = max( tmp_init - (tmp_init * self.loop_i) / (1.0 * self.learn_time) , 0.0)
+        self.eps = eps
+    # def update_eps(self):
+    #     tmp_init = 0.9 # loop_i=0のときのepsの値
+    #     self.eps = max( tmp_init - (tmp_init * self.loop_i) / (1.0 * self.learn_time) , 0.0)
+
 
 class ActorN_CriticN(ActorCritic):
     def __init__(self, n_in, n_out):

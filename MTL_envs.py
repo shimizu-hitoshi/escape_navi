@@ -118,6 +118,7 @@ class Curriculum:
             # baseモードは，ベースラインを実行するだけで終了
             sys.exit()
 
+        capa_over_shelter_ids = [3,4,13,14,15,16,17,18] # 最初に向かう人数が定員以上の避難所
         # dict_best_model = copy.deepcopy(dict_model)
         # tmp_fixed = copy.deepcopy(dict_target["training"])
         # loop_i = 0 # カリキュラムのループカウンタ
@@ -127,10 +128,12 @@ class Curriculum:
         train_env.reward_maker.set_R_base(R_base)
         while True:
         # while (loop_i == 0):
+            actor_critic.update_eps(actor_critic.eps - 0.01)
 
             flg_update = False
             # for training_target in training_targets:
-            for training_target in range(actor_critic.n_out):
+            # for training_target in range(actor_critic.n_out):
+            for training_target in capa_over_shelter_ids:
                 if training_target in NG_target: # 改善しなかった対象は省略
                     continue
                 # actor_critic = train_env.train(actor_critic, dict_FixControler, config, training_target)
@@ -138,8 +141,8 @@ class Curriculum:
                 actor_critic = train_env.train(actor_critic, config, training_target)
                 tmp_score, _ = test_env.test(actor_critic, test_list=[training_target])
                 with open(resdir + "/Curriculum_log.txt", "a") as f:
-                    f.write("{:}\t{:}\t{:}\t{:}\n".format(actor_critic.loop_i, train_env.NUM_EPISODES, training_target, tmp_score))
-                    print(actor_critic.loop_i, training_target, tmp_score)
+                    f.write("{:}\t{:}\t{:}\t{:}\n".format(actor_critic.eps, train_env.NUM_EPISODES, training_target, tmp_score))
+                    print(actor_critic.eps, training_target, tmp_score)
 
                 # 過去最高の性能を更新したエージェントがいれば，学習を継続する
                 if update_score[training_target] == 0 or tmp_score < update_score[training_target]:
@@ -160,7 +163,7 @@ class Curriculum:
                 if args.save: # 毎回モデルを保存
                     save_model(actor_critic, resdir + '/' + outputfn)
                     pd.to_pickle(update_score, resdir + '/' + outputfn + ".score")
-                    pd.to_pickle(actor_critic.better_agents, resdir + '/' + outputfn + ".better_agents")
+                    # pd.to_pickle(actor_critic.better_agents, resdir + '/' + outputfn + ".better_agents")
             if not flg_update: # 1個もtargetが更新されなかったら終了
                 break
         # 終了
@@ -255,8 +258,9 @@ class Environment:
         rollout.observations[0].copy_(current_obs)
 
         while True:
-            actor_critic.loop_i += 1
-            actor_critic.update_eps()
+            # ここでepsを更新すると，ターゲットごとに異なる値を使うことになる．．．
+            # actor_critic.loop_i += 1
+            # actor_critic.update_eps()
             # actor_critic.eps -= 0.1
             # if actor_critic.eps < 0:
             #     actor_critic.eps = 0
@@ -315,8 +319,8 @@ class Environment:
                 current_obs = obs # ここで観測を更新している
 
                 rollout.insert(current_obs, target_action.data, reward, masks, self.NUM_ADVANCED_STEP)
-                with open(self.resdir + "/reward_log.txt", "a") as f: # このログはエピソードが終わったときだけでいい->要修正
-                    f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
+                with open(self.resdir + "/reward_log.txt", "a") as f: # このログはエピソードが終わったときだけでいい？->報酬による
+                    f.write("{:}\t{:}\t{:}\t{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}\n".format(training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
                     print(training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
                     if DEBUG: print( _base, _score)
                     # f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i,training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
@@ -330,7 +334,7 @@ class Environment:
             rollout.after_update()
 
             with open(self.resdir + "/loss_log.txt", "a") as f:
-                f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, episode.mean(), value_loss, action_loss, entropy, total_loss))
+                f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(training_target, actor_critic.eps, episode.mean(), value_loss, action_loss, entropy, total_loss))
                 print("value_loss {:.4f}\taction_loss {:.4f}\tentropy {:.4f}\ttotal_loss {:.4f}".format(value_loss, action_loss, entropy, total_loss))
 
             with open(self.resdir + "/episode_reward.txt", "a") as f:
@@ -448,10 +452,14 @@ class Environment:
 
 def save_model(model, fn="model"):
     torch.save(model.state_dict(), fn)
+    pd.to_pickle(model.eps, fn + ".eps")
 
 def load_model(n_in, n_out, fn="model"):
     model = ActorN_CriticN(n_in, n_out)
     # model = ActorCritic(n_in, n_out)
     model.load_state_dict(torch.load(fn))
+    eps = pd.read_pickle(fn + ".eps")
+    print("eps", eps)
+    model.update_eps(eps)
     # model.eval()
     return model
