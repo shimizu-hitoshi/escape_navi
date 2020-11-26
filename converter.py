@@ -105,10 +105,8 @@ class RewardMaker(object):
             if self.R_base[t, training_target] == 0:
                 if num_agent[training_target] > 0:
                     reward1[i,0] = -1
-                    continue
                 else: # num_agent == 0:
                     reward1[i,0] = 0
-                    continue
             else:
                 tmp_reward1 = 1.0 * ( self.R_base[t, training_target]  - num_agent[training_target]) / self.R_base[t, training_target] 
                 if tmp_reward1 < -1:
@@ -119,10 +117,8 @@ class RewardMaker(object):
             if self.A_base[t, training_target] == 0:
                 if goal_cnt[training_target] > 0:
                     reward2[i,0] = -1
-                    continue
                 else: # num_agent == 0:
                     reward2[i,0] = 0
-                    continue
             else:
                 tmp_reward2 = 1.0 * ( self.A_base[t, training_target]  - goal_cnt[training_target]) / self.A_base[t, training_target] 
                 if tmp_reward2 < -1:
@@ -147,7 +143,7 @@ class RewardMaker(object):
             #     reward[i,0] = np.mean( [tmp_travel_time[agentid] for agentid in agentids] )
 
         # reward = None
-        return reward, self.R_base[t, training_target], num_agent[training_target]
+        return reward, self.R_base[t, training_target], num_agent[training_target], self.A_base[t, training_target], goal_cnt[training_target]
         # return reward
 
     # def _get_reward_goal(self): # sum of people who reached goal

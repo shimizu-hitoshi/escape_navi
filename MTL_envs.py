@@ -118,12 +118,13 @@ class Curriculum:
             # baseモードは，ベースラインを実行するだけで終了
             sys.exit()
 
-        capa_over_shelter_ids = [3,4,13,14,15,16,17,18] # 最初に向かう人数が定員以上の避難所
+        training_targets = [3,4,13,14,15,16,17,18] # 最初に向かう人数が定員以上の避難所
+        training_targets = list( range(actor_critic.n_out) )
         # capa_over_shelter_ids = [17,18] # 最初に向かう人数が定員以上の避難所
         # dict_best_model = copy.deepcopy(dict_model)
         # tmp_fixed = copy.deepcopy(dict_target["training"])
         # loop_i = 0 # カリキュラムのループカウンタ
-        NG_target = [] # scoreが改善しなかったtargetリスト
+        # NG_target = [] # scoreが改善しなかったtargetリスト
         # train_env = Environment(args, "train", R_base, loop_i)
         train_env = Environment(args, "train")
         train_env.reward_maker.set_R_base(R_base)
@@ -132,11 +133,11 @@ class Curriculum:
             actor_critic.update_eps(actor_critic.eps - 0.01)
 
             # flg_update = False
-            # for training_target in training_targets:
+            for training_target in training_targets:
             # for training_target in range(actor_critic.n_out):
-            for training_target in capa_over_shelter_ids:
-                if training_target in NG_target: # 改善しなかった対象は省略
-                    continue
+            # for training_target in capa_over_shelter_ids:
+                # if training_target in NG_target: # 改善しなかった対象は省略
+                #     continue
                 # actor_critic = train_env.train(actor_critic, dict_FixControler, config, training_target)
                 # tmp_score, _ = test_env.test(actor_critic, dict_FixControler, test_list=[training_target])
                 actor_critic = train_env.train(actor_critic, config, training_target)
@@ -170,6 +171,7 @@ class Curriculum:
             break
         # 終了
         dt = datetime.datetime.now() # 現在時刻->実験開始時刻をログ出力するため
+        best_score = min(update_score)
         with open(resdir + "/Curriculum_log.txt", "a") as f:
             f.write("Curriculum 正常終了: " + dt.strftime('%Y年%m月%d日 %H:%M:%S') + "\n")
             f.write("final score:\t{:}\n".format(best_score))
@@ -300,7 +302,7 @@ class Environment:
                 if DEBUG: print("step前のここ？",action.shape)
                 obs, dummy_rewards, dones, infos = self.envs.step(action) # これで時間を進める
                 # reward = rewards[training_target] # 学習対象エージェントの報酬だけ取り出す
-                reward, _base, _score = self.reward_maker.info2reward(infos, training_target, step)
+                reward, _base, _score, _base2, _score2 = self.reward_maker.info2reward(infos, training_target, step)
                 episode_rewards += reward
                 if DEBUG: print("info2reward", reward)
                 # if done then clean the history of observation
@@ -324,7 +326,7 @@ class Environment:
                 with open(self.resdir + "/reward_log.txt", "a") as f: # このログはエピソードが終わったときだけでいい？->報酬による
                     f.write("{:}\t{:}\t{:}\t{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}\n".format(training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
                     print(training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
-                    if DEBUG: print( _base, _score)
+                    # print( _base, _score, _base2, _score2)
                     # f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(self.loop_i,training_target, episode.mean(), step, reward.max().numpy(), reward.min().numpy(), reward.mean().numpy(), episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy()))
                     # print(self.loop_i,training_target, episode.mean(), step, reward.mean().numpy(), episode_rewards.mean().numpy())
 
