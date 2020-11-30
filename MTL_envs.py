@@ -467,8 +467,8 @@ class Environment:
                         if DEBUG: print(event)
                         # episode[i] += 1
             # 以下のコメントアウトで，評価指標を切り替える
-            # ret, dict_travel_times = self.reward_maker.info2traveltime(infos) # 平均移動時間で評価
-            ret, dict_travel_times = self.reward_maker.info2completetime(infos) # 避難完了時間で評価
+            ret, dict_travel_times = self.reward_maker.info2traveltime(infos) # 平均移動時間で評価
+            # ret, dict_travel_times = self.reward_maker.info2completetime(infos) # 避難完了時間で評価
 
             T_open.append(infos[0])
             # T_open.append(reward.item())
