@@ -16,7 +16,7 @@ class ActorCritic(nn.Module):
         
         self.n_out = n_out
         # self.better_agents = [] # ルールベースを超えたsidのリスト
-        mid_io = 128
+        mid_io = self.mid_io()
         self.linear1 = nn.Linear(n_in, mid_io)
         self.linear2 = nn.Linear(mid_io, mid_io)
         self.linear3 = nn.Linear(mid_io, mid_io)
@@ -28,6 +28,9 @@ class ActorCritic(nn.Module):
         self.critic  = nn.Linear(mid_io, 1)
         # nn.init.normal_(self.critic.weight, 0.0, 1.0)
         self.eps = 0.9 # 1.0 # ルールベースを選択する確率
+    
+    def mid_io(self):
+        return 128
 
     def set_FixControler(self, edges):
         # 20201116: model内部にFixControlerを保持するように改造
@@ -190,7 +193,7 @@ class ActorN_CriticN(ActorCritic):
         
         self.n_out = n_out
         # self.better_agents = [] # ルールベースを超えたsidのリスト
-        mid_io = 128
+        mid_io = self.mid_io()
         self.linear1 = nn.Linear(n_in, mid_io)
         self.linear2 = nn.Linear(mid_io, mid_io)
         self.linear3 = nn.Linear(mid_io, mid_io)
@@ -219,7 +222,7 @@ class ActorN_CriticN_share2(ActorCritic):
         
         self.n_out = n_out
         # self.better_agents = [] # ルールベースを超えたsidのリスト
-        mid_io = 128
+        mid_io = self.mid_io()
         self.linear1 = nn.Linear(n_in, mid_io)
         self.linear2 = nn.Linear(mid_io, mid_io)
         layter3s = [nn.Linear(mid_io, mid_io) for _ in range(n_out)]
@@ -251,7 +254,7 @@ class ActorN_CriticN_share1(ActorCritic):
         
         self.n_out = n_out
         # self.better_agents = [] # ルールベースを超えたsidのリスト
-        mid_io = 128
+        mid_io = self.mid_io()
         self.linear1 = nn.Linear(n_in, mid_io)
         layter2s = [nn.Linear(mid_io, mid_io) for _ in range(n_out)]
         self.linear2 = nn.ModuleList(layter2s)
@@ -285,7 +288,7 @@ class ActorN_CriticN_share0(ActorCritic):
         
         self.n_out = n_out
         # self.better_agents = [] # ルールベースを超えたsidのリスト
-        mid_io = 128
+        mid_io = self.mid_io()
 
         layter1s = [nn.Linear(n_in, mid_io) for _ in range(n_out)]
         self.linear1 = nn.ModuleList(layter1s)

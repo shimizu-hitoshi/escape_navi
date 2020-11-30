@@ -75,17 +75,16 @@ class RewardMaker(object):
         self.dict_travel_time = dict_travel_time
         # print(T_open) # 今のところ全て0
 
-    def info2rewardWalk(self, infos, training_target, t):
+    def info2reward(self, infos, training_target, t):
         """
-        歩行人数から作成する報酬
         t: 時刻
         """
         # print(infos)
         # print(self.crowds[0].first_dest)
         # sys.exit()
-        # reward = torch.zeros((len(infos),1)) # 歩行人数から
+        reward = torch.zeros((len(infos),1)) # 歩行人数から
         reward1 = torch.zeros((len(infos),1)) # 歩行人数から
-        # reward2 = torch.zeros((len(infos),1)) # 収容人数から
+        reward2 = torch.zeros((len(infos),1)) # 収容人数から
         for i, info in enumerate(infos):
             num_agent = torch.zeros(len(self.group_agents))
             agentid, travel_time = info['goal_time']
@@ -114,15 +113,6 @@ class RewardMaker(object):
                     tmp_reward1 = -1
                 reward1[i,0] = tmp_reward1
 
-        return reward1, self.R_base[t, training_target], num_agent[training_target]
-
-    def info2rewardArrive(self, infos, training_target, t):
-        """
-        収容人数から作成する報酬
-        t: 時刻
-        """
-        reward2 = torch.zeros((len(infos),1)) # 収容人数から
-        for i, info in enumerate(infos):
             goal_cnt = info["goal_cnt"]
             if self.A_base[t, training_target] == 0:
                 if goal_cnt[training_target] > 0:
@@ -134,8 +124,10 @@ class RewardMaker(object):
                 if tmp_reward2 < -1:
                     tmp_reward2 = -1
                 reward2[i,0] = tmp_reward2
-        # 符号を逆転させる->大きいほどよい
-        return -reward2, self.A_base[t, training_target], goal_cnt[training_target]
+
+            reward[i,0] = 0.5 * (reward1[i,0] - reward2[i,0])
+        return reward, self.R_base[t, training_target], num_agent[training_target], self.A_base[t, training_target], goal_cnt[training_target]
+        # return reward
 
     def info2traveltime(self, infos):
         # エピソードの評価値を計算する
