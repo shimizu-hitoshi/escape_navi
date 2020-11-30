@@ -162,7 +162,7 @@ class Curriculum:
 
                 if args.save: # 毎回モデルを保存
                     save_model(actor_critic, resdir + '/' + outputfn)
-                best_score = min(tmpscore, best_score)
+                best_score = min(tmp_score, best_score)
                 break
 
         # 終了
@@ -313,10 +313,10 @@ class Environment:
                 if DEBUG: print("masks.shape",masks.shape)
                 if DEBUG: print("obs.shape",obs.shape)
 
-                for i, done in enumerate(dones):
-                    if done:
-                        episode[i] += 1
-                        episode_rewards[i] = 0
+                # for i, done in enumerate(dones):
+                #     if done:
+                #         episode[i] += 1
+                #         episode_rewards[i] = 0 # ここで０にするとepisode_reward.txtに０ばかり記録される
 
                 # final_rewards *= masks
                 # final_rewards += (1-masks) * episode_rewards
@@ -362,12 +362,13 @@ class Environment:
                         f.write("{:}\t{:}\t{:}\t{:}\t{:}\t{:}\n".format(i, actor_critic.eps, episode.mean(), value_loss, action_loss, entropy, total_loss))
                         print("value_loss {:.4f}\taction_loss {:.4f}\tentropy {:.4f}\ttotal_loss {:.4f}".format(value_loss, action_loss, entropy, total_loss))
 
-                    with open(self.resdir + "/episode_reward.txt", "a") as f:
-                        # for j, info in enumerate(infos):
-                        #     if 'episode' in info:
-                        f.write("{:}\t{:}\t{:}\t{:}\n".format(i,episode[i], infos[i]['env_id'], episode_rewards[i]))
+                with open(self.resdir + "/episode_reward.txt", "a") as f:
+                    for j, info in enumerate(infos):
+                        if 'episode' not in info:
+                            continue
+                        f.write("{:}\t{:}\t{:}\t{:}\n".format(j,episode[j], infos[j]['env_id'], episode_rewards[j]))
                         # print(training_target, episode[j], info['env_id'], info['episode']['r'])
-                        print(i, episode[i], infos[i]['env_id'], episode_rewards[i])
+                        print(j, episode[j], infos[j]['env_id'], episode_rewards[j])
                         # episode[i] += 1 # episode_rewards.mean().numpy()
 
             else:
@@ -389,7 +390,13 @@ class Environment:
                             f.write("{:}\t{:}\t{:}\t{:}\n".format(training_target,episode[i], info['env_id'], info['episode']['r']))
                             print(training_target, episode[i], info['env_id'], info['episode']['r'])
                             # episode[i] += 1
-            
+
+            for i, done in enumerate(dones):
+                if done:
+                    episode[i] += 1
+                    episode_rewards[i] = 0 # ループ抜けてから０にする
+
+
             if int(episode.mean())+1 > self.NUM_EPISODES:
                 print("ループ抜ける")
                 break
