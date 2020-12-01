@@ -3,7 +3,7 @@
 
 import torch
 from pedestrians import Crowd
-import sys
+import sys, copy
 import numpy as np
 from edges import Edge
 
@@ -25,6 +25,7 @@ class RewardMaker(object):
             # ifn = "%s/graph.twd"%datadir
             self.edges.append(Edge(datadir))
 
+
     # def format_travel_time(self, travel_time):
     #     dict_travel_time = dict(zip(agentid, travel_time))
 
@@ -42,6 +43,10 @@ class RewardMaker(object):
             print(goalid, len(agentids), np.mean( [dict_travel_time[agentid-1] for agentid in agentids] ) )
             self.group_agents.append(agentids)
         # print(dict_travel_time)
+
+        self.len_group_agent = torch.zeros(len(self.group_agents))
+        for goalid, group_agent in enumerate( self.group_agents ):
+            self.len_group_agent[goalid] = len(group_agent)
 
         for t, infos in enumerate(T_open):
             # num_pedestrian = np.sum( infos["edge_state"] )
@@ -75,7 +80,7 @@ class RewardMaker(object):
         self.dict_travel_time = dict_travel_time
         # print(T_open) # 今のところ全て0
 
-    def info2rewardWalk(self, infos, training_target, t):
+    def info2rewardWalk(self, infos, training_target=None, t=None):
         """
         歩行人数から作成する報酬
         t: 時刻
@@ -84,58 +89,88 @@ class RewardMaker(object):
         # print(self.crowds[0].first_dest)
         # sys.exit()
         # reward = torch.zeros((len(infos),1)) # 歩行人数から
-        reward1 = torch.zeros((len(infos),1)) # 歩行人数から
+        if training_target is None:
+            reward1 = torch.zeros((len(infos),len(self.group_agents))) # 全エージェント分
+        else:
+            reward1 = torch.zeros((len(infos),1)) # 歩行人数から
         # reward2 = torch.zeros((len(infos),1)) # 収容人数から
         for i, info in enumerate(infos):
             num_agent = torch.zeros(len(self.group_agents))
             agentid, travel_time = info['goal_time']
             # print(t, len(agentid), "人ゴール")
             # 当初目的地ごとに歩行者数を設定して
-            for goalid, group_agent in enumerate( self.group_agents ):
-                num_agent[goalid] = len(group_agent)
+            num_agent = copy.deepcopy(self.len_group_agent) # 当初目的地ごとの歩行者数
             # ゴールした人数を減算する
-            for aid in agentid:
+            for aid in agentid: # たぶんここが遅い
                 goalid = self.edges[0].nodeid2goalid( self.crowds[0].pedestrians[aid-1].destination )
                 num_agent[goalid] -= 1
 
-            if DEBUG: print("step", t)
-            if DEBUG: print("R_base", self.R_base[t, training_target])
-            if DEBUG: print("num_agent", num_agent[training_target])
+            # if DEBUG: print("step", t)
+            # if DEBUG: print("R_base", self.R_base[t, training_target])
+            # if DEBUG: print("num_agent", num_agent[training_target])
+            # if DEBUG: print("R_base[t, training_target]", self.R_base.shape, t, training_target)
+            
+            numera = 1.0 * ( self.R_base[t, :]  - num_agent[:]) # 分子
+            reward1[i,:] = torch.where( (self.R_base[t,:] ==0) & (num_agent > 0), -torch.ones(num_agent.shape), torch.zeros(num_agent.shape) )
+            reward1[i,:] = torch.where( (self.R_base[t,:] ==0) & (num_agent == 0), torch.zeros(num_agent.shape), reward1[i,:] )
+            reward1[i,:] = torch.where( self.R_base[t,:] > 0 , numera / self.R_base[t, :], reward1[i,:] )
+            reward1[i,:] = torch.where( reward1[i,:] < -1 , -torch.ones(num_agent.shape), reward1[i,:] )
+            
+            # reward1 = torch.max(-1, reward1)
+            # if self.R_base[t, training_target] == 0:
+            #     if num_agent[training_target] > 0:
+            #         reward1[i,0] = -1
+            #     else: # num_agent == 0:
+            #         reward1[i,0] = 0
+            # else:
+            #     tmp_reward1 = 1.0 * ( self.R_base[t, training_target]  - num_agent[training_target]) / self.R_base[t, training_target] 
+            #     if tmp_reward1 < -1:
+            #         tmp_reward1 = -1
+            #     reward1[i,0] = tmp_reward1
 
-            if DEBUG: print("R_base[t, training_target]", self.R_base.shape, t, training_target)
-            if self.R_base[t, training_target] == 0:
-                if num_agent[training_target] > 0:
-                    reward1[i,0] = -1
-                else: # num_agent == 0:
-                    reward1[i,0] = 0
-            else:
-                tmp_reward1 = 1.0 * ( self.R_base[t, training_target]  - num_agent[training_target]) / self.R_base[t, training_target] 
-                if tmp_reward1 < -1:
-                    tmp_reward1 = -1
-                reward1[i,0] = tmp_reward1
+        if training_target is None:
+            return reward1, self.R_base[t,:], num_agent # 全エージェント分
+        else:
+            return reward1[training_target], self.R_base[t, training_target], num_agent[training_target]
 
-        return reward1, self.R_base[t, training_target], num_agent[training_target]
-
-    def info2rewardArrive(self, infos, training_target, t):
+    def info2rewardArrive(self, infos, training_target=None, t=None):
         """
         収容人数から作成する報酬
         t: 時刻
         """
-        reward2 = torch.zeros((len(infos),1)) # 収容人数から
+        if training_target is None:
+            reward2 = torch.zeros((len(infos),len(self.group_agents)), dtype=torch.float64) # 全エージェント分
+        else:
+            reward2 = torch.zeros((len(infos),1), dtype=torch.float64) # 歩行人数から
+        # reward2 = torch.zeros((len(infos),1)) # 収容人数から
         for i, info in enumerate(infos):
             goal_cnt = info["goal_cnt"]
-            if self.A_base[t, training_target] == 0:
-                if goal_cnt[training_target] > 0:
-                    reward2[i,0] = -1
-                else: # num_agent == 0:
-                    reward2[i,0] = 0
-            else:
-                tmp_reward2 = 1.0 * ( self.A_base[t, training_target]  - goal_cnt[training_target]) / self.A_base[t, training_target] 
-                if tmp_reward2 < -1:
-                    tmp_reward2 = -1
-                reward2[i,0] = tmp_reward2
+
+            numera = 1.0 * ( self.A_base[t, :]  - goal_cnt[:]) # 分子
+            reward2[i,:] = torch.where( (self.A_base[t,:] ==0) & (goal_cnt > 0), -torch.ones(goal_cnt.shape, dtype=torch.float64), torch.zeros(goal_cnt.shape, dtype=torch.float64) )
+            reward2[i,:] = torch.where( (self.A_base[t,:] ==0) & (goal_cnt == 0), torch.zeros(goal_cnt.shape, dtype=torch.float64), reward2[i,:] )
+            # print(self.A_base[t,:])
+            # print(numera / self.A_base[t, :])
+            # print(reward2)
+            reward2[i,:] = torch.where( torch.tensor(self.A_base[t,:],dtype=torch.float64 ) > 0 , numera / self.A_base[t, :], reward2[i,:])
+            reward2[i,:] = torch.where( reward2[i,:] < -1 , -torch.ones(goal_cnt.shape, dtype=torch.float64), reward2[i,:] )
+
+            # if self.A_base[t, training_target] == 0:
+            #     if goal_cnt[training_target] > 0:
+            #         reward2[i,0] = -1
+            #     else: # num_agent == 0:
+            #         reward2[i,0] = 0
+            # else:
+            #     tmp_reward2 = 1.0 * ( self.A_base[t, training_target]  - goal_cnt[training_target]) / self.A_base[t, training_target] 
+            #     if tmp_reward2 < -1:
+            #         tmp_reward2 = -1
+            #     reward2[i,0] = tmp_reward2
         # 符号を逆転させる->大きいほどよい
-        return -reward2, self.A_base[t, training_target], goal_cnt[training_target]
+        if training_target is None:
+            return -reward2, self.A_base[t,:], goal_cnt # 全エージェント分
+        else:
+            return -reward2[training_target], self.A_base[t, training_target], goal_cnt[training_target]
+        # return -reward2, self.A_base[t, training_target], goal_cnt[training_target]
 
     def info2traveltime(self, infos):
         # エピソードの評価値を計算する

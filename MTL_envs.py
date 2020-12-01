@@ -249,7 +249,8 @@ class Environment:
             rollout = RolloutStorage(self.NUM_ADVANCED_STEP, self.NUM_PARALLEL, self.obs_shape, self.device)
 
         current_obs     = torch.zeros(self.NUM_PARALLEL, self.obs_shape).to(self.device)
-        episode_rewards = torch.zeros([self.NUM_PARALLEL, 1])
+        episode_rewards = torch.zeros([self.NUM_PARALLEL, self.NUM_AGENTS])
+        # episode_rewards = torch.zeros([self.NUM_PARALLEL, 1])
         final_rewards   = torch.zeros([self.NUM_PARALLEL, 1])
 
         episode         = np.zeros(self.NUM_PARALLEL)
@@ -277,11 +278,12 @@ class Environment:
                     # if DEBUG: print("actionサイズ",self.NUM_PARALLEL, self.NUM_AGENTS)
                     action = actor_critic.act_all(obs, training_target)
                     if training_target is None:
-                        target_actions = []
-                        for i in range(self.NUM_AGENTS ):
-                            target_action = copy.deepcopy( action[:,i].unsqueeze(1) )
-                            target_action = action[:,i].unsqueeze(1)
-                            target_actions.append(target_action)
+                        target_actions = action
+                        # target_actions = []
+                        # for i in range(self.NUM_AGENTS ):
+                        #     target_action = copy.deepcopy( action[:,i].unsqueeze(1) )
+                        #     target_action = action[:,i].unsqueeze(1)
+                        #     target_actions.append(target_action)
                     else:
                         target_action = copy.deepcopy( action[:,training_target].unsqueeze(1) )
                         target_action = action[:,training_target].unsqueeze(1)
@@ -291,14 +293,19 @@ class Environment:
                 # reward = rewards[training_target] # 学習対象エージェントの報酬だけ取り出す
                 # reward, _base, _score, _base2, _score2 = self.reward_maker.info2reward(infos, training_target, step)
                 if training_target is None:
-                    rewards = []
-                    for i in range(self.NUM_AGENTS ):
-                        reward1, _base, _score = self.reward_maker.info2rewardWalk(infos, i, step)
-                        reward2, _base2, _score2 = self.reward_maker.info2rewardArrive(infos, i, step)
-                        reward2 = self.m(reward2)
-                        reward = 0.5 * (reward1 + reward2)
-                        rewards.append(reward)
-                        episode_rewards += reward # 面倒なので全報酬の合計を観察することに．．．
+                    # rewards = []
+                    reward1, _base, _score = self.reward_maker.info2rewardWalk(infos, None, step)
+                    reward2, _base2, _score2 = self.reward_maker.info2rewardArrive(infos, None, step)
+                    reward2 = self.m(reward2)
+                    reward = 0.5 * (reward1 + reward2)
+                    episode_rewards += reward # 次元要確認
+                    # for i in range(self.NUM_AGENTS ):
+                    #     # reward1, _base, _score = self.reward_maker.info2rewardWalk(infos, i, step)
+                    #     # reward2, _base2, _score2 = self.reward_maker.info2rewardArrive(infos, i, step)
+                    #     reward2 = self.m(reward2)
+                    #     reward = 0.5 * (reward1 + reward2)
+                    #     rewards.append(reward)
+                    #     episode_rewards += reward # 面倒なので全報酬の合計を観察することに．．．
                 else:
                     reward1, _base, _score = self.reward_maker.info2rewardWalk(infos, training_target, step)
                     reward2, _base2, _score2 = self.reward_maker.info2rewardArrive(infos, training_target, step)
@@ -328,14 +335,16 @@ class Environment:
 
                 if training_target is None:
                     for i in range(self.NUM_AGENTS ):
-                        rollouts[i].insert(obs, target_actions[i].data, reward, masks, self.NUM_ADVANCED_STEP)
+                        # print(obs.shape, target_actions[:,i].unsqueeze(1).shape, reward[:,i].shape, masks.shape)
+                        rollouts[i].insert(obs, target_actions[:,i].unsqueeze(1).data, reward[:,i].unsqueeze(1), masks, self.NUM_ADVANCED_STEP)
+                        # rollouts[i].insert(obs, target_actions[i].squeeze().data, reward[:,i].unsqueeze(1), masks, self.NUM_ADVANCED_STEP)
                 else:
                     rollout.insert(obs, target_action.data, reward, masks, self.NUM_ADVANCED_STEP)
 
                 with open(self.resdir + "/reward_log.txt", "a") as f: # このログはエピソードが終わったときだけでいい？->報酬による
                     if training_target is None:
                         for i in range(self.NUM_AGENTS ):
-                            out = "{:}\t{:}\t{:}\t{:.4f}\t{:.4f}\t{:.4f}\t".format(i, episode.mean(), step, rewards[i].max().numpy(), rewards[i].min().numpy(), rewards[i].mean().numpy())
+                            out = "{:}\t{:}\t{:}\t{:.4f}\t{:.4f}\t{:.4f}\t".format(i, episode.mean(), step, reward[:,i].max().numpy(), reward[:,i].min().numpy(), reward[:,i].mean().numpy())
                             f.write("%s\n"%out)
                         out = "{:}\t{:}\t{:.4f}\t{:.4f}\t{:.4f}".format(episode.mean(), step, episode_rewards.max().numpy(), episode_rewards.min().numpy(), episode_rewards.mean().numpy())
                         f.write("%s\n"%out)

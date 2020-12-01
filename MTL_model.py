@@ -54,6 +54,19 @@ class ActorCritic(nn.Module):
         # actor_output  = self.actor(h3)
         return critic_output, actor_output
 
+    def forward_all(self, x):
+        h1 = F.relu(self.linear1(x))
+        h2 = F.relu(self.linear2(h1))
+        h3 = F.relu(self.linear3(h2))
+
+        critic_outputs = torch.zeros(self.n_out)
+        actor_outputs = torch.zeros((self.n_out, self.n_out))
+        for sid in range(self.n_out):
+            critic_outputs[sid] = self.critic(h3)
+            actor_outputs[sid,:]  = self.actors[sid](h3)
+            # actor_output  = self.actor(h3)
+        return critic_outputs, actor_outputs
+
     def set_edges(self, edges):
         self.num_edges = edges.num_obsv_edge
         self.num_goals = edges.num_obsv_goal
@@ -63,6 +76,19 @@ class ActorCritic(nn.Module):
         ret = torch.where( x > 0 )
         if ret[0].shape[0] == 0: # どの避難所も残容量がなくなったら，全避難所を選択対象にする
             ret = torch.where( x == 0 )
+        # print("legal_action: ret",ret)
+        return ret
+
+    def legal_actions_mask(self, obs, actor_outputs):
+        # input : actor_outputsはNNの出力forward_allを想定
+        x = obs[:,self.num_edges:(self.num_edges+self.num_goals)] # 状態の冒頭に道路上人数，次に残容量がある想定
+        mask = torch.zeros(actor_outputs.shape)
+        xs = x.unsqueeze(2).repeat(1,1, self.n_out)
+        # masks = mask.repeat(self.n_out, 1,1)
+        # print(x.shape, xs.shape, actor_outputs.shape, mask.shape )
+        ret = torch.where( xs > 0, actor_outputs, mask)
+        if ret.sum() == 0: # どの避難所も残容量がなくなったら，全避難所を選択対象にする
+            ret = actor_outputs
         # print("legal_action: ret",ret)
         return ret
 
@@ -121,26 +147,56 @@ class ActorCritic(nn.Module):
         value, actor_output = self(x, sid)
         return value
 
-    def evaluate_actions(self, x, actions, sid, flg_legal=True):
-
-        value, actor_output = self(x, sid)
-        log_probs = F.log_softmax(actor_output, dim=1)
-        action_log_probs = log_probs.gather(1, actions)
-        # probs   = F.softmax(actor_output, dim=1)
-        probs = torch.zeros(actor_output.shape)
+    def mk_softmax(self, x, flg_legal=True):
+        values, actor_outputs = self.forward_all(x)
 
         if flg_legal: # 空いている避難所のみを誘導先候補にする
-            legal_actions = self.legal_actions(x)
-            for i in range(x.shape[0]):# i:並列SimのID
-                idxs = legal_actions[1][legal_actions[0]==i]
-                action_probs = F.softmax(actor_output[i,idxs], dim=0)
-                probs[i,idxs] = action_probs
-        else:
+            legal_actor_outputs = self.legal_actions_mask(x, actor_outputs)
+            # probs   = F.softmax(actor_output, dim=1)
+            probs = F.softmax(legal_actor_outputs, dim=1)
+            log_probs = F.log_softmax(legal_actor_outputs, dim=1)
+        else: # 未実装
             pass
 
-        entropy = -(log_probs * probs).sum(-1).mean()
+        return probs, log_probs, values
 
-        return value, action_log_probs, entropy
+    def evaluate_actions(self, x, actions, sid, flg_legal=True):
+        values, log_probs, entropy = self.evaluate_actions_all(x, flg_legal)
+        # print(values.shape, log_probs.shape, entropy.shape, actions.shape)
+        action_log_probs = log_probs[:,sid,:].gather(1, actions)
+        # print(values.shape, action_log_probs.shape, entropy.shape)
+        return values[:,sid], action_log_probs, entropy[sid]
+        # value, actor_output = self(x, sid)
+        # # probs   = F.softmax(actor_output, dim=1)
+        # probs, log_probs, values = self.mk_softmax(x, flg_legal)
+        # probs = probs[sid]
+        # log_probs = log_probs[sid]
+
+        # if flg_legal: # 空いている避難所のみを誘導先候補にする
+        #     legal_actions = self.legal_actions(x)
+        #     for i in range(x.shape[0]):# i:並列SimのID
+        #         idxs = legal_actions[1][legal_actions[0]==i]
+        #         action_probs = F.softmax(actor_output[i,idxs], dim=0)
+        #         probs[i,idxs] = action_probs
+        #         action_log_probs = F.log_softmax(actor_output[i,idxs], dim=0)
+        #         # action_log_probs = log_probs.gather(1, actions)
+        #         log_probs[i,idx] = action_log_probs
+        # else:
+        #     pass
+
+        # entropy = -(log_probs * probs).sum(-1).mean()
+        # return value, action_log_probs, entropy
+
+    def evaluate_actions_all(self, x, flg_legal=True):
+    
+        # values, actor_outputs = self.forward_all(x)
+        # probs   = F.softmax(actor_output, dim=1)
+        probs, log_probs, values = self.mk_softmax(x, flg_legal)
+        # print("evaluate_actions_all", probs.shape, log_probs.shape, values.shape)
+        # print((log_probs * probs).sum(-1).shape)
+        entropy = - (log_probs * probs).sum(-1).mean(0)
+        return values, log_probs, entropy
+        # return values, action_log_probs, entropy
 
     # def set_better_agents(self, better_agents):
     #     self.better_agents = better_agents
@@ -314,3 +370,18 @@ class ActorN_CriticN_share0(ActorCritic):
         actor_output  = self.actors[sid](h3)
         # actor_output  = self.actor(h3)
         return critic_output, actor_output
+
+    def forward_all(self, x):
+        critic_outputs = torch.zeros((x.shape[0], self.n_out))
+        actor_outputs = torch.zeros((x.shape[0], self.n_out, self.n_out))
+        for sid in range(self.n_out):
+            h1 = F.relu(self.linear1[sid](x))
+            h2 = F.relu(self.linear2[sid](h1))
+            h3 = F.relu(self.linear3[sid](h2))
+            # print(x.shape)
+            # print(critic_outputs.shape)
+            # print(self.critics[sid](h3).shape)
+            critic_outputs[:,sid] = self.critics[sid](h3).squeeze()
+            actor_outputs[:,sid,:]  = self.actors[sid](h3).squeeze()
+            # actor_output  = self.actor(h3)
+        return critic_outputs, actor_outputs
