@@ -120,6 +120,7 @@ class Curriculum:
 
         training_targets = [3,4,13,14,15,16,17,18] # 最初に向かう人数が定員以上の避難所
         training_targets = list( range(actor_critic.n_out) )
+        training_targets = [13] # ターゲットを１個にしたらさすがに学習するか？
         # capa_over_shelter_ids = [17,18] # 最初に向かう人数が定員以上の避難所
         # dict_best_model = copy.deepcopy(dict_model)
         # tmp_fixed = copy.deepcopy(dict_target["training"])
